@@ -143,19 +143,32 @@ const Alert = ({ message, type = 'error', onDismiss }) => {
  * ローディング画面コンポーネント
  */
 const LoadingScreen = ({ title, progress, total }) => (
-  <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
-    <h1 className="text-2xl font-bold text-gray-700 mb-10">
-      業種別リネーム＆加工ツール <span className="text-lg font-normal text-gray-500">(β版)</span>
-    </h1>
-    <Loader className="w-16 h-16 animate-spin text-blue-500" />
-    <h2 className="text-xl font-semibold mt-4 text-gray-600">{title}</h2>
+  <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 bg-gray-100">
+    <div className="relative">
+      {/* より洗練されたローダー */}
+      <div className="w-28 h-28 bg-white/70 backdrop-blur-lg rounded-full flex items-center justify-center shadow-lg">
+        <Loader className="w-16 h-16 text-blue-500 animate-spin" />
+      </div>
+    </div>
+
+    {/* ステータス表示 */}
+    <h2 className="text-2xl font-semibold mt-10 text-gray-700 tracking-wide">
+      {title}
+    </h2>
+
+    {/* プログレスバーと進捗件数 */}
     {progress !== undefined && total !== undefined && total > 0 && (
-      <>
-        <p className="mt-2 text-lg">{`${progress} / ${total} 件`}</p>
-        <div className="w-64 bg-gray-200 rounded-full h-2.5 mt-4">
-          <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${(progress / total) * 100}%` }}></div>
+      <div className="w-full max-w-sm mt-8">
+        <p className="mb-2 text-lg font-medium text-gray-600">
+          {`${progress} / ${total} 件`}
+        </p>
+        <div className="w-full bg-gray-200/80 rounded-full h-3 shadow-inner overflow-hidden">
+          <div 
+            className="bg-gradient-to-r from-blue-500 to-sky-500 h-3 rounded-full transition-all duration-500 ease-out" 
+            style={{ width: `${(progress / total) * 100}%` }}
+          ></div>
         </div>
-      </>
+      </div>
     )}
   </div>
 );
@@ -199,32 +212,66 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
       'image/heic': ['.heic', '.heif'],
     },
     maxSize: 10 * 1024 * 1024, // 10MB
-    noClick: true,
+    noClick: true, // 画面のどこかをクリックしてもファイル選択ダイアログは開かない
+    noKeyboard: true,
   });
 
   return (
-    <div {...getRootProps()} className="w-full h-full flex flex-col items-center justify-center p-8 text-center relative">
+    // getRootPropsを最も外側のdivに適用し、画面全体をドロップゾーンにする
+    <div {...getRootProps()} className="w-full h-full flex flex-col items-center justify-center p-8 text-center bg-gray-100 relative">
+      
+      {/* useDropzoneに必要な非表示のinput要素 */}
       <input {...getInputProps()} />
-      {isDragActive && (
-        <div className="absolute inset-0 bg-blue-500 bg-opacity-70 z-10 flex items-center justify-center rounded-lg">
-          <p className="text-white text-3xl font-bold">ファイルをドロップしてアップロード</p>
-        </div>
-      )}
-      <div className="max-w-2xl w-full">
-        <h1 className="text-3xl font-bold text-gray-800">
-          業種別リネーム＆加工ツール <span className="text-lg font-normal text-gray-500">(β版)</span>
+
+      {/* 通常時のUIコンテンツ */}
+      <div className="max-w-3xl w-full">
+        <h1 className="text-5xl font-bold text-gray-800 tracking-tight">
+          業種別リネーム＆加工ツール
         </h1>
-        <p className="text-gray-600 mt-2 mb-10">複数の画像をまとめてリネーム・リサイズします。</p>
-        <div className="w-full h-80 rounded-2xl flex flex-col items-center justify-center transition-colors duration-300 bg-gray-50 border-2 border-dashed border-gray-300">
-          <UploadCloud className="w-16 h-16 text-gray-400 mb-4" />
-          <p className="text-gray-500 mb-2">ここにファイルまたはフォルダをドラッグ＆ドロップ</p>
-          <p className="text-gray-500 mb-4">または</p>
-          <button type="button" onClick={open} className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors cursor-pointer">
-            ファイルを選択
-          </button>
-          <p className="text-xs text-gray-500 mt-4">(JPG, PNG, HEIC / 50枚まで)</p>
+        <p className="text-lg text-gray-500 mt-4 mb-12">
+          複数の画像をまとめてリネーム・リサイズします。
+        </p>
+
+        {/* 中央のボックスは視覚的な要素となり、ドロップゾーンの役割は持たない */}
+        <div 
+          className="relative w-full h-96 rounded-3xl flex flex-col items-center justify-center 
+                     bg-white/60 backdrop-blur-xl border border-gray-200/50 shadow-xl"
+        >
+          <div className="text-center">
+            <UploadCloud className="w-20 h-20 text-gray-400 mx-auto" />
+            <p className="mt-6 text-xl font-medium text-gray-700">
+              この画面のどこかにファイルをドラッグ＆ドロップ
+            </p>
+            <p className="mt-2 text-sm text-gray-500">または</p>
+            <button 
+              type="button" 
+              onClick={(e) => {
+                  e.stopPropagation(); // 親要素へのイベント伝播を停止
+                  open();
+              }} 
+              className="mt-6 px-8 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg 
+                         hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-200"
+            >
+              ファイルを選択
+            </button>
+          </div>
+          
+          <div className="absolute bottom-6 text-center w-full text-xs text-gray-500">
+            <p>対応: JPG, PNG, HEIC  |  サイズ: 10MBまで  |  上限: 50枚</p>
+          </div>
         </div>
       </div>
+
+      {/* isDragActiveがtrueの時に表示される全画面オーバーレイ */}
+      {isDragActive && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center 
+                       bg-gray-900/80 backdrop-blur-sm transition-opacity duration-300 ease-in-out">
+          <UploadCloud className="w-32 h-32 text-white/90 animate-bounce" />
+          <p className="mt-8 text-4xl font-bold text-white">
+            ファイルをドロップしてアップロード
+          </p>
+        </div>
+      )}
     </div>
   );
 };
@@ -256,71 +303,77 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, setSpreadshee
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-                <header className="flex items-center justify-between p-4 border-b">
-                    <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-                        <Settings className="mr-2 text-gray-500" />
-                        業種マスタ連携設定 (API方式)
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
+            {/* 全体をより明るい白に変更 */}
+            <div className="bg-white/95 backdrop-blur-2xl border border-gray-200 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl">
+                {/* 区切り線を明るい色に */}
+                <header className="flex items-center justify-between p-5 border-b border-gray-200">
+                    <h2 className="text-xl font-bold text-gray-800 flex items-center">
+                        <Settings className="mr-3 text-gray-500" />
+                        業種マスタ連携設定
                     </h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={24} /></button>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 rounded-full p-1 hover:bg-gray-200/60 transition-colors">
+                        <X size={24} />
+                    </button>
                 </header>
-                <main className="p-6 flex-grow overflow-y-auto space-y-4 text-sm text-gray-700">
+
+                <main className="p-6 flex-grow overflow-y-auto space-y-6 text-gray-700">
                     <div>
-                        <h3 className="font-bold mb-2">連携マニュアル</h3>
-                        <ol className="list-decimal list-inside space-y-2 bg-gray-50 p-4 rounded-lg">
+                        <h3 className="text-lg font-semibold mb-3">連携マニュアル</h3>
+                        {/* 背景を白ベースに、区切り線も明るく */}
+                        <ol className="list-decimal list-inside space-y-4 bg-white/50 p-5 rounded-xl border border-gray-200 text-sm">
                             <li>A列に業種コード、B列に業種名を入力したGoogleスプレッドシートを作成します。</li>
                             <li>
-                                以下のサービスアカウントを、そのシートの「<strong className="text-blue-600">編集者</strong>」として共有追加してください。
-                                <div className="flex items-center gap-2 my-2 p-2 bg-gray-200 rounded">
-                                    <code className="flex-grow">service-account-email@developer.gserviceaccount.com</code>
-                                    <button onClick={handleCopy} className="flex items-center text-xs px-2 py-1 bg-white border rounded hover:bg-gray-100">
+                                以下のサービスアカウントを、そのシートの「<strong className="text-blue-600 font-semibold">編集者</strong>」として共有追加してください。
+                                <div className="flex items-center gap-2 my-2 p-3 bg-gray-100/90 border border-gray-200/80 rounded-lg">
+                                    <code className="flex-grow text-blue-600 font-mono text-xs">service-account-email@developer.gserviceaccount.com</code>
+                                    <button onClick={handleCopy} className="flex-shrink-0 flex items-center text-xs px-3 py-1.5 bg-white border border-gray-300 rounded-md hover:bg-gray-200/70 hover:border-gray-400/80 transition">
                                         {isCopied ? <Check size={14} className="text-green-500"/> : <Copy size={14} />}
-                                        <span className="ml-1">{isCopied ? 'コピー完了' : 'コピー'}</span>
+                                        <span className="ml-1.5">{isCopied ? 'コピー完了' : 'コピー'}</span>
                                     </button>
                                 </div>
                             </li>
-                            <li>
-                                共有したスプレッドシートのIDを入力してください。<br/>
+                            <li>共有したスプレッドシートのIDを入力してください。<br/>
                                 <span className="text-xs text-gray-500">(URLの `.../d/` と `/...` の間の部分です)</span>
                             </li>
                         </ol>
                     </div>
                     <div>
-                        <label htmlFor="spreadsheetId" className="font-bold mb-1 block">スプレッドシートID:</label>
-                        <div className="flex gap-2">
+                        <label htmlFor="spreadsheetIdModal" className="text-base font-semibold mb-3 block">スプレッドシートID:</label>
+                        <div className="flex gap-3">
                             <input
-                                id="spreadsheetId"
+                                id="spreadsheetIdModal"
                                 type="text"
                                 value={localId}
                                 onChange={(e) => setLocalId(e.target.value)}
                                 placeholder="スプレッドシートIDを貼り付け"
-                                className="flex-grow p-2 border rounded-lg w-full"
+                                className="flex-grow px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                             />
-                            <button onClick={() => onTestConnection(localId)} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 whitespace-nowrap">接続テスト</button>
+                            <button onClick={() => onTestConnection(localId)} className="px-5 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 transition whitespace-nowrap">接続テスト</button>
                         </div>
                     </div>
                     <div>
-                        <h3 className="font-bold mb-1">プレビュー</h3>
-                        <div className="p-4 bg-gray-50 rounded-lg min-h-[100px]">
+                        <h3 className="text-lg font-semibold mb-3">プレビュー</h3>
+                        <div className="p-4 bg-white/50 rounded-xl min-h-[100px] border border-gray-200">
                            {testResult.status === 'testing' && <p className="text-gray-500">テスト中...</p>}
                            {testResult.status === 'success' && (
                                <div>
-                                   <p className="text-green-600 font-bold mb-2">正常に連携できました。</p>
-                                   <ul className="list-disc list-inside">
+                                   <p className="text-green-600 font-bold mb-2 flex items-center"><Check className="mr-2"/>正常に連携できました。</p>
+                                   <ul className="list-disc list-inside text-sm text-gray-800">
                                        {testResult.data.slice(0, 5).map(item => <li key={item.code}>{item.code}: {item.name}</li>)}
                                        {testResult.data.length > 5 && <li>...他{testResult.data.length - 5}件</li>}
                                    </ul>
                                </div>
                            )}
-                           {testResult.status === 'error' && <p className="text-red-600 font-bold">{testResult.message}</p>}
-                           {testResult.status === 'idle' && <p className="text-gray-500">接続テストボタンを押してください。</p>}
+                           {testResult.status === 'error' && <p className="text-red-600 font-bold flex items-center"><AlertCircle className="mr-2"/>{testResult.message}</p>}
+                           {testResult.status === 'idle' && <p className="text-gray-500">接続テストボタンを押して、連携を確認してください。</p>}
                         </div>
                     </div>
                 </main>
-                <footer className="flex justify-end p-4 border-t bg-gray-50 rounded-b-2xl">
-                    <button onClick={onClose} className="px-6 py-2 mr-4 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300">キャンセル</button>
-                    <button onClick={handleSave} className="px-6 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600">保存して閉じる</button>
+
+                <footer className="flex justify-end p-4 border-t border-gray-200">
+                    <button onClick={onClose} className="px-6 py-2 mr-4 rounded-lg font-semibold text-gray-700 bg-gray-200/70 hover:bg-gray-300/70 transition">キャンセル</button>
+                    <button onClick={handleSave} className="px-6 py-2 rounded-lg text-white font-bold bg-blue-600 hover:bg-blue-700 shadow-md transition">保存して閉じる</button>
                 </footer>
             </div>
         </div>
@@ -338,10 +391,7 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
 
     const handleTestConnection = async (id) => {
         setTestResult({ status: 'testing', data: [], message: '' });
-        // --- モックAPI呼び出し ---
-        // 本来はここでバックエンドに `fetch` リクエストを送信する
-        console.log(`Testing connection with ID: ${id}`);
-        await new Promise(resolve => setTimeout(resolve, 1000)); // ネットワーク遅延をシミュレート
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         if (id === 'correct-id-for-demo') {
             const mockData = [
@@ -358,56 +408,70 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
     const handleIdSave = (newId) => {
         setSpreadsheetId(newId);
         localStorage.setItem('spreadsheetId', newId);
-        // ここで親コンポーネントに通知して、業種リストを再取得させる
-        // onSpreadsheetIdChange(newId);
     };
 
     const isNextDisabled = !bulkSettings.industryCode || !/^\d+$/.test(bulkSettings.submissionId);
 
     return (
-        <div className="w-full h-full flex flex-col items-center justify-center p-8">
-            <div className="w-full max-w-2xl">
-                <h2 className="text-2xl font-bold text-center mb-2">STEP 2/4: 一括設定</h2>
-                <p className="text-center text-gray-600 mb-8">リネーム後のファイル名に使われる基本情報を設定してください。</p>
-                <div className="bg-white p-8 rounded-2xl shadow-md space-y-6">
+        <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-gray-100">
+            <div className="w-full max-w-xl">
+                <h2 className="text-4xl font-bold text-center text-gray-800 tracking-tight">一括設定</h2>
+                <p className="text-center text-lg text-gray-500 mt-3 mb-10">リネーム後のファイル名に使われる基本情報を設定します。</p>
+
+                <div className="bg-white/60 backdrop-blur-xl border border-gray-200/50 shadow-xl rounded-3xl p-8 space-y-8">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">業種:</label>
-                        <div className="flex items-center gap-2">
+                        <label className="block text-base font-semibold text-gray-700 mb-3">業種</label>
+                        <div className="flex items-center gap-3">
                             <select
                                 value={bulkSettings.industryCode}
                                 onChange={(e) => setBulkSettings(p => ({ ...p, industryCode: e.target.value }))}
-                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                className="w-full px-4 py-3 bg-white/50 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                             >
-                                <option value="" disabled>選択してください</option>
+                                <option value="" disabled>業種を選択してください</option>
                                 {industryCodes.map(ic => <option key={ic.code} value={ic.code}>{ic.name} ({ic.code})</option>)}
                             </select>
-                            <button onClick={() => setIsModalOpen(true)} className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 whitespace-nowrap">
-                                <Settings size={16} className="mr-2" />業種管理
+                            <button 
+                                onClick={() => setIsModalOpen(true)}
+                                className="flex-shrink-0 flex items-center px-4 py-3 bg-gray-200/80 text-gray-700 font-semibold rounded-xl hover:bg-gray-300/80 transition"
+                            >
+                                <Settings size={18} className="mr-2" />
+                                <span>管理</span>
                             </button>
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">入稿ID:</label>
+                        <label htmlFor="submissionId" className="block text-base font-semibold text-gray-700 mb-3">入稿ID</label>
                         <input
+                            id="submissionId"
                             type="text"
                             value={bulkSettings.submissionId}
                             onChange={(e) => setBulkSettings(p => ({ ...p, submissionId: e.target.value }))}
                             placeholder="例: 12345"
-                            className="w-full p-2 border border-gray-300 rounded-lg"
+                            className="w-full px-4 py-3 bg-white/50 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                         />
-                        <p className="text-xs text-gray-500 mt-1">※半角数字で入力してください</p>
+                        <p className="text-xs text-gray-500 mt-2">※半角数字で入力してください</p>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">日付:</label>
-                        <p className="w-full p-2 bg-gray-100 rounded-lg">{getFormattedDate()} (自動表示)</p>
+                        <label className="block text-base font-semibold text-gray-700 mb-3">日付</label>
+                        <p className="w-full px-4 py-3 bg-gray-200/50 text-gray-800 rounded-xl">
+                            {getFormattedDate()} <span className="text-sm text-gray-500">(処理日の日付が自動入力されます)</span>
+                        </p>
                     </div>
                 </div>
-                <div className="flex justify-between mt-8">
-                    <button onClick={onBack} className="flex items-center px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300 transition-colors">
-                        <RotateCcw size={16} className="mr-2" /> 戻る
+
+                <div className="flex justify-between mt-10">
+                    <button 
+                        onClick={onBack} 
+                        className="flex items-center px-6 py-3 rounded-xl text-gray-700 font-semibold bg-gray-200 hover:bg-gray-300 transition"
+                    >
+                        <RotateCcw size={18} className="mr-2" /> 戻る
                     </button>
-                    <button onClick={onNext} disabled={isNextDisabled} className="flex items-center px-6 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600 transition-colors font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
-                        次へ <ChevronsRight size={18} className="ml-2" />
+                    <button 
+                        onClick={onNext} 
+                        disabled={isNextDisabled} 
+                        className="flex items-center px-8 py-3 rounded-xl text-white font-bold bg-blue-600 hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-200 shadow-lg disabled:bg-gray-400 disabled:shadow-none disabled:transform-none disabled:cursor-not-allowed"
+                    >
+                        次へ <ChevronsRight size={20} className="ml-2" />
                     </button>
                 </div>
             </div>
@@ -444,75 +508,79 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
     const generateNewFilename = (image) => {
         const dateStr = getFormattedDate();
         const sequence = String(images.findIndex(img => img.id === image.id) + 1).padStart(2, '0');
-        const extension = 'jpg'; // HEICはJPGに変換される想定
+        const extension = 'jpg';
         return `${image.industryCode}_${image.submissionId}_${dateStr}_${sequence}.${extension}`;
     };
 
     return (
-        <div className="w-full h-full flex flex-col bg-gray-50">
-            <header className="p-4 border-b border-gray-200 bg-white flex-shrink-0">
-                <h2 className="text-xl font-semibold text-gray-800">STEP 3/4: 確認・個別編集</h2>
+        <div className="w-full h-full flex flex-col bg-gray-100">
+            <header className="p-5 flex-shrink-0">
+                <h2 className="text-2xl font-bold text-gray-800 tracking-tight">STEP 3/4: 確認・個別編集</h2>
             </header>
             <main className="flex-grow flex min-h-0">
-                {/* 左側: 画像一覧エリア */}
-                <div className="w-2/3 border-r border-gray-200 overflow-y-auto p-4 space-y-3">
-                    <p className="text-xs text-gray-500 pb-2 border-b">ファイル一覧 ({images.length}件)</p>
+                {/* Left Panel: Image List */}
+                <div className="w-3/5 border-r border-gray-200/80 overflow-y-auto p-4 space-y-3">
+                    <p className="text-sm text-gray-500 px-2 pb-2">ファイル一覧 ({images.length}件)</p>
                     {images.map(image => (
                         <div
                             key={image.id}
                             onClick={() => setSelectedImageId(image.id)}
-                            className={`flex items-center p-3 space-x-4 bg-white border rounded-xl cursor-pointer transition-all ${selectedImageId === image.id ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-200 hover:shadow-md'}`}
+                            className={`flex items-center p-3 space-x-4 border rounded-2xl cursor-pointer transition-all duration-200
+                                ${selectedImageId === image.id 
+                                    ? 'bg-white/80 shadow-lg border-blue-500' 
+                                    : 'bg-white/40 border-transparent hover:shadow-md hover:bg-white/60'
+                                }`}
                         >
-                            <img src={image.thumbnailUrl} alt={image.file.name} className="w-20 h-20 object-contain rounded-md bg-gray-100 flex-shrink-0" />
+                            <img src={image.thumbnailUrl} alt={image.file.name} className="w-20 h-20 object-contain rounded-lg bg-gray-100/80 flex-shrink-0" />
                             <div className="flex-grow min-w-0">
                                 <p className="text-xs text-gray-500 truncate" title={image.file.name}>{image.file.name}</p>
                                 <p className="font-bold text-sm text-blue-600 truncate" title={generateNewFilename(image)}>{generateNewFilename(image)}</p>
-                                <p className="text-xs text-gray-500 mt-1">出力: {RESIZE_WIDTH} x {RESIZE_HEIGHT} px</p>
+                                <p className="text-xs text-gray-500 mt-1">出力サイズ: {RESIZE_WIDTH} x {RESIZE_HEIGHT} px</p>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                {/* 右側: 操作パネル */}
-                <div className="w-1/3 flex flex-col">
+                {/* Right Panel: Editor */}
+                <div className="w-2/5 flex flex-col bg-white/30">
                     <div className="flex-grow p-6 space-y-6 overflow-y-auto">
-                        <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">選択中画像の個別編集</h3>
+                        <h3 className="text-xl font-semibold text-gray-800 pb-2">選択中画像の編集</h3>
                         {selectedImage ? (
-                            <div className="space-y-4">
-                                <div className="bg-gray-100 p-2 rounded-md">
-                                    <p className="text-xs font-bold text-gray-600">ファイル名</p>
-                                    <p className="text-sm text-gray-800 truncate">{selectedImage.file.name}</p>
+                            <div className="space-y-6">
+                                <div className="bg-gray-900/5 p-3 rounded-xl">
+                                    <p className="text-xs font-semibold text-gray-600">元ファイル名</p>
+                                    <p className="text-sm text-gray-800 truncate mt-1">{selectedImage.file.name}</p>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-600 mb-1">業種:</label>
+                                    <label className="block text-base font-semibold text-gray-700 mb-3">業種</label>
                                     <select
                                         value={selectedImage.industryCode}
                                         onChange={(e) => handleIndividualChange(selectedImage.id, 'industryCode', e.target.value)}
-                                        className="w-full p-2 border border-gray-300 rounded-lg"
+                                        className="w-full px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                                     >
                                         {industryCodes.map(ic => <option key={ic.code} value={ic.code}>{ic.name} ({ic.code})</option>)}
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-600 mb-1">入稿ID:</label>
+                                    <label className="block text-base font-semibold text-gray-700 mb-3">入稿ID</label>
                                     <input
                                         type="text"
                                         value={selectedImage.submissionId}
                                         onChange={(e) => handleIndividualChange(selectedImage.id, 'submissionId', e.target.value)}
-                                        className="w-full p-2 border border-gray-300 rounded-lg"
+                                        className="w-full px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                                     />
                                 </div>
                             </div>
                         ) : (
-                            <p className="text-gray-500 text-center mt-8">画像を選択してください</p>
+                            <p className="text-gray-500 text-center mt-10">リストから画像を選択してください</p>
                         )}
                     </div>
-                    <footer className="p-4 border-t border-gray-200 bg-white flex justify-between items-center flex-shrink-0">
-                        <button onClick={onBack} className="flex items-center px-6 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300">
-                            <RotateCcw size={16} className="mr-2" /> 戻る
+                    <footer className="p-4 flex justify-between items-center flex-shrink-0 border-t border-gray-200/80">
+                        <button onClick={onBack} className="flex items-center px-6 py-3 rounded-xl text-gray-700 font-semibold bg-gray-200 hover:bg-gray-300 transition">
+                            <RotateCcw size={18} className="mr-2" /> 戻る
                         </button>
-                        <button onClick={onProcess} className="flex items-center px-6 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600 font-semibold">
-                            加工してダウンロード <ChevronsRight size={18} className="ml-2" />
+                        <button onClick={onProcess} className="flex items-center px-6 py-3 rounded-xl text-white font-bold bg-blue-600 hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-200 shadow-lg">
+                            加工に進む <ChevronsRight size={20} className="ml-2" />
                         </button>
                     </footer>
                 </div>
@@ -532,21 +600,30 @@ const DownloadScreen = ({ zipBlob, zipFilename, onRestart }) => {
     };
 
     return (
-        <div className="w-full h-full flex flex-col items-center justify-center text-center p-8">
-            <h2 className="text-2xl font-bold text-center mb-8">STEP 4/4: ダウンロード</h2>
-            <HardDriveDownload className="w-24 h-24 text-green-500 mb-6" />
-            <h2 className="text-3xl font-bold text-gray-800">画像の加工が完了しました！</h2>
-            <p className="text-gray-600 mt-2">下のボタンをクリックして、ZIPファイルをダウンロードしてください。</p>
+        <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 bg-gray-100">
+            <div className="relative w-32 h-32 flex items-center justify-center mb-8">
+                {/* Icon background with gradient and shadow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full shadow-2xl shadow-green-500/30 opacity-80"></div>
+                {/* Icon */}
+                <HardDriveDownload className="w-20 h-20 text-white relative" />
+            </div>
+
+            <h1 className="text-4xl font-bold text-gray-800 tracking-tight">画像の加工が完了しました！</h1>
+            <p className="text-lg text-gray-500 mt-3">下のボタンをクリックして、ZIPファイルをダウンロードしてください。</p>
+            
             <button
                 onClick={handleDownload}
-                className="mt-10 flex items-center px-12 py-4 rounded-xl text-white bg-green-500 hover:bg-green-600 transition-colors font-bold text-lg shadow-lg"
+                className="mt-12 flex items-center px-12 py-4 rounded-2xl text-white bg-gradient-to-br from-green-500 to-emerald-600 
+                           font-bold text-xl shadow-2xl shadow-green-500/40
+                           transform hover:-translate-y-1 transition-all duration-300 ease-in-out"
             >
                 <Download size={24} className="mr-3" />
                 {zipFilename} をダウンロード
             </button>
+            
             <button
                 onClick={onRestart}
-                className="mt-8 flex items-center text-gray-600 hover:text-blue-500 transition-colors"
+                className="mt-10 flex items-center px-6 py-2 rounded-lg text-gray-500 font-semibold hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
             >
                 <RotateCcw size={16} className="mr-2" />
                 最初に戻る
@@ -696,8 +773,7 @@ export default function App() {
                 const sequence = String(i + 1).padStart(2, '0');
                 const newFilename = `${image.industryCode}_${image.submissionId}_${dateStr}_${sequence}.jpg`;
                 
-                const folder = zip.folder(image.industryCode).folder(image.submissionId);
-                folder.file(newFilename, blob);
+                zip.file(newFilename, blob);
 
             } catch (err) {
                 console.error("Error processing image:", image.file.name, err);
