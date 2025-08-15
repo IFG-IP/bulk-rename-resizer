@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, Scissors, ChevronsRight, Download, RotateCcw, Settings, X, FileText, HardDriveDownload, AlertCircle, Loader, BookOpen, Copy, Check, Server } from 'lucide-react';
+import { UploadCloud, ChevronsRight, Download, RotateCcw, Settings, X, AlertCircle, Loader, HardDriveDownload, Copy, Check } from 'lucide-react';
 
 // === CDN & ライブラリの定義 ===
 
@@ -117,6 +117,62 @@ const getFormattedDate = () => {
 // === Reactコンポーネント ===
 
 /**
+ * アプリケーションヘッダーコンポーネント
+ */
+const AppHeader = ({ currentStep, steps }) => {
+  return (
+    <header className="relative bg-white/80 backdrop-blur-lg border-b border-gray-200/80 px-6 py-3 flex items-center justify-between flex-shrink-0 h-20 z-10">
+      {/* App Title */}
+      <div className="text-lg font-bold text-gray-800">
+        業種別リネーム＆加工ツール
+      </div>
+
+      {/* Workflow Steps (Centered) */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="flex items-center">
+          {steps.map((step, index) => {
+            const stepNumber = index + 1;
+            const isCompleted = currentStep > stepNumber;
+            const isCurrent = currentStep === stepNumber;
+
+            return (
+              <React.Fragment key={step.id}>
+                {/* Step Circle and Text */}
+                <div className="flex flex-col items-center w-24">
+                  <div
+                    className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2
+                      ${isCompleted ? 'bg-blue-500 border-blue-500 text-white' : ''}
+                      ${isCurrent ? 'bg-white border-blue-500 text-blue-600 ring-4 ring-blue-500/20' : ''}
+                      ${!isCompleted && !isCurrent ? 'bg-gray-100 border-gray-300 text-gray-400' : ''}
+                    `}
+                  >
+                    {isCompleted ? <Check size={18} /> : stepNumber}
+                  </div>
+                  <span className={`mt-2 text-xs font-semibold transition-colors duration-300 ${isCurrent ? 'text-blue-600' : 'text-gray-500'}`}>
+                    {step.name}
+                  </span>
+                </div>
+
+                {/* Connector Line */}
+                {index < steps.length - 1 && (
+                  <div className={`w-16 h-1 -mx-4 mb-6 transition-colors duration-300 rounded-full
+                    ${currentStep > stepNumber ? 'bg-blue-400' : 'bg-gray-300'}
+                  `} />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Right side spacer to balance the title */}
+      <div className="w-48"></div>
+    </header>
+  );
+};
+
+
+/**
  * アラート表示コンポーネント
  */
 const Alert = ({ message, type = 'error', onDismiss }) => {
@@ -145,18 +201,13 @@ const Alert = ({ message, type = 'error', onDismiss }) => {
 const LoadingScreen = ({ title, progress, total }) => (
   <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 bg-gray-100">
     <div className="relative">
-      {/* より洗練されたローダー */}
       <div className="w-28 h-28 bg-white/70 backdrop-blur-lg rounded-full flex items-center justify-center shadow-lg">
         <Loader className="w-16 h-16 text-blue-500 animate-spin" />
       </div>
     </div>
-
-    {/* ステータス表示 */}
     <h2 className="text-2xl font-semibold mt-10 text-gray-700 tracking-wide">
       {title}
     </h2>
-
-    {/* プログレスバーと進捗件数 */}
     {progress !== undefined && total !== undefined && total > 0 && (
       <div className="w-full max-w-sm mt-8">
         <p className="mb-2 text-lg font-medium text-gray-600">
@@ -212,27 +263,20 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
       'image/heic': ['.heic', '.heif'],
     },
     maxSize: 10 * 1024 * 1024, // 10MB
-    noClick: true, // 画面のどこかをクリックしてもファイル選択ダイアログは開かない
+    noClick: true,
     noKeyboard: true,
   });
 
   return (
-    // getRootPropsを最も外側のdivに適用し、画面全体をドロップゾーンにする
     <div {...getRootProps()} className="w-full h-full flex flex-col items-center justify-center p-8 text-center bg-gray-100 relative">
-      
-      {/* useDropzoneに必要な非表示のinput要素 */}
       <input {...getInputProps()} />
-
-      {/* 通常時のUIコンテンツ */}
       <div className="max-w-3xl w-full">
         <h1 className="text-5xl font-bold text-gray-800 tracking-tight">
-          業種別リネーム＆加工ツール
+          画像ファイルをアップロード
         </h1>
         <p className="text-lg text-gray-500 mt-4 mb-12">
-          複数の画像をまとめてリネーム・リサイズします。
+          加工したいファイルをドラッグ＆ドロップするか、ボタンから選択してください。
         </p>
-
-        {/* 中央のボックスは視覚的な要素となり、ドロップゾーンの役割は持たない */}
         <div 
           className="relative w-full h-96 rounded-3xl flex flex-col items-center justify-center 
                      bg-white/60 backdrop-blur-xl border border-gray-200/50 shadow-xl"
@@ -246,7 +290,7 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
             <button 
               type="button" 
               onClick={(e) => {
-                  e.stopPropagation(); // 親要素へのイベント伝播を停止
+                  e.stopPropagation();
                   open();
               }} 
               className="mt-6 px-8 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg 
@@ -255,14 +299,11 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
               ファイルを選択
             </button>
           </div>
-          
           <div className="absolute bottom-6 text-center w-full text-xs text-gray-500">
             <p>対応: JPG, PNG, HEIC  |  サイズ: 10MBまで  |  上限: 50枚</p>
           </div>
         </div>
       </div>
-
-      {/* isDragActiveがtrueの時に表示される全画面オーバーレイ */}
       {isDragActive && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center 
                        bg-gray-900/80 backdrop-blur-sm transition-opacity duration-300 ease-in-out">
@@ -304,9 +345,7 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, setSpreadshee
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
-            {/* 全体をより明るい白に変更 */}
             <div className="bg-white/95 backdrop-blur-2xl border border-gray-200 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl">
-                {/* 区切り線を明るい色に */}
                 <header className="flex items-center justify-between p-5 border-b border-gray-200">
                     <h2 className="text-xl font-bold text-gray-800 flex items-center">
                         <Settings className="mr-3 text-gray-500" />
@@ -316,11 +355,9 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, setSpreadshee
                         <X size={24} />
                     </button>
                 </header>
-
                 <main className="p-6 flex-grow overflow-y-auto space-y-6 text-gray-700">
                     <div>
                         <h3 className="text-lg font-semibold mb-3">連携マニュアル</h3>
-                        {/* 背景を白ベースに、区切り線も明るく */}
                         <ol className="list-decimal list-inside space-y-4 bg-white/50 p-5 rounded-xl border border-gray-200 text-sm">
                             <li>A列に業種コード、B列に業種名を入力したGoogleスプレッドシートを作成します。</li>
                             <li>
@@ -370,7 +407,6 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, setSpreadshee
                         </div>
                     </div>
                 </main>
-
                 <footer className="flex justify-end p-4 border-t border-gray-200">
                     <button onClick={onClose} className="px-6 py-2 mr-4 rounded-lg font-semibold text-gray-700 bg-gray-200/70 hover:bg-gray-300/70 transition">キャンセル</button>
                     <button onClick={handleSave} className="px-6 py-2 rounded-lg text-white font-bold bg-blue-600 hover:bg-blue-700 shadow-md transition">保存して閉じる</button>
@@ -379,7 +415,6 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, setSpreadshee
         </div>
     );
 };
-
 
 /**
  * STEP 2: 一括設定画面
@@ -409,15 +444,21 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
         setSpreadsheetId(newId);
         localStorage.setItem('spreadsheetId', newId);
     };
+    
+    // 全角数字を半角に変換する関数
+    const toHalfWidth = (str) => {
+      return str.replace(/[０-９]/g, (s) => {
+        return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+      });
+    };
 
-    const isNextDisabled = !bulkSettings.industryCode || !/^\d+$/.test(bulkSettings.submissionId);
+    const isNextDisabled = !bulkSettings.industryCode || !/^\d+$/.test(bulkSettings.submissionId) || !/^\d{8}$/.test(bulkSettings.date);
 
     return (
         <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-gray-100">
             <div className="w-full max-w-xl">
                 <h2 className="text-4xl font-bold text-center text-gray-800 tracking-tight">一括設定</h2>
                 <p className="text-center text-lg text-gray-500 mt-3 mb-10">リネーム後のファイル名に使われる基本情報を設定します。</p>
-
                 <div className="bg-white/60 backdrop-blur-xl border border-gray-200/50 shadow-xl rounded-3xl p-8 space-y-8">
                     <div>
                         <label className="block text-base font-semibold text-gray-700 mb-3">業種</label>
@@ -445,20 +486,28 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
                             id="submissionId"
                             type="text"
                             value={bulkSettings.submissionId}
-                            onChange={(e) => setBulkSettings(p => ({ ...p, submissionId: e.target.value }))}
+                            onChange={(e) => {
+                                const halfWidthValue = toHalfWidth(e.target.value);
+                                // 半角数字のみを許可
+                                setBulkSettings(p => ({ ...p, submissionId: halfWidthValue.replace(/[^0-9]/g, '') }))
+                            }}
                             placeholder="例: 12345"
                             className="w-full px-4 py-3 bg-white/50 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                         />
                         <p className="text-xs text-gray-500 mt-2">※半角数字で入力してください</p>
                     </div>
                     <div>
-                        <label className="block text-base font-semibold text-gray-700 mb-3">日付</label>
-                        <p className="w-full px-4 py-3 bg-gray-200/50 text-gray-800 rounded-xl">
-                            {getFormattedDate()} <span className="text-sm text-gray-500">(処理日の日付が自動入力されます)</span>
-                        </p>
+                        <label htmlFor="date" className="block text-base font-semibold text-gray-700 mb-3">日付</label>
+                        <input
+                            id="date"
+                            type="text"
+                            value={bulkSettings.date}
+                            onChange={(e) => setBulkSettings(p => ({ ...p, date: e.target.value }))}
+                            className="w-full px-4 py-3 bg-white/50 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                        />
+                         <p className="text-xs text-gray-500 mt-2">※YYYYMMDD形式で入力してください</p>
                     </div>
                 </div>
-
                 <div className="flex justify-between mt-10">
                     <button 
                         onClick={onBack} 
@@ -506,17 +555,13 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
     const selectedImage = images.find(img => img.id === selectedImageId);
     
     const generateNewFilename = (image) => {
-        const dateStr = getFormattedDate();
         const sequence = String(images.findIndex(img => img.id === image.id) + 1).padStart(2, '0');
         const extension = 'jpg';
-        return `${image.industryCode}_${image.submissionId}_${dateStr}_${sequence}.${extension}`;
+        return `${image.industryCode}_${image.submissionId}_${image.date}_${sequence}.${extension}`;
     };
 
     return (
         <div className="w-full h-full flex flex-col bg-gray-100">
-            <header className="p-5 flex-shrink-0">
-                <h2 className="text-2xl font-bold text-gray-800 tracking-tight">STEP 3/4: 確認・個別編集</h2>
-            </header>
             <main className="flex-grow flex min-h-0">
                 {/* Left Panel: Image List */}
                 <div className="w-3/5 border-r border-gray-200/80 overflow-y-auto p-4 space-y-3">
@@ -570,6 +615,15 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                                         className="w-full px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                                     />
                                 </div>
+                                 <div>
+                                    <label className="block text-base font-semibold text-gray-700 mb-3">日付</label>
+                                    <input
+                                        type="text"
+                                        value={selectedImage.date}
+                                        onChange={(e) => handleIndividualChange(selectedImage.id, 'date', e.target.value)}
+                                        className="w-full px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                                    />
+                                </div>
                             </div>
                         ) : (
                             <p className="text-gray-500 text-center mt-10">リストから画像を選択してください</p>
@@ -602,15 +656,11 @@ const DownloadScreen = ({ zipBlob, zipFilename, onRestart }) => {
     return (
         <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 bg-gray-100">
             <div className="relative w-32 h-32 flex items-center justify-center mb-8">
-                {/* Icon background with gradient and shadow */}
                 <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full shadow-2xl shadow-green-500/30 opacity-80"></div>
-                {/* Icon */}
                 <HardDriveDownload className="w-20 h-20 text-white relative" />
             </div>
-
             <h1 className="text-4xl font-bold text-gray-800 tracking-tight">画像の加工が完了しました！</h1>
             <p className="text-lg text-gray-500 mt-3">下のボタンをクリックして、ZIPファイルをダウンロードしてください。</p>
-            
             <button
                 onClick={handleDownload}
                 className="mt-12 flex items-center px-12 py-4 rounded-2xl text-white bg-gradient-to-br from-green-500 to-emerald-600 
@@ -620,7 +670,6 @@ const DownloadScreen = ({ zipBlob, zipFilename, onRestart }) => {
                 <Download size={24} className="mr-3" />
                 {zipFilename} をダウンロード
             </button>
-            
             <button
                 onClick={onRestart}
                 className="mt-10 flex items-center px-6 py-2 rounded-lg text-gray-500 font-semibold hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
@@ -632,27 +681,24 @@ const DownloadScreen = ({ zipBlob, zipFilename, onRestart }) => {
     );
 };
 
-
 /**
  * メインアプリケーションコンポーネント
  */
 export default function App() {
-    const [screen, setScreen] = useState('initializing'); // 'initializing', 'upload', 'loading', 'bulk-settings', 'confirm-edit', 'processing', 'download'
+    const [screen, setScreen] = useState('initializing');
     const [images, setImages] = useState([]);
     const [loadingProgress, setLoadingProgress] = useState({ progress: 0, total: 0 });
     const [processingProgress, setProcessingProgress] = useState({ progress: 0, total: 0 });
     const [zipBlob, setZipBlob] = useState(null);
     const [zipFilename, setZipFilename] = useState('');
     const [errors, setErrors] = useState([]);
-    const [bulkSettings, setBulkSettings] = useState({ industryCode: '', submissionId: '' });
+    const [bulkSettings, setBulkSettings] = useState({ industryCode: '', submissionId: '', date: getFormattedDate() });
     const [industryCodes, setIndustryCodes] = useState(INITIAL_INDUSTRY_CODES);
     
-    // 外部スクリプトの読み込み
     const { isLoaded: isHeicLoaded, error: heicError } = useScript(HEIC_CDN_URL);
     const { isLoaded: isJszipLoaded, error: jszipError } = useScript(JSZIP_CDN);
     const { isLoaded: isFilesaverLoaded, error: filesaverError } = useScript(FILESAVER_CDN);
 
-    // スクリプト読み込み完了チェック
     useEffect(() => {
         const scriptErrors = [
             heicError && 'HEIC変換ライブラリ',
@@ -669,13 +715,11 @@ export default function App() {
         }
     }, [isHeicLoaded, isJszipLoaded, isFilesaverLoaded, heicError, jszipError, filesaverError, screen]);
 
-    // エラーメッセージのハンドリング
     const handleFileErrors = (newErrors) => {
         setErrors(newErrors);
         setTimeout(() => setErrors([]), 8000);
     };
 
-    // ファイルアップロード処理
     const handleFilesAccepted = async (files) => {
         setScreen('loading');
         setErrors([]);
@@ -697,8 +741,9 @@ export default function App() {
                     file,
                     originalUrl,
                     thumbnailUrl,
-                    industryCode: '', // 後で一括設定
-                    submissionId: '', // 後で一括設定
+                    industryCode: '',
+                    submissionId: '',
+                    date: '',
                 });
             } catch (err) {
                 console.error("Error processing file:", file.name, err);
@@ -710,17 +755,16 @@ export default function App() {
         setScreen('bulk-settings');
     };
     
-    // 一括設定完了後、各画像に設定を反映
     const handleBulkSettingsNext = () => {
         setImages(imgs => imgs.map(img => ({
             ...img,
             industryCode: bulkSettings.industryCode,
             submissionId: bulkSettings.submissionId,
+            date: bulkSettings.date,
         })));
         setScreen('confirm-edit');
     };
 
-    // 画像のリサイズ処理（白背景でパディング）
     const resizeWithPadding = (image, targetWidth, targetHeight) => {
         return new Promise((resolve, reject) => {
             const img = new Image();
@@ -757,12 +801,10 @@ export default function App() {
         });
     };
 
-    // 最終的な加工とZIP化処理
     const handleProcess = async () => {
         setScreen('processing');
         setProcessingProgress({ progress: 0, total: images.length });
         const zip = new window.JSZip();
-        const dateStr = getFormattedDate();
 
         for (let i = 0; i < images.length; i++) {
             const image = images[i];
@@ -771,7 +813,7 @@ export default function App() {
                 const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
                 
                 const sequence = String(i + 1).padStart(2, '0');
-                const newFilename = `${image.industryCode}_${image.submissionId}_${dateStr}_${sequence}.jpg`;
+                const newFilename = `${image.industryCode}_${image.submissionId}_${image.date}_${sequence}.jpg`;
                 
                 zip.file(newFilename, blob);
 
@@ -785,7 +827,6 @@ export default function App() {
         const zipFile = await zip.generateAsync({ type: 'blob' });
         setZipBlob(zipFile);
         
-        // ZIPファイル名を決定（最初の画像の業種とIDを使用）
         const firstImage = images[0];
         if (firstImage) {
             setZipFilename(`${firstImage.industryCode}_${firstImage.submissionId}.zip`);
@@ -796,18 +837,43 @@ export default function App() {
         setScreen('download');
     };
 
-    // 最初からやり直す
     const handleRestart = () => {
         images.forEach(image => URL.revokeObjectURL(image.originalUrl));
         setImages([]);
         setZipBlob(null);
         setZipFilename('');
         setErrors([]);
-        setBulkSettings({ industryCode: '', submissionId: '' });
+        setBulkSettings({ industryCode: '', submissionId: '', date: getFormattedDate() });
         setScreen('upload');
     };
 
-    // 表示する画面を切り替える
+    // ワークフローのステップを定義
+    const workflowSteps = [
+        { id: 'upload', name: 'アップロード' },
+        { id: 'bulk-settings', name: '一括設定' },
+        { id: 'confirm-edit', name: '確認・編集' },
+        { id: 'download', name: 'ダウンロード' },
+    ];
+
+    // 現在の画面状態から、ワークフローのステップ番号を決定
+    const getCurrentStep = () => {
+        switch (screen) {
+            case 'upload':
+            case 'loading':
+                return 1;
+            case 'bulk-settings':
+                return 2;
+            case 'confirm-edit':
+            case 'processing':
+                return 3;
+            case 'download':
+                return 4;
+            default:
+                return 0; // 初期化中などはヘッダーを表示しない
+        }
+    };
+    const currentStep = getCurrentStep();
+
     const renderScreen = () => {
         switch (screen) {
             case 'initializing': return <LoadingScreen title="ライブラリを準備中..." />;
@@ -824,6 +890,9 @@ export default function App() {
 
     return (
         <div className="font-sans w-full h-screen flex flex-col antialiased bg-gray-100">
+            {/* 初期化画面以外でヘッダーを表示 */}
+            {screen !== 'initializing' && <AppHeader currentStep={currentStep} steps={workflowSteps} />}
+            
             <div className="flex-grow relative min-h-0 flex flex-col">
                 <div className="absolute top-4 left-4 right-4 z-50 space-y-2">
                     {errors.map((error, index) => (
