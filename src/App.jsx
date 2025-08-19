@@ -486,27 +486,58 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
                             id="submissionId"
                             type="text"
                             value={bulkSettings.submissionId}
+                            // ★ ここから修正
                             onChange={(e) => {
-                                const halfWidthValue = toHalfWidth(e.target.value);
-                                // 半角数字のみを許可
-                                setBulkSettings(p => ({ ...p, submissionId: halfWidthValue.replace(/[^0-9]/g, '') }))
+                                // 入力値から半角数字以外の文字をすべて取り除く
+                                const numericValue = e.target.value.replace(/[^0-9]/g, '');
+                                setBulkSettings(p => ({ ...p, submissionId: numericValue }));
                             }}
+                            // ★ ここまで修正
                             placeholder="例: 12345"
                             className="w-full px-4 py-3 bg-white/50 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                         />
                         <p className="text-xs text-gray-500 mt-2">※半角数字で入力してください</p>
                     </div>
+
+                    
+
                     <div>
                         <label htmlFor="date" className="block text-base font-semibold text-gray-700 mb-3">日付</label>
                         <input
                             id="date"
                             type="text"
                             value={bulkSettings.date}
-                            onChange={(e) => setBulkSettings(p => ({ ...p, date: e.target.value }))}
+                            onChange={(e) => {
+                                // 半角数字以外を取り除き、先頭から8文字だけを切り出す
+                                const numericValue = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
+                                setBulkSettings(p => ({ ...p, date: numericValue }))
+                            }}
                             className="w-full px-4 py-3 bg-white/50 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                         />
-                         <p className="text-xs text-gray-500 mt-2">※YYYYMMDD形式で入力してください</p>
+                         <p className="text-xs text-gray-500 mt-2">※YYYYMMDD形式（8桁）で入力してください</p>
                     </div>
+
+                    {/*
+                    <div>
+                        <label htmlFor="quality" className="block text-base font-semibold text-gray-700 mb-3">
+                            画質: <span className="font-bold text-blue-600">{bulkSettings.quality.toFixed(1)}</span>
+                        </label>
+                        <input
+                            id="quality"
+                            type="range"
+                            min="1"
+                            max="10"
+                            step="0.1"
+                            value={bulkSettings.quality}
+                            onChange={(e) => setBulkSettings(p => ({ ...p, quality: parseFloat(e.target.value) }))}
+                            className="w-full h-2 bg-gray-200/80 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                        />
+                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>低画質 (1.0)</span>
+                            <span>高画質 (10.0)</span>
+                        </div>
+                    </div>
+                    */}
                 </div>
                 <div className="flex justify-between mt-10">
                     <button 
@@ -596,6 +627,7 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                                     <p className="text-xs font-semibold text-gray-600">元ファイル名</p>
                                     <p className="text-sm text-gray-800 truncate mt-1">{selectedImage.file.name}</p>
                                 </div>
+
                                 <div>
                                     <label className="block text-base font-semibold text-gray-700 mb-3">業種</label>
                                     <select
@@ -620,7 +652,11 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                                     <input
                                         type="text"
                                         value={selectedImage.date}
-                                        onChange={(e) => handleIndividualChange(selectedImage.id, 'date', e.target.value)}
+                                        onChange={(e) => {
+                                            // 半角数字以外を取り除き、先頭から8文字だけを切り出す
+                                            const numericValue = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
+                                            handleIndividualChange(selectedImage.id, 'date', numericValue)
+                                        }}
                                         className="w-full px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                                     />
                                 </div>
@@ -692,7 +728,7 @@ export default function App() {
     const [zipBlob, setZipBlob] = useState(null);
     const [zipFilename, setZipFilename] = useState('');
     const [errors, setErrors] = useState([]);
-    const [bulkSettings, setBulkSettings] = useState({ industryCode: '', submissionId: '', date: getFormattedDate() });
+    const [bulkSettings, setBulkSettings] = useState({ industryCode: '', submissionId: '', date: getFormattedDate(), quality: 9 });
     const [industryCodes, setIndustryCodes] = useState(INITIAL_INDUSTRY_CODES);
     
     const { isLoaded: isHeicLoaded, error: heicError } = useScript(HEIC_CDN_URL);
@@ -744,6 +780,7 @@ export default function App() {
                     industryCode: '',
                     submissionId: '',
                     date: '',
+                    quality: 9,
                 });
             } catch (err) {
                 console.error("Error processing file:", file.name, err);
@@ -761,6 +798,7 @@ export default function App() {
             industryCode: bulkSettings.industryCode,
             submissionId: bulkSettings.submissionId,
             date: bulkSettings.date,
+            quality: bulkSettings.quality,
         })));
         setScreen('confirm-edit');
     };
@@ -810,7 +848,7 @@ export default function App() {
             const image = images[i];
             try {
                 const canvas = await resizeWithPadding(image, RESIZE_WIDTH, RESIZE_HEIGHT);
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', image.quality / 10));
                 
                 const sequence = String(i + 1).padStart(2, '0');
                 const newFilename = `${image.industryCode}_${image.submissionId}_${image.date}_${sequence}.jpg`;
@@ -843,7 +881,7 @@ export default function App() {
         setZipBlob(null);
         setZipFilename('');
         setErrors([]);
-        setBulkSettings({ industryCode: '', submissionId: '', date: getFormattedDate() });
+        setBulkSettings({ industryCode: '', submissionId: '', date: getFormattedDate(), quality: 9 });
         setScreen('upload');
     };
 
