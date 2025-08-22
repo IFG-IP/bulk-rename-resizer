@@ -119,7 +119,7 @@ const getFormattedDate = () => {
 /**
  * アプリケーションヘッダーコンポーネント
  */
-const AppHeader = ({ currentStep, steps }) => {
+const AppHeader = ({ currentStep, steps, isLoading }) => {
   return (
     <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200/80 px-4 sm:px-6 py-3 grid grid-cols-3 items-center flex-shrink-0 h-20 z-10">
       <div className="text-base sm:text-lg font-bold text-gray-800 truncate">
@@ -143,7 +143,13 @@ const AppHeader = ({ currentStep, steps }) => {
                       ${!isCompleted && !isCurrent ? 'bg-gray-100 border-gray-300 text-gray-400' : ''}
                     `}
                   >
-                    {isCompleted ? <Check size={18} /> : stepNumber}
+                    {isCurrent && isLoading ? (
+                      <Loader size={18} className="animate-spin" />
+                    ) : isCompleted ? (
+                      <Check size={18} />
+                    ) : (
+                      stepNumber
+                    )}
                   </div>
                   <span className={`mt-2 text-xs font-semibold transition-colors duration-300 ${isCurrent ? 'text-blue-600' : 'text-gray-500'} hidden sm:block`}>
                     {step.name}
@@ -281,8 +287,9 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
             <div className="text-center">
               <UploadCloud className="w-16 sm:w-20 h-16 sm:h-20 text-gray-400 mx-auto" />
               <p className="mt-6 text-lg sm:text-xl font-medium text-gray-700">
-                この画面のどこかにファイルをドラッグ＆ドロップ
+                この画面にファイル・フォルダをドラッグ＆ドロップ
               </p>
+              
               <p className="mt-2 text-sm text-gray-500">または</p>
               <button 
                 type="button" 
@@ -318,28 +325,36 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
 /**
  * 業種管理モーダル
  */
-const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, onSave, onTestConnection, testResult }) => {
-    const [localId, setLocalId] = useState(spreadsheetId);
-    const [isCopied, setIsCopied] = useState(false);
+const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, onSave, onTestConnection, testResult }) => {
+const [localUrl, setLocalUrl] = useState(spreadsheetUrl || '');
 
     useEffect(() => {
-        setLocalId(spreadsheetId);
-    }, [spreadsheetId]);
+        setLocalUrl(spreadsheetUrl || '');
+    }, [spreadsheetUrl, isOpen]);
 
     if (!isOpen) return null;
 
+    /**
+     * GoogleスプレッドシートのURLからIDを抽出する
+     * @param {string} url
+     * @returns {string|null} 抽出したスプレッドシートID、見つからない場合はnull
+     */
+    const extractSpreadsheetIdFromUrl = (url) => {
+        if (!url) return null;
+        // URLからIDを抽出するための正規表現
+        const match = url.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+        return match ? match[1] : null;
+    };
+
     const handleSave = () => {
-        onSave(localId); // Appコンポーネントの保存処理を呼び出す
+        onSave(localUrl); // 親コンポーネントにURLを渡して保存
         onClose();
     };
-    
-    const handleCopy = () => {
-        // ダミーのサービスアカウントメールアドレス
-        const email = "your-service-account@your-project.iam.gserviceaccount.com";
-        navigator.clipboard.writeText(email).then(() => {
-            setIsCopied(true);
-            setTimeout(() => setIsCopied(false), 2000);
-        });
+
+    const handleTest = () => {
+        const id = extractSpreadsheetIdFromUrl(localUrl);
+        // IDが抽出できた場合のみテストを実行
+        onTestConnection(id);
     };
 
     return (
@@ -356,40 +371,58 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, onSave, onTes
                 </header>
                 <main className="p-6 flex-grow overflow-y-auto space-y-6 text-gray-700">
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">連携マニュアル</h3>
+                        <h3 className="text-lg font-semibold mb-3">【連携マニュアル】</h3>
                         <ol className="list-decimal list-inside space-y-4 bg-white/50 p-5 rounded-xl border border-gray-200 text-sm">
-                            <li>A列に業種コード、B列に業種名を入力したGoogleスプレッドシートを作成します。</li>
                             <li>
-                                右上の「共有」からアクセス権を「<strong className="text-blue-600 font-semibold">リンクを知っている全員</strong>」に変更し、権限を「<strong className="text-blue-600 font-semibold">閲覧者</strong>」として設定してください。
+                                A列に業種コード、B列に業種名を入力したスプレッドシートを作成します。
+                                <table className="w-full mt-2 border-collapse border border-gray-300 text-left text-xs">
+                                    <thead>
+                                        <tr>
+                                            <th className="border border-gray-300 bg-gray-100 p-1.5 w-1/2">A</th>
+                                            <th className="border border-gray-300 bg-gray-100 p-1.5 w-1/2">B</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td className="border border-gray-300 p-1.5">gyoushuA</td>
+                                            <td className="border border-gray-300 p-1.5">業種A</td>
+                                        </tr>
+                                         <tr>
+                                            <td className="border border-gray-300 p-1.5">...</td>
+                                            <td className="border border-gray-300 p-1.5">...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </li>
-                            <li>共有したスプレッドシートのIDを入力してください。<br/>
-                                <span className="text-xs text-gray-500">(URLの `.../d/` と `/...` の間の部分です)</span>
+                            <li>
+                                右上の「共有」ボタンから、アクセス権を「<strong className="text-blue-600 font-semibold">リンクを知っている全員</strong>」に変更し、「<strong className="text-blue-600 font-semibold">閲覧者</strong>」として設定してください。
                             </li>
+                            <li>共有設定したスプレッドシートのURLを下の欄に貼り付けてください。</li>
                         </ol>
                     </div>
                     <div>
-                        <label htmlFor="spreadsheetIdModal" className="text-base font-semibold mb-3 block">スプレッドシートID:</label>
+                        <label htmlFor="spreadsheetUrlModal" className="text-base font-semibold mb-3 block">スプレッドシートURL:</label>
                         <div className="flex flex-col sm:flex-row gap-3">
                             <input
-                                id="spreadsheetIdModal"
+                                id="spreadsheetUrlModal"
                                 type="text"
-                                value={localId}
-                                onChange={(e) => setLocalId(e.target.value)}
-                                placeholder="スプレッドシートIDを貼り付け"
+                                value={localUrl}
+                                onChange={(e) => setLocalUrl(e.target.value)}
+                                placeholder="https://docs.google.com/spreadsheets/d/1aBc.../edit"
                                 className="flex-grow px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                             />
-                            <button onClick={() => onTestConnection(localId)} className="px-5 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 transition whitespace-nowrap">接続テスト</button>
+                            <button onClick={handleTest} className="px-5 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 transition whitespace-nowrap">接続テスト</button>
                         </div>
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">プレビュー</h3>
+                        <h3 className="text-lg font-semibold mb-3">【プレビュー】</h3>
                         <div className="p-4 bg-white/50 rounded-xl min-h-[100px] border border-gray-200">
                            {testResult.status === 'testing' && <p className="text-gray-500">テスト中...</p>}
                            {testResult.status === 'success' && (
                                <div>
                                    <p className="text-green-600 font-bold mb-2 flex items-center"><Check className="mr-2"/>正常に連携できました。</p>
                                    <ul className="list-disc list-inside text-sm text-gray-800">
-                                       {testResult.data.slice(0, 5).map(item => <li key={item.code}>{item.code}: {item.name}</li>)}
+                                       {testResult.data.slice(0, 5).map(item => <li key={item.code}>{`${item.code}: ${item.name}`}</li>)}
                                        {testResult.data.length > 5 && <li>...他{testResult.data.length - 5}件</li>}
                                    </ul>
                                </div>
@@ -417,16 +450,24 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
     const [testResult, setTestResult] = useState({ status: 'idle', data: [], message: '' });
 
     const handleTestConnection = async (id) => {
+        console.log("--- 接続テスト開始 ---");
         setTestResult({ status: 'testing', data: [], message: '' });
+
+        const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+        console.log("1. 読み込まれたAPIキー:", apiKey);
+        console.log("2. URLから抽出されたID:", id);
         
-        if (!id || !process.env.REACT_APP_GOOGLE_API_KEY) {
+        if (!id || !apiKey) {
+            console.error(">> エラー: IDまたはAPIキーが不足しています。");
             setTestResult({ status: 'error', data: [], message: 'IDが入力されていないか、APIキーが設定されていません。' });
             return;
         }
 
         try {
-            const apiKey = process.env.REACT_APP_GOOGLE_API_KEY;
-            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/A:B?key=${apiKey}`);
+            const endpoint = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/A:B?key=${apiKey}`;
+            console.log("3. APIリクエストURL:", endpoint);
+
+            const response = await fetch(endpoint);
             
             if (!response.ok) {
                 const errorData = await response.json();
@@ -444,11 +485,12 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
             if (industryData.length === 0) {
                 setTestResult({ status: 'error', data: [], message: 'シートから有効なデータを取得できませんでした。A列にコード, B列に名称が入力されているか確認してください。' });
             } else {
+                console.log(">> 接続テスト成功");
                 setTestResult({ status: 'success', data: industryData, message: '' });
             }
 
         } catch (error) {
-            console.error("Connection test failed:", error);
+            console.error(">> 接続テスト失敗:", error);
             setTestResult({ status: 'error', data: [], message: error.message });
         }
     };
@@ -719,12 +761,12 @@ export default function App() {
     }, []);
 
     const fetchIndustryCodes = useCallback(async (spreadsheetId) => {
-        if (!spreadsheetId || !process.env.REACT_APP_GOOGLE_API_KEY) {
+        if (!spreadsheetId || !import.meta.env.REACT_APP_GOOGLE_API_KEY) {
             setIndustryCodes(INITIAL_INDUSTRY_CODES);
             return;
         }
         try {
-            const apiKey = process.env.REACT_APP_GOOGLE_API_KEY;
+            const apiKey = import.meta.env.REACT_APP_GOOGLE_API_KEY;
             const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/A:B?key=${apiKey}`);
             if (!response.ok) throw new Error('Failed to fetch from spreadsheet.');
 
@@ -928,6 +970,7 @@ export default function App() {
         }
     };
     const currentStep = getCurrentStep();
+    const isLoading = screen === 'loading' || screen === 'processing';
 
     const renderScreen = () => {
         switch (screen) {
@@ -945,7 +988,7 @@ export default function App() {
 
     return (
         <div className="font-sans w-full h-dvh flex flex-col antialiased bg-gray-100">
-            {screen !== 'initializing' && <AppHeader currentStep={currentStep} steps={workflowSteps} />}
+            {screen !== 'initializing' && <AppHeader currentStep={currentStep} steps={workflowSteps} isLoading={isLoading} />}
             
             <div className="flex-grow relative min-h-0 flex flex-col">
                 <div className="absolute top-4 left-4 right-4 z-50 space-y-2 w-auto max-w-full">
