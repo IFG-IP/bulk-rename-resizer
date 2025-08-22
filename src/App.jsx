@@ -121,14 +121,12 @@ const getFormattedDate = () => {
  */
 const AppHeader = ({ currentStep, steps }) => {
   return (
-    <header className="relative bg-white/80 backdrop-blur-lg border-b border-gray-200/80 px-6 py-3 flex items-center justify-between flex-shrink-0 h-20 z-10">
-      {/* App Title */}
-      <div className="text-lg font-bold text-gray-800">
+    <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200/80 px-4 sm:px-6 py-3 grid grid-cols-3 items-center flex-shrink-0 h-20 z-10">
+      <div className="text-base sm:text-lg font-bold text-gray-800 truncate">
         業種別リネーム＆加工ツール
       </div>
 
-      {/* Workflow Steps (Centered) */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+      <div className="flex justify-center">
         <div className="flex items-center">
           {steps.map((step, index) => {
             const stepNumber = index + 1;
@@ -137,8 +135,7 @@ const AppHeader = ({ currentStep, steps }) => {
 
             return (
               <React.Fragment key={step.id}>
-                {/* Step Circle and Text */}
-                <div className="flex flex-col items-center w-24">
+                <div className="flex flex-col items-center w-16 sm:w-24">
                   <div
                     className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2
                       ${isCompleted ? 'bg-blue-500 border-blue-500 text-white' : ''}
@@ -148,14 +145,13 @@ const AppHeader = ({ currentStep, steps }) => {
                   >
                     {isCompleted ? <Check size={18} /> : stepNumber}
                   </div>
-                  <span className={`mt-2 text-xs font-semibold transition-colors duration-300 ${isCurrent ? 'text-blue-600' : 'text-gray-500'}`}>
+                  <span className={`mt-2 text-xs font-semibold transition-colors duration-300 ${isCurrent ? 'text-blue-600' : 'text-gray-500'} hidden sm:block`}>
                     {step.name}
                   </span>
                 </div>
 
-                {/* Connector Line */}
                 {index < steps.length - 1 && (
-                  <div className={`w-16 h-1 -mx-4 mb-6 transition-colors duration-300 rounded-full
+                  <div className={`w-4 sm:w-12 h-1 -mx-1 sm:-mx-2 ${!isCurrent && !isCompleted ? 'mb-0 sm:mb-6' : 'mb-6'} transition-colors duration-300 rounded-full
                     ${currentStep > stepNumber ? 'bg-blue-400' : 'bg-gray-300'}
                   `} />
                 )}
@@ -164,9 +160,7 @@ const AppHeader = ({ currentStep, steps }) => {
           })}
         </div>
       </div>
-
-      {/* Right side spacer to balance the title */}
-      <div className="w-48"></div>
+      <div></div>
     </header>
   );
 };
@@ -268,47 +262,51 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
   });
 
   return (
-    <div {...getRootProps()} className="w-full h-full flex flex-col items-center justify-center p-8 text-center bg-gray-100 relative">
+    //【修正】コンポーネント全体をスクロール可能に
+    <div {...getRootProps()} className="w-full h-full overflow-y-auto bg-gray-100 relative">
       <input {...getInputProps()} />
-      <div className="max-w-3xl w-full">
-        <h1 className="text-5xl font-bold text-gray-800 tracking-tight">
-          画像ファイルをアップロード
-        </h1>
-        <p className="text-lg text-gray-500 mt-4 mb-12">
-          加工したいファイルをドラッグ＆ドロップするか、ボタンから選択してください。
-        </p>
-        <div 
-          className="relative w-full h-96 rounded-3xl flex flex-col items-center justify-center 
-                     bg-white/60 backdrop-blur-xl border border-gray-200/50 shadow-xl"
-        >
-          <div className="text-center">
-            <UploadCloud className="w-20 h-20 text-gray-400 mx-auto" />
-            <p className="mt-6 text-xl font-medium text-gray-700">
-              この画面のどこかにファイルをドラッグ＆ドロップ
-            </p>
-            <p className="mt-2 text-sm text-gray-500">または</p>
-            <button 
-              type="button" 
-              onClick={(e) => {
-                  e.stopPropagation();
-                  open();
-              }} 
-              className="mt-6 px-8 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg 
-                         hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-200"
-            >
-              ファイルを選択
-            </button>
-          </div>
-          <div className="absolute bottom-6 text-center w-full text-xs text-gray-500">
-            <p>対応: JPG, PNG, HEIC  |  サイズ: 10MBまで  |  上限: 50枚</p>
+      {/*【修正】コンテンツに最大幅とパディングを設定 */}
+      <div className="w-full max-w-3xl mx-auto px-4 sm:px-8 py-10 sm:py-12 text-center flex flex-col items-center justify-center min-h-full">
+        <div>
+          <h1 className="text-3xl sm:text-5xl font-bold text-gray-800 tracking-tight">
+            画像ファイルをアップロード
+          </h1>
+          <p className="text-base sm:text-lg text-gray-500 mt-4 mb-8 sm:mb-12">
+            加工したいファイルをドラッグ＆ドロップするか、ボタンから選択してください。
+          </p>
+          <div 
+            className="relative w-full h-80 sm:h-96 rounded-3xl flex flex-col items-center justify-center 
+                       bg-white/60 backdrop-blur-xl border border-gray-200/50 shadow-xl p-4"
+          >
+            <div className="text-center">
+              <UploadCloud className="w-16 sm:w-20 h-16 sm:h-20 text-gray-400 mx-auto" />
+              <p className="mt-6 text-lg sm:text-xl font-medium text-gray-700">
+                この画面のどこかにファイルをドラッグ＆ドロップ
+              </p>
+              <p className="mt-2 text-sm text-gray-500">または</p>
+              <button 
+                type="button" 
+                onClick={(e) => {
+                    e.stopPropagation();
+                    open();
+                }} 
+                className="mt-6 px-6 sm:px-8 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg 
+                           hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-200"
+              >
+                ファイルを選択
+              </button>
+            </div>
+            <div className="absolute bottom-4 sm:bottom-6 text-center w-full text-xs text-gray-500 px-2">
+              <p>対応: JPG, PNG, HEIC  |  サイズ: 10MBまで  |  上限: 50枚</p>
+            </div>
           </div>
         </div>
       </div>
       {isDragActive && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center 
-                       bg-gray-900/80 backdrop-blur-sm transition-opacity duration-300 ease-in-out">
-          <UploadCloud className="w-32 h-32 text-white/90 animate-bounce" />
-          <p className="mt-8 text-4xl font-bold text-white">
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center 
+                       bg-gray-900/80 backdrop-blur-sm transition-opacity duration-300 ease-in-out p-4">
+          <UploadCloud className="w-24 sm:w-32 h-24 sm:h-32 text-white/90 animate-bounce" />
+          <p className="mt-8 text-2xl sm:text-4xl font-bold text-white text-center">
             ファイルをドロップしてアップロード
           </p>
         </div>
@@ -320,7 +318,7 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
 /**
  * 業種管理モーダル
  */
-const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, setSpreadsheetId, onTestConnection, testResult }) => {
+const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, onSave, onTestConnection, testResult }) => {
     const [localId, setLocalId] = useState(spreadsheetId);
     const [isCopied, setIsCopied] = useState(false);
 
@@ -331,12 +329,13 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, setSpreadshee
     if (!isOpen) return null;
 
     const handleSave = () => {
-        setSpreadsheetId(localId);
+        onSave(localId); // Appコンポーネントの保存処理を呼び出す
         onClose();
     };
     
     const handleCopy = () => {
-        const email = "service-account-email@developer.gserviceaccount.com";
+        // ダミーのサービスアカウントメールアドレス
+        const email = "your-service-account@your-project.iam.gserviceaccount.com";
         navigator.clipboard.writeText(email).then(() => {
             setIsCopied(true);
             setTimeout(() => setIsCopied(false), 2000);
@@ -361,14 +360,7 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, setSpreadshee
                         <ol className="list-decimal list-inside space-y-4 bg-white/50 p-5 rounded-xl border border-gray-200 text-sm">
                             <li>A列に業種コード、B列に業種名を入力したGoogleスプレッドシートを作成します。</li>
                             <li>
-                                以下のサービスアカウントを、そのシートの「<strong className="text-blue-600 font-semibold">編集者</strong>」として共有追加してください。
-                                <div className="flex items-center gap-2 my-2 p-3 bg-gray-100/90 border border-gray-200/80 rounded-lg">
-                                    <code className="flex-grow text-blue-600 font-mono text-xs">service-account-email@developer.gserviceaccount.com</code>
-                                    <button onClick={handleCopy} className="flex-shrink-0 flex items-center text-xs px-3 py-1.5 bg-white border border-gray-300 rounded-md hover:bg-gray-200/70 hover:border-gray-400/80 transition">
-                                        {isCopied ? <Check size={14} className="text-green-500"/> : <Copy size={14} />}
-                                        <span className="ml-1.5">{isCopied ? 'コピー完了' : 'コピー'}</span>
-                                    </button>
-                                </div>
+                                右上の「共有」からアクセス権を「<strong className="text-blue-600 font-semibold">リンクを知っている全員</strong>」に変更し、権限を「<strong className="text-blue-600 font-semibold">閲覧者</strong>」として設定してください。
                             </li>
                             <li>共有したスプレッドシートのIDを入力してください。<br/>
                                 <span className="text-xs text-gray-500">(URLの `.../d/` と `/...` の間の部分です)</span>
@@ -377,7 +369,7 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, setSpreadshee
                     </div>
                     <div>
                         <label htmlFor="spreadsheetIdModal" className="text-base font-semibold mb-3 block">スプレッドシートID:</label>
-                        <div className="flex gap-3">
+                        <div className="flex flex-col sm:flex-row gap-3">
                             <input
                                 id="spreadsheetIdModal"
                                 type="text"
@@ -419,47 +411,61 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetId, setSpreadshee
 /**
  * STEP 2: 一括設定画面
  */
-const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, industryCodes }) => {
+const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, industryCodes, handleIdSave }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [spreadsheetId, setSpreadsheetId] = useState(() => localStorage.getItem('spreadsheetId') || '');
     const [testResult, setTestResult] = useState({ status: 'idle', data: [], message: '' });
 
     const handleTestConnection = async (id) => {
         setTestResult({ status: 'testing', data: [], message: '' });
-        await new Promise(resolve => setTimeout(resolve, 1000));
         
-        if (id === 'correct-id-for-demo') {
-            const mockData = [
-                { code: 'demo_hos', name: 'デモ病院' },
-                { code: 'demo_htl', name: 'デモホテル' },
-                { code: 'demo_sal', name: 'デモサロン' },
-            ];
-            setTestResult({ status: 'success', data: mockData, message: '' });
-        } else {
-            setTestResult({ status: 'error', data: [], message: '連携に失敗しました。IDと共有設定を確認してください。' });
+        if (!id || !process.env.REACT_APP_GOOGLE_API_KEY) {
+            setTestResult({ status: 'error', data: [], message: 'IDが入力されていないか、APIキーが設定されていません。' });
+            return;
+        }
+
+        try {
+            const apiKey = process.env.REACT_APP_GOOGLE_API_KEY;
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/A:B?key=${apiKey}`);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                const errorMessage = errorData.error?.message || '不明なエラーです。';
+                throw new Error(`連携に失敗しました。IDや共有設定を確認してください。(詳細: ${errorMessage})`);
+            }
+
+            const data = await response.json();
+            const industryData = data.values
+                ? data.values
+                    .filter(row => row[0] && row[1]) 
+                    .map(row => ({ code: row[0], name: row[1] }))
+                : [];
+            
+            if (industryData.length === 0) {
+                setTestResult({ status: 'error', data: [], message: 'シートから有効なデータを取得できませんでした。A列にコード, B列に名称が入力されているか確認してください。' });
+            } else {
+                setTestResult({ status: 'success', data: industryData, message: '' });
+            }
+
+        } catch (error) {
+            console.error("Connection test failed:", error);
+            setTestResult({ status: 'error', data: [], message: error.message });
         }
     };
 
-    const handleIdSave = (newId) => {
+    const onSaveAndClose = (newId) => {
         setSpreadsheetId(newId);
-        localStorage.setItem('spreadsheetId', newId);
-    };
-    
-    // 全角数字を半角に変換する関数
-    const toHalfWidth = (str) => {
-      return str.replace(/[０-９]/g, (s) => {
-        return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-      });
+        handleIdSave(newId);
     };
 
     const isNextDisabled = !bulkSettings.industryCode || !/^\d+$/.test(bulkSettings.submissionId) || !/^\d{8}$/.test(bulkSettings.date);
 
     return (
-        <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-gray-100">
-            <div className="w-full max-w-xl">
-                <h2 className="text-4xl font-bold text-center text-gray-800 tracking-tight">一括設定</h2>
+        <div className="w-full h-full overflow-y-auto bg-gray-100">
+            <div className="w-full max-w-xl mx-auto px-4 sm:px-8 py-10 sm:py-12">
+                <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-800 tracking-tight">一括設定</h2>
                 <p className="text-center text-lg text-gray-500 mt-3 mb-10">リネーム後のファイル名に使われる基本情報を設定します。</p>
-                <div className="bg-white/60 backdrop-blur-xl border border-gray-200/50 shadow-xl rounded-3xl p-8 space-y-8">
+                <div className="bg-white/60 backdrop-blur-xl border border-gray-200/50 shadow-xl rounded-3xl p-6 sm:p-8 space-y-8">
                     <div>
                         <label className="block text-base font-semibold text-gray-700 mb-3">業種</label>
                         <div className="flex items-center gap-3">
@@ -475,8 +481,8 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
                                 onClick={() => setIsModalOpen(true)}
                                 className="flex-shrink-0 flex items-center px-4 py-3 bg-gray-200/80 text-gray-700 font-semibold rounded-xl hover:bg-gray-300/80 transition"
                             >
-                                <Settings size={18} className="mr-2" />
-                                <span>管理</span>
+                                <Settings size={18} className="mr-0 sm:mr-2" />
+                                <span className="hidden sm:inline">管理</span>
                             </button>
                         </div>
                     </div>
@@ -486,21 +492,15 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
                             id="submissionId"
                             type="text"
                             value={bulkSettings.submissionId}
-                            // ★ ここから修正
                             onChange={(e) => {
-                                // 入力値から半角数字以外の文字をすべて取り除く
                                 const numericValue = e.target.value.replace(/[^0-9]/g, '');
                                 setBulkSettings(p => ({ ...p, submissionId: numericValue }));
                             }}
-                            // ★ ここまで修正
                             placeholder="例: 12345"
                             className="w-full px-4 py-3 bg-white/50 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                         />
                         <p className="text-xs text-gray-500 mt-2">※半角数字で入力してください</p>
                     </div>
-
-                    
-
                     <div>
                         <label htmlFor="date" className="block text-base font-semibold text-gray-700 mb-3">日付</label>
                         <input
@@ -508,7 +508,6 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
                             type="text"
                             value={bulkSettings.date}
                             onChange={(e) => {
-                                // 半角数字以外を取り除き、先頭から8文字だけを切り出す
                                 const numericValue = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
                                 setBulkSettings(p => ({ ...p, date: numericValue }))
                             }}
@@ -516,28 +515,6 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
                         />
                          <p className="text-xs text-gray-500 mt-2">※YYYYMMDD形式（8桁）で入力してください</p>
                     </div>
-
-                    {/*
-                    <div>
-                        <label htmlFor="quality" className="block text-base font-semibold text-gray-700 mb-3">
-                            画質: <span className="font-bold text-blue-600">{bulkSettings.quality.toFixed(1)}</span>
-                        </label>
-                        <input
-                            id="quality"
-                            type="range"
-                            min="1"
-                            max="10"
-                            step="0.1"
-                            value={bulkSettings.quality}
-                            onChange={(e) => setBulkSettings(p => ({ ...p, quality: parseFloat(e.target.value) }))}
-                            className="w-full h-2 bg-gray-200/80 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                        />
-                        <div className="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>低画質 (1.0)</span>
-                            <span>高画質 (10.0)</span>
-                        </div>
-                    </div>
-                    */}
                 </div>
                 <div className="flex justify-between mt-10">
                     <button 
@@ -559,7 +536,7 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 spreadsheetId={spreadsheetId}
-                setSpreadsheetId={handleIdSave}
+                onSave={onSaveAndClose}
                 onTestConnection={handleTestConnection}
                 testResult={testResult}
             />
@@ -592,10 +569,9 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
     };
 
     return (
-        <div className="w-full h-full flex flex-col bg-gray-100">
-            <main className="flex-grow flex min-h-0">
-                {/* Left Panel: Image List */}
-                <div className="w-3/5 border-r border-gray-200/80 overflow-y-auto p-4 space-y-3">
+        <div className="w-full flex-grow flex flex-col bg-gray-100 overflow-hidden">
+            <main className="flex-grow flex flex-col md:flex-row min-h-0 overflow-hidden">
+                <div className="w-full md:w-3/5 border-b md:border-b-0 md:border-r border-gray-200/80 overflow-y-auto p-4 space-y-3 h-1/2 md:h-full">
                     <p className="text-sm text-gray-500 px-2 pb-2">ファイル一覧 ({images.length}件)</p>
                     {images.map(image => (
                         <div
@@ -607,7 +583,7 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                                     : 'bg-white/40 border-transparent hover:shadow-md hover:bg-white/60'
                                 }`}
                         >
-                            <img src={image.thumbnailUrl} alt={image.file.name} className="w-20 h-20 object-contain rounded-lg bg-gray-100/80 flex-shrink-0" />
+                            <img src={image.thumbnailUrl} alt={image.file.name} className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg bg-gray-100/80 flex-shrink-0" />
                             <div className="flex-grow min-w-0">
                                 <p className="text-xs text-gray-500 truncate" title={image.file.name}>{image.file.name}</p>
                                 <p className="font-bold text-sm text-blue-600 truncate" title={generateNewFilename(image)}>{generateNewFilename(image)}</p>
@@ -617,8 +593,7 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                     ))}
                 </div>
 
-                {/* Right Panel: Editor */}
-                <div className="w-2/5 flex flex-col bg-white/30">
+                <div className="w-full md:w-2/5 flex flex-col bg-white/30 flex-grow">
                     <div className="flex-grow p-6 space-y-6 overflow-y-auto">
                         <h3 className="text-xl font-semibold text-gray-800 pb-2">選択中画像の編集</h3>
                         {selectedImage ? (
@@ -643,7 +618,7 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                                     <input
                                         type="text"
                                         value={selectedImage.submissionId}
-                                        onChange={(e) => handleIndividualChange(selectedImage.id, 'submissionId', e.target.value)}
+                                        onChange={(e) => handleIndividualChange(selectedImage.id, 'submissionId', e.target.value.replace(/[^0-9]/g, ''))}
                                         className="w-full px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                                     />
                                 </div>
@@ -653,7 +628,6 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                                         type="text"
                                         value={selectedImage.date}
                                         onChange={(e) => {
-                                            // 半角数字以外を取り除き、先頭から8文字だけを切り出す
                                             const numericValue = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
                                             handleIndividualChange(selectedImage.id, 'date', numericValue)
                                         }}
@@ -690,29 +664,33 @@ const DownloadScreen = ({ zipBlob, zipFilename, onRestart }) => {
     };
 
     return (
-        <div className="w-full h-full flex flex-col items-center justify-center text-center p-8 bg-gray-100">
-            <div className="relative w-32 h-32 flex items-center justify-center mb-8">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full shadow-2xl shadow-green-500/30 opacity-80"></div>
-                <HardDriveDownload className="w-20 h-20 text-white relative" />
+        //【修正】コンポーネント全体をスクロール可能に
+        <div className="w-full h-full overflow-y-auto bg-gray-100 flex items-center justify-center">
+             {/*【修正】コンテンツに最大幅とパディングを設定 */}
+            <div className="w-full max-w-xl mx-auto px-4 sm:px-8 py-10 sm:py-12 text-center">
+                <div className="relative w-32 h-32 flex items-center justify-center mb-8 mx-auto">
+                    <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full shadow-2xl shadow-green-500/30 opacity-80"></div>
+                    <HardDriveDownload className="w-20 h-20 text-white relative" />
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 tracking-tight">画像の加工が完了しました！</h1>
+                <p className="text-base sm:text-lg text-gray-500 mt-3">下のボタンをクリックして、ZIPファイルをダウンロードしてください。</p>
+                <button
+                    onClick={handleDownload}
+                    className="mt-12 flex items-center justify-center w-full max-w-md mx-auto px-8 sm:px-12 py-4 rounded-2xl text-white bg-gradient-to-br from-green-500 to-emerald-600 
+                               font-bold text-lg sm:text-xl shadow-2xl shadow-green-500/40
+                               transform hover:-translate-y-1 transition-all duration-300 ease-in-out"
+                >
+                    <Download size={24} className="mr-3" />
+                    <span>{zipFilename} をダウンロード</span>
+                </button>
+                <button
+                    onClick={onRestart}
+                    className="mt-10 flex items-center justify-center mx-auto px-6 py-2 rounded-lg text-gray-500 font-semibold hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
+                >
+                    <RotateCcw size={16} className="mr-2" />
+                    最初に戻る
+                </button>
             </div>
-            <h1 className="text-4xl font-bold text-gray-800 tracking-tight">画像の加工が完了しました！</h1>
-            <p className="text-lg text-gray-500 mt-3">下のボタンをクリックして、ZIPファイルをダウンロードしてください。</p>
-            <button
-                onClick={handleDownload}
-                className="mt-12 flex items-center px-12 py-4 rounded-2xl text-white bg-gradient-to-br from-green-500 to-emerald-600 
-                           font-bold text-xl shadow-2xl shadow-green-500/40
-                           transform hover:-translate-y-1 transition-all duration-300 ease-in-out"
-            >
-                <Download size={24} className="mr-3" />
-                {zipFilename} をダウンロード
-            </button>
-            <button
-                onClick={onRestart}
-                className="mt-10 flex items-center px-6 py-2 rounded-lg text-gray-500 font-semibold hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
-            >
-                <RotateCcw size={16} className="mr-2" />
-                最初に戻る
-            </button>
         </div>
     );
 };
@@ -735,6 +713,40 @@ export default function App() {
     const { isLoaded: isJszipLoaded, error: jszipError } = useScript(JSZIP_CDN);
     const { isLoaded: isFilesaverLoaded, error: filesaverError } = useScript(FILESAVER_CDN);
 
+    const handleFileErrors = useCallback((newErrors) => {
+        setErrors(newErrors);
+        setTimeout(() => setErrors([]), 8000);
+    }, []);
+
+    const fetchIndustryCodes = useCallback(async (spreadsheetId) => {
+        if (!spreadsheetId || !process.env.REACT_APP_GOOGLE_API_KEY) {
+            setIndustryCodes(INITIAL_INDUSTRY_CODES);
+            return;
+        }
+        try {
+            const apiKey = process.env.REACT_APP_GOOGLE_API_KEY;
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/A:B?key=${apiKey}`);
+            if (!response.ok) throw new Error('Failed to fetch from spreadsheet.');
+
+            const data = await response.json();
+            const fetchedCodes = data.values
+                ? data.values
+                    .filter(row => row[0] && row[1])
+                    .map(row => ({ code: row[0], name: row[1] }))
+                : [];
+            
+            if (fetchedCodes.length > 0) {
+                setIndustryCodes(fetchedCodes);
+            } else {
+                setIndustryCodes(INITIAL_INDUSTRY_CODES);
+            }
+        } catch (error) {
+            console.error("Failed to fetch industry codes:", error);
+            handleFileErrors(['スプレッドシートからのデータ取得に失敗しました。初期データを使用します。']);
+            setIndustryCodes(INITIAL_INDUSTRY_CODES);
+        }
+    }, [handleFileErrors]);
+
     useEffect(() => {
         const scriptErrors = [
             heicError && 'HEIC変換ライブラリ',
@@ -747,13 +759,17 @@ export default function App() {
         }
 
         if (isHeicLoaded && isJszipLoaded && isFilesaverLoaded && screen === 'initializing') {
+            const savedSpreadsheetId = localStorage.getItem('spreadsheetId');
+            if (savedSpreadsheetId) {
+                fetchIndustryCodes(savedSpreadsheetId);
+            }
             setScreen('upload');
         }
-    }, [isHeicLoaded, isJszipLoaded, isFilesaverLoaded, heicError, jszipError, filesaverError, screen]);
+    }, [isHeicLoaded, isJszipLoaded, isFilesaverLoaded, heicError, jszipError, filesaverError, screen, handleFileErrors, fetchIndustryCodes]);
 
-    const handleFileErrors = (newErrors) => {
-        setErrors(newErrors);
-        setTimeout(() => setErrors([]), 8000);
+    const handleIdSave = (newId) => {
+        localStorage.setItem('spreadsheetId', newId);
+        fetchIndustryCodes(newId);
     };
 
     const handleFilesAccepted = async (files) => {
@@ -876,7 +892,10 @@ export default function App() {
     };
 
     const handleRestart = () => {
-        images.forEach(image => URL.revokeObjectURL(image.originalUrl));
+        images.forEach(image => {
+            URL.revokeObjectURL(image.originalUrl);
+            URL.revokeObjectURL(image.thumbnailUrl);
+        });
         setImages([]);
         setZipBlob(null);
         setZipFilename('');
@@ -885,7 +904,6 @@ export default function App() {
         setScreen('upload');
     };
 
-    // ワークフローのステップを定義
     const workflowSteps = [
         { id: 'upload', name: 'アップロード' },
         { id: 'bulk-settings', name: '一括設定' },
@@ -893,7 +911,6 @@ export default function App() {
         { id: 'download', name: 'ダウンロード' },
     ];
 
-    // 現在の画面状態から、ワークフローのステップ番号を決定
     const getCurrentStep = () => {
         switch (screen) {
             case 'upload':
@@ -907,7 +924,7 @@ export default function App() {
             case 'download':
                 return 4;
             default:
-                return 0; // 初期化中などはヘッダーを表示しない
+                return 0;
         }
     };
     const currentStep = getCurrentStep();
@@ -916,7 +933,7 @@ export default function App() {
         switch (screen) {
             case 'initializing': return <LoadingScreen title="ライブラリを準備中..." />;
             case 'loading': return <LoadingScreen title="画像を読み込んでいます..." progress={loadingProgress.progress} total={loadingProgress.total} />;
-            case 'bulk-settings': return <BulkSettingsScreen onNext={handleBulkSettingsNext} onBack={handleRestart} bulkSettings={bulkSettings} setBulkSettings={setBulkSettings} industryCodes={industryCodes} />;
+            case 'bulk-settings': return <BulkSettingsScreen onNext={handleBulkSettingsNext} onBack={handleRestart} bulkSettings={bulkSettings} setBulkSettings={setBulkSettings} industryCodes={industryCodes} handleIdSave={handleIdSave} />;
             case 'confirm-edit': return <ConfirmEditScreen images={images} setImages={setImages} onProcess={handleProcess} onBack={() => setScreen('bulk-settings')} industryCodes={industryCodes} />;
             case 'processing': return <LoadingScreen title="画像を処理中です..." progress={processingProgress.progress} total={processingProgress.total} />;
             case 'download': return <DownloadScreen zipBlob={zipBlob} zipFilename={zipFilename} onRestart={handleRestart} />;
@@ -927,12 +944,11 @@ export default function App() {
     };
 
     return (
-        <div className="font-sans w-full h-screen flex flex-col antialiased bg-gray-100">
-            {/* 初期化画面以外でヘッダーを表示 */}
+        <div className="font-sans w-full h-dvh flex flex-col antialiased bg-gray-100">
             {screen !== 'initializing' && <AppHeader currentStep={currentStep} steps={workflowSteps} />}
             
             <div className="flex-grow relative min-h-0 flex flex-col">
-                <div className="absolute top-4 left-4 right-4 z-50 space-y-2">
+                <div className="absolute top-4 left-4 right-4 z-50 space-y-2 w-auto max-w-full">
                     {errors.map((error, index) => (
                         <Alert key={index} message={error} onDismiss={() => setErrors(prev => prev.filter((_, i) => i !== index))} />
                     ))}
