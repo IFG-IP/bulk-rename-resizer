@@ -416,15 +416,27 @@ const [localUrl, setLocalUrl] = useState(spreadsheetUrl || '');
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold mb-3">【プレビュー】</h3>
-                        <div className="p-4 bg-white/50 rounded-xl min-h-[100px] border border-gray-200">
+                        <div className="p-4 bg-white/50 rounded-xl min-h-[100px] border border-gray-200 max-h-48 overflow-y-auto">
                            {testResult.status === 'testing' && <p className="text-gray-500">テスト中...</p>}
                            {testResult.status === 'success' && (
                                <div>
                                    <p className="text-green-600 font-bold mb-2 flex items-center"><Check className="mr-2"/>正常に連携できました。</p>
-                                   <ul className="list-disc list-inside text-sm text-gray-800">
-                                       {testResult.data.slice(0, 5).map(item => <li key={item.code}>{`${item.code}: ${item.name}`}</li>)}
-                                       {testResult.data.length > 5 && <li>...他{testResult.data.length - 5}件</li>}
-                                   </ul>
+                                   <table className="w-full text-sm text-left border-collapse">
+                                       <thead className="sticky top-0 bg-gray-100/80 backdrop-blur-sm">
+                                           <tr>
+                                               <th className="p-2 border-b font-semibold text-gray-600 w-1/3">コード</th>
+                                               <th className="p-2 border-b font-semibold text-gray-600">名称</th>
+                                           </tr>
+                                       </thead>
+                                       <tbody>
+                                           {testResult.data.map(item => (
+                                               <tr key={item.code} className="border-t">
+                                                   <td className="p-2">{item.code}</td>
+                                                   <td className="p-2">{item.name}</td>
+                                               </tr>
+                                           ))}
+                                       </tbody>
+                                   </table>
                                </div>
                            )}
                            {testResult.status === 'error' && <p className="text-red-600 font-bold flex items-center"><AlertCircle className="mr-2"/>{testResult.message}</p>}
@@ -442,7 +454,7 @@ const [localUrl, setLocalUrl] = useState(spreadsheetUrl || '');
 };
 
 /**
- * STEP 2: 一括設定画面
+ * STEP 2: ファイル名設定画面
  */
 const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, industryCodes, handleIdSave }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -505,8 +517,8 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
     return (
         <div className="w-full h-full overflow-y-auto bg-gray-100">
             <div className="w-full max-w-xl mx-auto px-4 sm:px-8 py-10 sm:py-12">
-                <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-800 tracking-tight">一括設定</h2>
-                <p className="text-center text-lg text-gray-500 mt-3 mb-10">リネーム後のファイル名に使われる基本情報を設定します。</p>
+                <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-800 tracking-tight">ファイル名設定</h2>
+                <p className="text-center text-lg text-gray-500 mt-3 mb-10">リネーム後のファイル名に使用する、共通の情報を設定します。</p>
                 <div className="bg-white/60 backdrop-blur-xl border border-gray-200/50 shadow-xl rounded-3xl p-6 sm:p-8 space-y-8">
                     <div>
                         <label className="block text-base font-semibold text-gray-700 mb-3">業種</label>
@@ -577,7 +589,7 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
             <IndustryManagementModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                spreadsheetId={spreadsheetId}
+                spreadsheetUrl={spreadsheetId}
                 onSave={onSaveAndClose}
                 onTestConnection={handleTestConnection}
                 testResult={testResult}
@@ -636,6 +648,8 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                 </div>
 
                 <div className="w-full md:w-2/5 flex flex-col bg-white/30 flex-grow">
+
+                    {/* ファイル名設定を個別に編集可能にする場合
                     <div className="flex-grow p-6 space-y-6 overflow-y-auto">
                         <h3 className="text-xl font-semibold text-gray-800 pb-2">選択中画像の編集</h3>
                         {selectedImage ? (
@@ -674,6 +688,49 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                                             handleIndividualChange(selectedImage.id, 'date', numericValue)
                                         }}
                                         className="w-full px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="text-gray-500 text-center mt-10">リストから画像を選択してください</p>
+                        )}
+                    </div>
+                    */}
+                    
+                    <div className="flex-grow p-6 space-y-6 overflow-y-auto">
+                        <h3 className="text-xl font-semibold text-gray-800 pb-2">選択中画像の確認</h3>
+                        {selectedImage ? (
+                            <div className="space-y-6">
+                                <div className="bg-gray-900/5 p-3 rounded-xl">
+                                    <p className="text-xs font-semibold text-gray-600">元ファイル名</p>
+                                    <p className="text-sm text-gray-800 truncate mt-1">{selectedImage.file.name}</p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-base font-semibold text-gray-700 mb-3">業種</label>
+                                    <input
+                                        type="text"
+                                        disabled
+                                        value={industryCodes.find(ic => ic.code === selectedImage.industryCode)?.name + ` (${selectedImage.industryCode})` || selectedImage.industryCode}
+                                        className="w-full px-4 py-3 bg-gray-200/60 border border-gray-300/50 rounded-xl outline-none cursor-not-allowed"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-base font-semibold text-gray-700 mb-3">入稿ID</label>
+                                    <input
+                                        type="text"
+                                        disabled
+                                        value={selectedImage.submissionId}
+                                        className="w-full px-4 py-3 bg-gray-200/60 border border-gray-300/50 rounded-xl outline-none cursor-not-allowed"
+                                    />
+                                </div>
+                                 <div>
+                                    <label className="block text-base font-semibold text-gray-700 mb-3">日付</label>
+                                    <input
+                                        type="text"
+                                        disabled
+                                        value={selectedImage.date}
+                                        className="w-full px-4 py-3 bg-gray-200/60 border border-gray-300/50 rounded-xl outline-none cursor-not-allowed"
                                     />
                                 </div>
                             </div>
@@ -948,7 +1005,7 @@ export default function App() {
 
     const workflowSteps = [
         { id: 'upload', name: 'アップロード' },
-        { id: 'bulk-settings', name: '一括設定' },
+        { id: 'bulk-settings', name: 'ファイル名設定' },
         { id: 'confirm-edit', name: '確認・編集' },
         { id: 'download', name: 'ダウンロード' },
     ];
