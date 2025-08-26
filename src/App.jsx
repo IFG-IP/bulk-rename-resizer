@@ -325,41 +325,39 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
 /**
  * 業種管理モーダル
  */
-const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, onSave, onTestConnection, testResult }) => {
-const [localUrl, setLocalUrl] = useState(spreadsheetUrl || '');
+const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetMode, onSave, onTestConnection, testResult }) => {
+    const [localUrl, setLocalUrl] = useState(spreadsheetUrl || '');
+    // ★追加：連携方法を管理するローカルstate
+    const [localMode, setLocalMode] = useState(spreadsheetMode || 'replace');
 
     useEffect(() => {
         setLocalUrl(spreadsheetUrl || '');
-    }, [spreadsheetUrl, isOpen]);
+        setLocalMode(spreadsheetMode || 'replace');
+    }, [spreadsheetUrl, spreadsheetMode, isOpen]);
 
     if (!isOpen) return null;
 
-    /**
-     * GoogleスプレッドシートのURLからIDを抽出する
-     * @param {string} url
-     * @returns {string|null} 抽出したスプレッドシートID、見つからない場合はnull
-     */
     const extractSpreadsheetIdFromUrl = (url) => {
         if (!url) return null;
-        // URLからIDを抽出するための正規表現
         const match = url.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
         return match ? match[1] : null;
     };
 
     const handleSave = () => {
-        onSave(localUrl); // 親コンポーネントにURLを渡して保存
+        // ★変更：URLと連携方法(mode)を両方渡す
+        onSave(localUrl, localMode);
         onClose();
     };
 
     const handleTest = () => {
         const id = extractSpreadsheetIdFromUrl(localUrl);
-        // IDが抽出できた場合のみテストを実行
         onTestConnection(id);
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
-            <div className="bg-white/95 backdrop-blur-2xl border border-gray-200 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl">
+        // 【修正後】backdrop-blurとshadow-2xlを削除し、背景の透明度を調整
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-white border border-gray-200 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-lg">
                 <header className="flex items-center justify-between p-5 border-b border-gray-200">
                     <h2 className="text-xl font-bold text-gray-800 flex items-center">
                         <Settings className="mr-3 text-gray-500" />
@@ -400,6 +398,38 @@ const [localUrl, setLocalUrl] = useState(spreadsheetUrl || '');
                             <li>共有設定したスプレッドシートのURLを下の欄に貼り付けてください。</li>
                         </ol>
                     </div>
+                    {/* ★追加：ラジオボタン選択エリア */}
+                    <div>
+                        <h3 className="text-lg font-semibold mb-3">【連携方法】</h3>
+                        <div className="space-y-3 bg-white/50 p-5 rounded-xl border border-gray-200">
+                            <label className="flex items-center cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="spreadsheet-mode"
+                                    value="replace"
+                                    checked={localMode === 'replace'}
+                                    onChange={(e) => setLocalMode(e.target.value)}
+                                    className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                />
+                                <span className="ml-3 text-sm text-gray-700">
+                                    スプレッドシートの業種リストで<strong className="font-semibold">上書きする (置き換え)</strong>
+                                </span>
+                            </label>
+                            <label className="flex items-center cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name="spreadsheet-mode"
+                                    value="add"
+                                    checked={localMode === 'add'}
+                                    onChange={(e) => setLocalMode(e.target.value)}
+                                    className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                />
+                                <span className="ml-3 text-sm text-gray-700">
+                                    既存の業種リストに、スプレッドシートの内容を<strong className="font-semibold">追加する</strong>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
                     <div>
                         <label htmlFor="spreadsheetUrlModal" className="text-base font-semibold mb-3 block">スプレッドシートURL:</label>
                         <div className="flex flex-col sm:flex-row gap-3">
@@ -415,32 +445,25 @@ const [localUrl, setLocalUrl] = useState(spreadsheetUrl || '');
                         </div>
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold mb-3">【プレビュー】</h3>
-                        <div className="p-4 bg-white/50 rounded-xl min-h-[100px] border border-gray-200 max-h-48 overflow-y-auto">
-                           {testResult.status === 'testing' && <p className="text-gray-500">テスト中...</p>}
-                           {testResult.status === 'success' && (
-                               <div>
-                                   <p className="text-green-600 font-bold mb-2 flex items-center"><Check className="mr-2"/>正常に連携できました。</p>
-                                   <table className="w-full text-sm text-left border-collapse">
-                                       <thead className="sticky top-0 bg-gray-100/80 backdrop-blur-sm">
-                                           <tr>
-                                               <th className="p-2 border-b font-semibold text-gray-600 w-1/3">コード</th>
-                                               <th className="p-2 border-b font-semibold text-gray-600">名称</th>
-                                           </tr>
-                                       </thead>
-                                       <tbody>
-                                           {testResult.data.map(item => (
-                                               <tr key={item.code} className="border-t">
-                                                   <td className="p-2">{item.code}</td>
-                                                   <td className="p-2">{item.name}</td>
-                                               </tr>
-                                           ))}
-                                       </tbody>
-                                   </table>
-                               </div>
+                        <h3 className="text-lg font-semibold mb-3">【ステータス】</h3>
+                        <div className="p-4 bg-white/50 rounded-xl min-h-[100px] border border-gray-200 flex items-center justify-center text-center">
+                           {testResult.status === 'testing' && (
+                                <p className="text-gray-500 flex items-center"><Loader size={18} className="animate-spin mr-2"/>テスト中...</p>
                            )}
-                           {testResult.status === 'error' && <p className="text-red-600 font-bold flex items-center"><AlertCircle className="mr-2"/>{testResult.message}</p>}
-                           {testResult.status === 'idle' && <p className="text-gray-500">接続テストボタンを押して、連携を確認してください。</p>}
+                           {testResult.status === 'success' && (
+                               <p className="text-green-600 font-bold flex items-center">
+                                   <Check className="mr-2"/>
+                                   正常に連携できました。({testResult.data.length}件の業種を取得)
+                               </p>
+                           )}
+                           {testResult.status === 'error' && (
+                                <p className="text-red-600 font-bold flex items-center">
+                                    <AlertCircle className="mr-2"/>{testResult.message}
+                                </p>
+                           )}
+                           {testResult.status === 'idle' && (
+                                <p className="text-gray-500">接続テストボタンを押して、連携を確認してください。</p>
+                           )}
                         </div>
                     </div>
                 </main>
@@ -456,9 +479,9 @@ const [localUrl, setLocalUrl] = useState(spreadsheetUrl || '');
 /**
  * STEP 2: ファイル名設定画面
  */
-const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, industryCodes, handleIdSave }) => {
+const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, industryCodes, handleIdSave, spreadsheetMode }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [spreadsheetId, setSpreadsheetId] = useState(() => localStorage.getItem('spreadsheetId') || '');
+    const [spreadsheetUrl, setSpreadsheetUrl] = useState(() => localStorage.getItem('spreadsheetUrl') || '');
     const [testResult, setTestResult] = useState({ status: 'idle', data: [], message: '' });
 
     const handleTestConnection = async (id) => {
@@ -507,9 +530,10 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
         }
     };
 
-    const onSaveAndClose = (newId) => {
-        setSpreadsheetId(newId);
-        handleIdSave(newId);
+    // ★変更：保存時にURLとmodeを両方受け取る
+    const onSaveAndClose = (newUrl, newMode) => {
+        setSpreadsheetUrl(newUrl);
+        handleIdSave(newUrl, newMode);
     };
 
     const isNextDisabled = !bulkSettings.industryCode || !/^\d+$/.test(bulkSettings.submissionId) || !/^\d{8}$/.test(bulkSettings.date);
@@ -589,7 +613,8 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
             <IndustryManagementModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                spreadsheetUrl={spreadsheetId}
+                spreadsheetUrl={spreadsheetUrl}
+                spreadsheetMode={spreadsheetMode}
                 onSave={onSaveAndClose}
                 onTestConnection={handleTestConnection}
                 testResult={testResult}
@@ -648,54 +673,6 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                 </div>
 
                 <div className="w-full md:w-2/5 flex flex-col bg-white/30 flex-grow">
-
-                    {/* ファイル名設定を個別に編集可能にする場合
-                    <div className="flex-grow p-6 space-y-6 overflow-y-auto">
-                        <h3 className="text-xl font-semibold text-gray-800 pb-2">選択中画像の編集</h3>
-                        {selectedImage ? (
-                            <div className="space-y-6">
-                                <div className="bg-gray-900/5 p-3 rounded-xl">
-                                    <p className="text-xs font-semibold text-gray-600">元ファイル名</p>
-                                    <p className="text-sm text-gray-800 truncate mt-1">{selectedImage.file.name}</p>
-                                </div>
-
-                                <div>
-                                    <label className="block text-base font-semibold text-gray-700 mb-3">業種</label>
-                                    <select
-                                        value={selectedImage.industryCode}
-                                        onChange={(e) => handleIndividualChange(selectedImage.id, 'industryCode', e.target.value)}
-                                        className="w-full px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                                    >
-                                        {industryCodes.map(ic => <option key={ic.code} value={ic.code}>{ic.name} ({ic.code})</option>)}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-base font-semibold text-gray-700 mb-3">入稿ID</label>
-                                    <input
-                                        type="text"
-                                        value={selectedImage.submissionId}
-                                        onChange={(e) => handleIndividualChange(selectedImage.id, 'submissionId', e.target.value.replace(/[^0-9]/g, ''))}
-                                        className="w-full px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                                    />
-                                </div>
-                                 <div>
-                                    <label className="block text-base font-semibold text-gray-700 mb-3">日付</label>
-                                    <input
-                                        type="text"
-                                        value={selectedImage.date}
-                                        onChange={(e) => {
-                                            const numericValue = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
-                                            handleIndividualChange(selectedImage.id, 'date', numericValue)
-                                        }}
-                                        className="w-full px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                                    />
-                                </div>
-                            </div>
-                        ) : (
-                            <p className="text-gray-500 text-center mt-10">リストから画像を選択してください</p>
-                        )}
-                    </div>
-                    */}
                     
                     <div className="flex-grow p-6 space-y-6 overflow-y-auto">
                         <h3 className="text-xl font-semibold text-gray-800 pb-2">選択中画像の確認</h3>
@@ -763,9 +740,7 @@ const DownloadScreen = ({ zipBlob, zipFilename, onRestart }) => {
     };
 
     return (
-        //【修正】コンポーネント全体をスクロール可能に
         <div className="w-full h-full overflow-y-auto bg-gray-100 flex items-center justify-center">
-             {/*【修正】コンテンツに最大幅とパディングを設定 */}
             <div className="w-full max-w-xl mx-auto px-4 sm:px-8 py-10 sm:py-12 text-center">
                 <div className="relative w-32 h-32 flex items-center justify-center mb-8 mx-auto">
                     <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full shadow-2xl shadow-green-500/30 opacity-80"></div>
@@ -807,6 +782,8 @@ export default function App() {
     const [errors, setErrors] = useState([]);
     const [bulkSettings, setBulkSettings] = useState({ industryCode: '', submissionId: '', date: getFormattedDate(), quality: 9 });
     const [industryCodes, setIndustryCodes] = useState(INITIAL_INDUSTRY_CODES);
+    // ★追加：連携方法を管理するstate。localStorageから初期値を読み込む
+    const [spreadsheetMode, setSpreadsheetMode] = useState(() => localStorage.getItem('spreadsheetMode') || 'replace');
     
     const { isLoaded: isHeicLoaded, error: heicError } = useScript(HEIC_CDN_URL);
     const { isLoaded: isJszipLoaded, error: jszipError } = useScript(JSZIP_CDN);
@@ -817,15 +794,27 @@ export default function App() {
         setTimeout(() => setErrors([]), 8000);
     }, []);
 
-    const fetchIndustryCodes = useCallback(async (spreadsheetId) => {
-        if (!spreadsheetId || !import.meta.env.REACT_APP_GOOGLE_API_KEY) {
+    // ★変更：引数に連携方法(mode)を追加
+    const fetchIndustryCodes = useCallback(async (spreadsheetUrl, mode) => {
+        const extractIdFromUrl = (url) => {
+            if (!url) return null;
+            const match = url.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            return match ? match[1] : null;
+        };
+
+        const spreadsheetId = extractIdFromUrl(spreadsheetUrl);
+        const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+
+        if (!spreadsheetId || !apiKey) {
             setIndustryCodes(INITIAL_INDUSTRY_CODES);
             return;
         }
+
         try {
-            const apiKey = import.meta.env.REACT_APP_GOOGLE_API_KEY;
             const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/A:B?key=${apiKey}`);
-            if (!response.ok) throw new Error('Failed to fetch from spreadsheet.');
+            if (!response.ok) {
+                throw new Error('スプレッドシートからのデータ取得に失敗しました。IDや共有設定を確認してください。');
+            }
 
             const data = await response.json();
             const fetchedCodes = data.values
@@ -835,13 +824,25 @@ export default function App() {
                 : [];
             
             if (fetchedCodes.length > 0) {
-                setIndustryCodes(fetchedCodes);
+                // ★追加：modeに応じてリストを処理
+                if (mode === 'add') {
+                    // 「追加」モード：重複を除いて結合
+                    const combined = [...fetchedCodes, ...INITIAL_INDUSTRY_CODES];
+                    const uniqueCodes = combined.filter((item, index, self) =>
+                        index === self.findIndex((t) => t.code === item.code)
+                    );
+                    setIndustryCodes(uniqueCodes);
+                } else {
+                    // 「置き換え」モード（デフォルト）
+                    setIndustryCodes(fetchedCodes);
+                }
             } else {
+                handleFileErrors(['シートから有効なデータを取得できませんでした。']);
                 setIndustryCodes(INITIAL_INDUSTRY_CODES);
             }
         } catch (error) {
             console.error("Failed to fetch industry codes:", error);
-            handleFileErrors(['スプレッドシートからのデータ取得に失敗しました。初期データを使用します。']);
+            handleFileErrors([error.message]);
             setIndustryCodes(INITIAL_INDUSTRY_CODES);
         }
     }, [handleFileErrors]);
@@ -858,17 +859,26 @@ export default function App() {
         }
 
         if (isHeicLoaded && isJszipLoaded && isFilesaverLoaded && screen === 'initializing') {
-            const savedSpreadsheetId = localStorage.getItem('spreadsheetId');
-            if (savedSpreadsheetId) {
-                fetchIndustryCodes(savedSpreadsheetId);
+            // ★変更：URLとmodeの両方をlocalStorageから読み込む
+            const savedSpreadsheetUrl = localStorage.getItem('spreadsheetUrl');
+            const savedMode = localStorage.getItem('spreadsheetMode') || 'replace';
+            setSpreadsheetMode(savedMode);
+            
+            if (savedSpreadsheetUrl) {
+                fetchIndustryCodes(savedSpreadsheetUrl, savedMode);
+            } else {
+                setIndustryCodes(INITIAL_INDUSTRY_CODES);
             }
             setScreen('upload');
         }
     }, [isHeicLoaded, isJszipLoaded, isFilesaverLoaded, heicError, jszipError, filesaverError, screen, handleFileErrors, fetchIndustryCodes]);
 
-    const handleIdSave = (newId) => {
-        localStorage.setItem('spreadsheetId', newId);
-        fetchIndustryCodes(newId);
+    // ★変更：URLとmodeを保存し、データ取得をトリガーする
+    const handleIdSave = (newUrl, newMode) => {
+        localStorage.setItem('spreadsheetUrl', newUrl);
+        localStorage.setItem('spreadsheetMode', newMode);
+        setSpreadsheetMode(newMode);
+        fetchIndustryCodes(newUrl, newMode);
     };
 
     const handleFilesAccepted = async (files) => {
@@ -1033,7 +1043,8 @@ export default function App() {
         switch (screen) {
             case 'initializing': return <LoadingScreen title="ライブラリを準備中..." />;
             case 'loading': return <LoadingScreen title="画像を読み込んでいます..." progress={loadingProgress.progress} total={loadingProgress.total} />;
-            case 'bulk-settings': return <BulkSettingsScreen onNext={handleBulkSettingsNext} onBack={handleRestart} bulkSettings={bulkSettings} setBulkSettings={setBulkSettings} industryCodes={industryCodes} handleIdSave={handleIdSave} />;
+            // ★変更：spreadsheetModeをpropsとして渡す
+            case 'bulk-settings': return <BulkSettingsScreen onNext={handleBulkSettingsNext} onBack={handleRestart} bulkSettings={bulkSettings} setBulkSettings={setBulkSettings} industryCodes={industryCodes} handleIdSave={handleIdSave} spreadsheetMode={spreadsheetMode} />;
             case 'confirm-edit': return <ConfirmEditScreen images={images} setImages={setImages} onProcess={handleProcess} onBack={() => setScreen('bulk-settings')} industryCodes={industryCodes} />;
             case 'processing': return <LoadingScreen title="画像を処理中です..." progress={processingProgress.progress} total={processingProgress.total} />;
             case 'download': return <DownloadScreen zipBlob={zipBlob} zipFilename={zipFilename} onRestart={handleRestart} />;
