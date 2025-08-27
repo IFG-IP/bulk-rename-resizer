@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, ChevronsRight, Download, RotateCcw, Settings, X, AlertCircle, Loader, HardDriveDownload, Copy, Check } from 'lucide-react';
-
+import { UploadCloud, ChevronsRight, Download, RotateCcw, Settings, X, AlertCircle, Loader, HardDriveDownload, Copy, Check, HelpCircle } from 'lucide-react';
 // === CDN & ライブラリの定義 ===
 
 // 外部ライブラリのCDN URL
@@ -123,7 +122,7 @@ const AppHeader = ({ currentStep, steps, isLoading }) => {
   return (
     <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200/80 px-4 sm:px-6 py-3 grid grid-cols-3 items-center flex-shrink-0 h-20 z-10">
       <div className="text-base sm:text-lg font-bold text-gray-800 truncate">
-        業種別リネーム＆加工ツール
+        業種別リネーム＆加工ツール（β版）
       </div>
 
       <div className="flex justify-center">
@@ -166,7 +165,17 @@ const AppHeader = ({ currentStep, steps, isLoading }) => {
           })}
         </div>
       </div>
-      <div></div>
+      <div className="flex justify-end">
+        <a
+          href="manual.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
+          aria-label="マニュアルを開く"
+        >
+          <HelpCircle size={24} />
+        </a>
+      </div>
     </header>
   );
 };
@@ -325,9 +334,8 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
 /**
  * 業種管理モーダル
  */
-const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetMode, onSave, onTestConnection, testResult }) => {
+const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetMode, onConnect, connectionStatus }) => {
     const [localUrl, setLocalUrl] = useState(spreadsheetUrl || '');
-    // ★追加：連携方法を管理するローカルstate
     const [localMode, setLocalMode] = useState(spreadsheetMode || 'replace');
 
     useEffect(() => {
@@ -337,25 +345,12 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
 
     if (!isOpen) return null;
 
-    const extractSpreadsheetIdFromUrl = (url) => {
-        if (!url) return null;
-        const match = url.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-        return match ? match[1] : null;
-    };
-
-    const handleSave = () => {
-        // ★変更：URLと連携方法(mode)を両方渡す
-        onSave(localUrl, localMode);
-        onClose();
-    };
-
-    const handleTest = () => {
-        const id = extractSpreadsheetIdFromUrl(localUrl);
-        onTestConnection(id);
+    const handleConnect = () => {
+        // URLとモードを親コンポーネントに渡して連携処理を依頼
+        onConnect(localUrl, localMode);
     };
 
     return (
-        // 【修正後】backdrop-blurとshadow-2xlを削除し、背景の透明度を調整
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
             <div className="bg-white border border-gray-200 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-lg">
                 <header className="flex items-center justify-between p-5 border-b border-gray-200">
@@ -363,6 +358,7 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
                         <Settings className="mr-3 text-gray-500" />
                         業種マスタ連携設定
                     </h2>
+                    {/* 変更：ボタンはモーダルを閉じるだけ */}
                     <button onClick={onClose} className="text-gray-500 hover:text-gray-800 rounded-full p-1 hover:bg-gray-200/60 transition-colors">
                         <X size={24} />
                     </button>
@@ -398,7 +394,6 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
                             <li>共有設定したスプレッドシートのURLを下の欄に貼り付けてください。</li>
                         </ol>
                     </div>
-                    {/* ★追加：ラジオボタン選択エリア */}
                     <div>
                         <h3 className="text-lg font-semibold mb-3">【連携方法】</h3>
                         <div className="space-y-3 bg-white/50 p-5 rounded-xl border border-gray-200">
@@ -438,38 +433,40 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
                                 type="text"
                                 value={localUrl}
                                 onChange={(e) => setLocalUrl(e.target.value)}
-                                placeholder="https://docs.google.com/spreadsheets/d/1aBc.../edit"
+                                placeholder="URLが空の状態で連携すると設定が解除されます"
                                 className="flex-grow px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                             />
-                            <button onClick={handleTest} className="px-5 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 transition whitespace-nowrap">接続テスト</button>
+                            {/* 変更：ボタンの文言を「連携」に、onClickで連携処理を呼ぶ */}
+                            <button onClick={handleConnect} className="px-5 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 transition whitespace-nowrap">連携</button>
                         </div>
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold mb-3">【ステータス】</h3>
                         <div className="p-4 bg-white/50 rounded-xl min-h-[100px] border border-gray-200 flex items-center justify-center text-center">
-                           {testResult.status === 'testing' && (
-                                <p className="text-gray-500 flex items-center"><Loader size={18} className="animate-spin mr-2"/>テスト中...</p>
+                           {/* 変更：prop名を connectionStatus に変更し、メッセージを動的に表示 */}
+                           {connectionStatus.status === 'testing' && (
+                                <p className="text-gray-500 flex items-center"><Loader size={18} className="animate-spin mr-2"/>連携中...</p>
                            )}
-                           {testResult.status === 'success' && (
+                           {connectionStatus.status === 'success' && (
                                <p className="text-green-600 font-bold flex items-center">
                                    <Check className="mr-2"/>
-                                   正常に連携できました。({testResult.data.length}件の業種を取得)
+                                   {connectionStatus.message}
                                </p>
                            )}
-                           {testResult.status === 'error' && (
+                           {connectionStatus.status === 'error' && (
                                 <p className="text-red-600 font-bold flex items-center">
-                                    <AlertCircle className="mr-2"/>{testResult.message}
+                                    <AlertCircle className="mr-2"/>{connectionStatus.message}
                                 </p>
                            )}
-                           {testResult.status === 'idle' && (
-                                <p className="text-gray-500">接続テストボタンを押して、連携を確認してください。</p>
+                           {connectionStatus.status === 'idle' && (
+                                <p className="text-gray-500">URLを入力し「連携」ボタンで設定を反映してください。</p>
                            )}
                         </div>
                     </div>
                 </main>
-                <footer className="flex justify-end p-4 border-t border-gray-200">
-                    <button onClick={onClose} className="px-6 py-2 mr-4 rounded-lg font-semibold text-gray-700 bg-gray-200/70 hover:bg-gray-300/70 transition">キャンセル</button>
-                    <button onClick={handleSave} className="px-6 py-2 rounded-lg text-white font-bold bg-blue-600 hover:bg-blue-700 shadow-md transition">保存して閉じる</button>
+                <footer className="flex justify-center p-4 border-t border-gray-200">
+                    {/* 変更：ボタンはモーダルを閉じるだけ */}
+                    <button onClick={onClose} className="w-full sm:w-auto px-8 py-3 rounded-lg text-white font-bold bg-gray-600 hover:bg-gray-700 shadow-md transition">閉じる</button>
                 </footer>
             </div>
         </div>
@@ -479,61 +476,16 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
 /**
  * STEP 2: ファイル名設定画面
  */
-const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, industryCodes, handleIdSave, spreadsheetMode }) => {
+const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, industryCodes, onConnect, spreadsheetUrl, spreadsheetMode }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [spreadsheetUrl, setSpreadsheetUrl] = useState(() => localStorage.getItem('spreadsheetUrl') || '');
-    const [testResult, setTestResult] = useState({ status: 'idle', data: [], message: '' });
+    const [connectionStatus, setConnectionStatus] = useState({ status: 'idle', data: [], message: '' });
 
-    const handleTestConnection = async (id) => {
-        console.log("--- 接続テスト開始 ---");
-        setTestResult({ status: 'testing', data: [], message: '' });
-
-        const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
-        console.log("1. 読み込まれたAPIキー:", apiKey);
-        console.log("2. URLから抽出されたID:", id);
-        
-        if (!id || !apiKey) {
-            console.error(">> エラー: IDまたはAPIキーが不足しています。");
-            setTestResult({ status: 'error', data: [], message: 'IDが入力されていないか、APIキーが設定されていません。' });
-            return;
-        }
-
-        try {
-            const endpoint = `https://sheets.googleapis.com/v4/spreadsheets/${id}/values/A:B?key=${apiKey}`;
-            console.log("3. APIリクエストURL:", endpoint);
-
-            const response = await fetch(endpoint);
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                const errorMessage = errorData.error?.message || '不明なエラーです。';
-                throw new Error(`連携に失敗しました。IDや共有設定を確認してください。(詳細: ${errorMessage})`);
-            }
-
-            const data = await response.json();
-            const industryData = data.values
-                ? data.values
-                    .filter(row => row[0] && row[1]) 
-                    .map(row => ({ code: row[0], name: row[1] }))
-                : [];
-            
-            if (industryData.length === 0) {
-                setTestResult({ status: 'error', data: [], message: 'シートから有効なデータを取得できませんでした。A列にコード, B列に名称が入力されているか確認してください。' });
-            } else {
-                console.log(">> 接続テスト成功");
-                setTestResult({ status: 'success', data: industryData, message: '' });
-            }
-
-        } catch (error) {
-            console.error(">> 接続テスト失敗:", error);
-            setTestResult({ status: 'error', data: [], message: error.message });
-        }
-    };
-
-    // ★変更：保存時にURLとmodeを両方受け取る
-    const onSaveAndClose = (newUrl, newMode) => {
-        setSpreadsheetUrl(newUrl);
-        handleIdSave(newUrl, newMode);
+    // モーダルから連携実行が要求された際のハンドラ
+    const handleConnect = async (url, mode) => {
+        setConnectionStatus({ status: 'testing', data: [], message: '' });
+        // 親から渡された連携処理を実行し、結果をstateにセットする
+        const result = await onConnect(url, mode);
+        setConnectionStatus(result);
     };
 
     const isNextDisabled = !bulkSettings.industryCode || !/^\d+$/.test(bulkSettings.submissionId) || !/^\d{8}$/.test(bulkSettings.date);
@@ -542,7 +494,7 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
         <div className="w-full h-full overflow-y-auto bg-gray-100">
             <div className="w-full max-w-xl mx-auto px-4 sm:px-8 py-10 sm:py-12">
                 <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-800 tracking-tight">ファイル名設定</h2>
-                <p className="text-center text-lg text-gray-500 mt-3 mb-10">リネーム後のファイル名に使用する、共通の情報を設定します。</p>
+                <p className="text-center text-lg text-gray-500 mt-3 mb-10">リネーム後のファイル名に使用する共通の情報を設定します。</p>
                 <div className="bg-white/60 backdrop-blur-xl border border-gray-200/50 shadow-xl rounded-3xl p-6 sm:p-8 space-y-8">
                     <div>
                         <label className="block text-base font-semibold text-gray-700 mb-3">業種</label>
@@ -612,19 +564,22 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
             </div>
             <IndustryManagementModal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    // モーダルを閉じる際にステータスをリセット
+                    setConnectionStatus({ status: 'idle', data: [], message: '' });
+                }}
                 spreadsheetUrl={spreadsheetUrl}
                 spreadsheetMode={spreadsheetMode}
-                onSave={onSaveAndClose}
-                onTestConnection={handleTestConnection}
-                testResult={testResult}
+                onConnect={handleConnect}
+                connectionStatus={connectionStatus}
             />
         </div>
     );
 };
 
 /**
- * STEP 3: 確認・個別編集画面
+ * STEP 3: 確認画面
  */
 const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes }) => {
     const [selectedImageId, setSelectedImageId] = useState(null);
@@ -732,10 +687,13 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
 /**
  * STEP 4: ダウンロード画面
  */
-const DownloadScreen = ({ zipBlob, zipFilename, onRestart }) => {
+const DownloadScreen = ({ zipBlob, zipFilename, onRestart, onDownload }) => {
     const handleDownload = () => {
         if (window.saveAs && zipBlob) {
             window.saveAs(zipBlob, zipFilename);
+            if (onDownload) {
+                onDownload();
+            }
         }
     };
 
@@ -774,6 +732,7 @@ const DownloadScreen = ({ zipBlob, zipFilename, onRestart }) => {
  */
 export default function App() {
     const [screen, setScreen] = useState('initializing');
+    const [isDownloadCompleted, setIsDownloadCompleted] = useState(false); 
     const [images, setImages] = useState([]);
     const [loadingProgress, setLoadingProgress] = useState({ progress: 0, total: 0 });
     const [processingProgress, setProcessingProgress] = useState({ progress: 0, total: 0 });
@@ -782,8 +741,8 @@ export default function App() {
     const [errors, setErrors] = useState([]);
     const [bulkSettings, setBulkSettings] = useState({ industryCode: '', submissionId: '', date: getFormattedDate(), quality: 9 });
     const [industryCodes, setIndustryCodes] = useState(INITIAL_INDUSTRY_CODES);
-    // ★追加：連携方法を管理するstate。localStorageから初期値を読み込む
     const [spreadsheetMode, setSpreadsheetMode] = useState(() => localStorage.getItem('spreadsheetMode') || 'replace');
+    const [spreadsheetUrl, setSpreadsheetUrl] = useState(() => localStorage.getItem('spreadsheetUrl') || '');
     
     const { isLoaded: isHeicLoaded, error: heicError } = useScript(HEIC_CDN_URL);
     const { isLoaded: isJszipLoaded, error: jszipError } = useScript(JSZIP_CDN);
@@ -794,7 +753,6 @@ export default function App() {
         setTimeout(() => setErrors([]), 8000);
     }, []);
 
-    // ★変更：引数に連携方法(mode)を追加
     const fetchIndustryCodes = useCallback(async (spreadsheetUrl, mode) => {
         const extractIdFromUrl = (url) => {
             if (!url) return null;
@@ -824,16 +782,13 @@ export default function App() {
                 : [];
             
             if (fetchedCodes.length > 0) {
-                // ★追加：modeに応じてリストを処理
                 if (mode === 'add') {
-                    // 「追加」モード：重複を除いて結合
                     const combined = [...fetchedCodes, ...INITIAL_INDUSTRY_CODES];
                     const uniqueCodes = combined.filter((item, index, self) =>
                         index === self.findIndex((t) => t.code === item.code)
                     );
                     setIndustryCodes(uniqueCodes);
                 } else {
-                    // 「置き換え」モード（デフォルト）
                     setIndustryCodes(fetchedCodes);
                 }
             } else {
@@ -859,7 +814,6 @@ export default function App() {
         }
 
         if (isHeicLoaded && isJszipLoaded && isFilesaverLoaded && screen === 'initializing') {
-            // ★変更：URLとmodeの両方をlocalStorageから読み込む
             const savedSpreadsheetUrl = localStorage.getItem('spreadsheetUrl');
             const savedMode = localStorage.getItem('spreadsheetMode') || 'replace';
             setSpreadsheetMode(savedMode);
@@ -873,12 +827,65 @@ export default function App() {
         }
     }, [isHeicLoaded, isJszipLoaded, isFilesaverLoaded, heicError, jszipError, filesaverError, screen, handleFileErrors, fetchIndustryCodes]);
 
-    // ★変更：URLとmodeを保存し、データ取得をトリガーする
-    const handleIdSave = (newUrl, newMode) => {
-        localStorage.setItem('spreadsheetUrl', newUrl);
-        localStorage.setItem('spreadsheetMode', newMode);
-        setSpreadsheetMode(newMode);
-        fetchIndustryCodes(newUrl, newMode);
+    // ★追加：連携・連携解除のロジックをすべてここに集約
+    const handleSpreadsheetConnection = async (url, mode) => {
+        // URLが空欄なら連携解除
+        if (!url) {
+            localStorage.removeItem('spreadsheetUrl');
+            localStorage.removeItem('spreadsheetMode');
+            setSpreadsheetUrl('');
+            setSpreadsheetMode('replace'); // デフォルトに戻す
+            setIndustryCodes(INITIAL_INDUSTRY_CODES);
+            return { status: 'success', message: '連携を解除しました。' };
+        }
+
+        const extractIdFromUrl = (u) => {
+            const match = u.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            return match ? match[1] : null;
+        };
+
+        const spreadsheetId = extractIdFromUrl(url);
+        const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+
+        if (!spreadsheetId || !apiKey) {
+            return { status: 'error', message: 'URLが正しくないか、APIキーが設定されていません。' };
+        }
+
+        try {
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/A:B?key=${apiKey}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || '連携に失敗しました。IDや共有設定を確認してください。');
+            }
+
+            const data = await response.json();
+            const fetchedCodes = data.values ? data.values.filter(row => row[0] && row[1]).map(row => ({ code: row[0], name: row[1] })) : [];
+
+            if (fetchedCodes.length === 0) {
+                return { status: 'error', message: 'シートから有効なデータを取得できませんでした。' };
+            }
+            
+            // 成功時の処理
+            localStorage.setItem('spreadsheetUrl', url);
+            localStorage.setItem('spreadsheetMode', mode);
+            setSpreadsheetUrl(url);
+            setSpreadsheetMode(mode);
+
+            if (mode === 'add') {
+                const combined = [...fetchedCodes, ...INITIAL_INDUSTRY_CODES];
+                const uniqueCodes = combined.filter((item, index, self) =>
+                    index === self.findIndex((t) => t.code === item.code)
+                );
+                setIndustryCodes(uniqueCodes);
+            } else {
+                setIndustryCodes(fetchedCodes);
+            }
+            
+            return { status: 'success', message: `正常に連携できました (${fetchedCodes.length}件)` };
+
+        } catch (error) {
+            return { status: 'error', message: `連携エラー: ${error.message}` };
+        }
     };
 
     const handleFilesAccepted = async (files) => {
@@ -1000,6 +1007,12 @@ export default function App() {
         setScreen('download');
     };
 
+    const handleDownload = () => {
+        setIsDownloadCompleted(true);
+    };
+
+
+
     const handleRestart = () => {
         images.forEach(image => {
             URL.revokeObjectURL(image.originalUrl);
@@ -1010,17 +1023,20 @@ export default function App() {
         setZipFilename('');
         setErrors([]);
         setBulkSettings({ industryCode: '', submissionId: '', date: getFormattedDate(), quality: 9 });
+        setIsDownloadCompleted(false); // ★追加: 状態をリセット
         setScreen('upload');
     };
 
     const workflowSteps = [
         { id: 'upload', name: 'アップロード' },
         { id: 'bulk-settings', name: 'ファイル名設定' },
-        { id: 'confirm-edit', name: '確認・編集' },
+        { id: 'confirm-edit', name: '確認' },
         { id: 'download', name: 'ダウンロード' },
     ];
 
     const getCurrentStep = () => {
+        if (isDownloadCompleted) return 5;
+
         switch (screen) {
             case 'upload':
             case 'loading':
@@ -1043,11 +1059,11 @@ export default function App() {
         switch (screen) {
             case 'initializing': return <LoadingScreen title="ライブラリを準備中..." />;
             case 'loading': return <LoadingScreen title="画像を読み込んでいます..." progress={loadingProgress.progress} total={loadingProgress.total} />;
-            // ★変更：spreadsheetModeをpropsとして渡す
-            case 'bulk-settings': return <BulkSettingsScreen onNext={handleBulkSettingsNext} onBack={handleRestart} bulkSettings={bulkSettings} setBulkSettings={setBulkSettings} industryCodes={industryCodes} handleIdSave={handleIdSave} spreadsheetMode={spreadsheetMode} />;
+            // 変更：BulkSettingsScreenに渡すpropsを変更
+            case 'bulk-settings': return <BulkSettingsScreen onNext={handleBulkSettingsNext} onBack={handleRestart} bulkSettings={bulkSettings} setBulkSettings={setBulkSettings} industryCodes={industryCodes} onConnect={handleSpreadsheetConnection} spreadsheetUrl={spreadsheetUrl} spreadsheetMode={spreadsheetMode} />;
             case 'confirm-edit': return <ConfirmEditScreen images={images} setImages={setImages} onProcess={handleProcess} onBack={() => setScreen('bulk-settings')} industryCodes={industryCodes} />;
             case 'processing': return <LoadingScreen title="画像を処理中です..." progress={processingProgress.progress} total={processingProgress.total} />;
-            case 'download': return <DownloadScreen zipBlob={zipBlob} zipFilename={zipFilename} onRestart={handleRestart} />;
+            case 'download': return <DownloadScreen zipBlob={zipBlob} zipFilename={zipFilename} onRestart={handleRestart} onDownload={handleDownload} />;
             case 'upload':
             default:
                 return <UploadScreen onFilesAccepted={handleFilesAccepted} setErrors={handleFileErrors} />;
