@@ -764,6 +764,10 @@ export default function App() {
         const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
         if (!spreadsheetId || !apiKey) {
+            // 不正なURLの場合は、関連する設定をすべてクリアする
+            localStorage.removeItem('spreadsheetUrl');
+            localStorage.removeItem('spreadsheetMode');
+            localStorage.removeItem('cachedIndustryCodes');
             setIndustryCodes(INITIAL_INDUSTRY_CODES);
             return;
         }
@@ -782,23 +786,33 @@ export default function App() {
                 : [];
             
             if (fetchedCodes.length > 0) {
+                let finalCodes;
                 if (mode === 'add') {
                     const combined = [...fetchedCodes, ...INITIAL_INDUSTRY_CODES];
                     const uniqueCodes = combined.filter((item, index, self) =>
                         index === self.findIndex((t) => t.code === item.code)
                     );
                     setIndustryCodes(uniqueCodes);
+                    finalCodes = uniqueCodes;
                 } else {
                     setIndustryCodes(fetchedCodes);
+                    finalCodes = fetchedCodes;
                 }
+                // ★追加: 取得成功時にキャッシュを保存する
+                localStorage.setItem('cachedIndustryCodes', JSON.stringify(finalCodes));
+
             } else {
                 handleFileErrors(['シートから有効なデータを取得できませんでした。']);
                 setIndustryCodes(INITIAL_INDUSTRY_CODES);
+                // ★追加: データが空の場合、キャッシュをクリアする
+                localStorage.removeItem('cachedIndustryCodes');
             }
         } catch (error) {
             console.error("Failed to fetch industry codes:", error);
             handleFileErrors([error.message]);
             setIndustryCodes(INITIAL_INDUSTRY_CODES);
+            // ★追加: エラー発生時にキャッシュをクリアする
+            localStorage.removeItem('cachedIndustryCodes');
         }
     }, [handleFileErrors]);
 
@@ -816,12 +830,21 @@ export default function App() {
         if (isHeicLoaded && isJszipLoaded && isFilesaverLoaded && screen === 'initializing') {
             const savedSpreadsheetUrl = localStorage.getItem('spreadsheetUrl');
             const savedMode = localStorage.getItem('spreadsheetMode') || 'replace';
-            setSpreadsheetMode(savedMode);
+            // const cachedCodes = localStorage.getItem('cachedIndustryCodes'); // ★追加: キャッシュを取得
             
-            if (savedSpreadsheetUrl) {
-                fetchIndustryCodes(savedSpreadsheetUrl, savedMode);
-            } else {
+            // URLがない場合（連携解除状態）は、業種を初期化しキャッシュも削除
+            if (!savedSpreadsheetUrl) {
                 setIndustryCodes(INITIAL_INDUSTRY_CODES);
+                localStorage.removeItem('cachedIndustryCodes');
+            } else {
+                // URLがある場合は、キャッシュの利用を試みる
+                const cachedCodes = localStorage.getItem('cachedIndustryCodes');
+                if (cachedCodes) {
+                    setIndustryCodes(JSON.parse(cachedCodes));
+                } else {
+                    // キャッシュがなければAPI経由で取得
+                    fetchIndustryCodes(savedSpreadsheetUrl, savedMode);
+                }
             }
             setScreen('upload');
         }
@@ -871,18 +894,23 @@ export default function App() {
             setSpreadsheetUrl(url);
             setSpreadsheetMode(mode);
 
+            let finalCodes; // ★変更: 最終的なリストを格納する変数
             if (mode === 'add') {
                 const combined = [...fetchedCodes, ...INITIAL_INDUSTRY_CODES];
                 const uniqueCodes = combined.filter((item, index, self) =>
                     index === self.findIndex((t) => t.code === item.code)
                 );
                 setIndustryCodes(uniqueCodes);
+                finalCodes = uniqueCodes; // ★追加
             } else {
                 setIndustryCodes(fetchedCodes);
+                finalCodes = fetchedCodes; // ★追加
             }
             
-            return { status: 'success', message: `正常に連携できました (${fetchedCodes.length}件)` };
+            // ★追加: 取得・整形した最終データをlocalStorageに保存
+            localStorage.setItem('cachedIndustryCodes', JSON.stringify(finalCodes));
 
+            return { status: 'success', message: `正常に連携できました (${fetchedCodes.length}件)` };
         } catch (error) {
             return { status: 'error', message: `連携エラー: ${error.message}` };
         }
