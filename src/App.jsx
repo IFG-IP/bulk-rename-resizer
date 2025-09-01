@@ -764,7 +764,7 @@ export default function App() {
         };
 
         const spreadsheetId = extractIdFromUrl(spreadsheetUrl);
-        const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+        // const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
         if (!spreadsheetId || !apiKey) {
             // 不正なURLの場合は、関連する設定をすべてクリアする
@@ -831,6 +831,8 @@ export default function App() {
         }
 
         if (isHeicLoaded && isJszipLoaded && isFilesaverLoaded && screen === 'initializing') {
+
+            {/* スプレッドシートのURLとモードを取得
             const savedSpreadsheetUrl = localStorage.getItem('spreadsheetUrl');
             const savedMode = localStorage.getItem('spreadsheetMode') || 'replace';
             // const cachedCodes = localStorage.getItem('cachedIndustryCodes'); // ★追加: キャッシュを取得
@@ -848,7 +850,17 @@ export default function App() {
                     // キャッシュがなければAPI経由で取得
                     fetchIndustryCodes(savedSpreadsheetUrl, savedMode);
                 }
-            }
+            }    
+            */}
+
+            // スプレッドシート連携無効用設定
+            // スプレッドシート連携を無効化するため、常に初期データを設定
+            setIndustryCodes(INITIAL_INDUSTRY_CODES);
+            // 既存の連携設定が残っている可能性を考慮し、クリアする
+            localStorage.removeItem('spreadsheetUrl');
+            localStorage.removeItem('spreadsheetMode');
+            localStorage.removeItem('cachedIndustryCodes');
+            
             setScreen('upload');
         }
     }, [isHeicLoaded, isJszipLoaded, isFilesaverLoaded, heicError, jszipError, filesaverError, screen, handleFileErrors, fetchIndustryCodes]);
@@ -871,11 +883,16 @@ export default function App() {
         };
 
         const spreadsheetId = extractIdFromUrl(url);
-        const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+        // const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
         if (!spreadsheetId || !apiKey) {
             return { status: 'error', message: 'URLが正しくないか、APIキーが設定されていません。' };
         }
+
+        // スプレッドシート連携無効化のメッセージを返す
+        return { status: 'error', message: '現在、スプレッドシート連携機能は利用できません。' };
+
+        {/* 以下は連携有効化の元のコード
 
         try {
             const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/A:B?key=${apiKey}`);
@@ -917,6 +934,9 @@ export default function App() {
         } catch (error) {
             return { status: 'error', message: `連携エラー: ${error.message}` };
         }
+            
+        */}
+        
     };
 
     const handleFilesAccepted = async (files) => {
