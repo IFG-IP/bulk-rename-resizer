@@ -507,6 +507,7 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
                                 <option value="" disabled>業種を選択してください</option>
                                 {industryCodes.map(ic => <option key={ic.code} value={ic.code}>{ic.name} ({ic.code})</option>)}
                             </select>
+                            {/* モーダルを開くボタン 
                             <button 
                                 onClick={() => setIsModalOpen(true)}
                                 className="flex-shrink-0 flex items-center px-4 py-3 bg-gray-200/80 text-gray-700 font-semibold rounded-xl hover:bg-gray-300/80 transition"
@@ -514,6 +515,8 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
                                 <Settings size={18} className="mr-0 sm:mr-2" />
                                 <span className="hidden sm:inline">管理</span>
                             </button>
+                            */}
+                            
                         </div>
                     </div>
                     <div>

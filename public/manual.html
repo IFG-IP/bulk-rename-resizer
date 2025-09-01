@@ -104,8 +104,25 @@
                             <span class="flex items-center justify-center w-8 h-8 bg-blue-500 text-white rounded-full font-bold mr-3 text-lg">1</span>
                             画像アップロード画面
                         </h3>
-                        <p class="text-gray-600">最初に表示される画面です。ここで加工したい画像ファイルを選択します。「ファイルを選択」ボタンをクリックするか、画面の点線枠内にファイル、または画像が格納されたフォルダごとドラッグ＆ドロップすることで、まとめてアップロードできます。</p>
-                        <p class="mt-2 text-sm text-gray-500"><strong>対応形式:</strong> JPG, PNG, HEIC | <strong>上限:</strong> 50枚, 各10MBまで</p>
+                        <p class="text-gray-600 mb-6">最初に表示される画面です。以下のいずれかの方法で、加工したい画像ファイルをアップロードします。</p>
+                        <div class="space-y-4">
+                            <div class="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <svg class="h-6 w-6 text-blue-500 mr-4 mt-1 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">ボタンから選択</h4>
+                                    <p class="text-sm text-gray-600">「ファイルを選択」ボタンをクリックして、PC内のファイルを選択します。</p>
+                                    <p class="pl-4 text-xs text-gray-500 mt-1">※この方法ではフォルダをアップロードできません。</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <svg class="h-6 w-6 text-blue-500 mr-4 mt-1 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">ドラッグ＆ドロップ</h4>
+                                    <p class="text-sm text-gray-600">画面内に、ファイルまたはフォルダごとドラッグ＆ドロップします。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-6 text-sm text-gray-500"><strong>対応形式:</strong> JPG, PNG, HEIC | <strong>上限:</strong> 50枚, 各10MBまで</p>
                     </div>
                     <!-- ステップ2 -->
                     <div class="bg-white p-8 rounded-xl shadow-md">
@@ -123,7 +140,7 @@
                              <svg class="h-6 w-6 text-blue-600 mr-3 mt-1 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
                             <div>
                                 <p class="font-semibold">業種マスタの管理</p>
-                                <p class="text-sm text-gray-600 mt-1">「管理」ボタンから、Googleスプレッドシートを連携させて業種リストをカスタマイズできます。詳細は<a href="#section-usage" class="text-blue-600 font-medium hover:underline">使い方の例</a>で後述します。</p>
+                                <p class="text-sm text-gray-600 mt-1">Googleスプレッドシートを連携させて業種リストをカスタマイズする機能は、<strong class="text-blue-600">正式版で対応予定です。</strong></p>
                             </div>
                         </div>
                     </div>
@@ -168,7 +185,18 @@
                             <span class="flex items-center justify-center w-8 h-8 bg-blue-500 text-white rounded-full font-bold mr-3 text-lg">4</span>
                             ダウンロード画面
                         </h3>
-                        <p class="text-gray-600">全ての処理が完了するとこの画面が表示されます。「（ファイル名）.zipをダウンロード」ボタンをクリックすると、加工済みの全ファイルが１つのZIPファイルとしてダウンロードされます。ファイル名は設定画面で入力した業種コードと入稿IDに基づいて自動で生成されます。また、「最初に戻る」ボタンで新しい作業を開始できます。</p>
+                        <p class="text-gray-600 mb-6">全ての画像処理が完了すると、この画面が表示されます。以下の操作を行えます。</p>
+                        <ul class="space-y-4 list-disc list-inside">
+                            <li>
+                                <strong>ZIPダウンロード:</strong>
+                                <p class="pl-4 text-sm text-gray-600">「（ファイル名）.zipをダウンロード」ボタンをクリックすると、加工済みの全ファイルが１つのZIPファイルとしてダウンロードされます。</p>
+                                <p class="pl-4 text-xs text-gray-500 mt-1">※ZIPファイル名は設定画面で入力した業種コードと入稿IDに基づいて自動で生成されます。</p>
+                            </li>
+                            <li>
+                                <strong>新しい作業の開始:</strong>
+                                <p class="pl-4 text-sm text-gray-600">「最初に戻る」ボタンをクリックすると、アップロード画面に戻り、新しい作業を開始できます。</p>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </section>
@@ -199,39 +227,14 @@
                     </div>
                     <hr>
                     <div>
-                        <h3 class="text-xl font-semibold mb-4">応用機能：Googleスプレッドシートで業種を管理する</h3>
-                        <p class="mb-4 text-gray-600">業種リストを自由にカスタマイズしたい場合は、Googleスプレッドシートとの連携機能が便利です。スプレッドシートを連携しない場合、以下の初期値が業種リストとして表示されます。</p>
-                        <div class="my-4 pl-4">
-                            <table class="w-full max-w-sm border-collapse border border-gray-300 text-left text-sm">
-                                <thead><tr><th class="border bg-gray-100 p-2 w-1/2">業種コード</th><th class="border bg-gray-100 p-2 w-1/2">業種名</th></tr></thead>
-                                <tbody>
-                                    <tr><td class="border p-2">hos</td><td class="border p-2">病院</td></tr>
-                                    <tr><td class="border p-2">htl</td><td class="border p-2">ホテル</td></tr>
-                                    <tr><td class="border p-2">sal</td><td class="border p-2">サロン</td></tr>
-                                    <tr><td class="border p-2">tra</td><td class="border p-2">しつけ教室</td></tr>
-                                    <tr><td class="border p-2">caf</td><td class="border p-2">カフェ</td></tr>
-                                    <tr><td class="border p-2">run</td><td class="border p-2">ドッグラン</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <ol class="list-decimal list-inside space-y-6">
-                            <li><strong>スプレッドシートの準備:</strong>
-                                <p class="pl-4 text-sm text-gray-600 mb-2">独自のリストを使用するには、A列に「業種コード」、B列に「業種名」を入力したシートを作成します。</p>
-                            </li>
-                            <li><strong>共有設定の変更:</strong>
-                                <p class="pl-4 text-sm text-gray-600">スプレッドシート右上の「共有」ボタンから、アクセス権を「<strong class="text-blue-600">リンクを知っている全員</strong>」に変更し、権限を「<strong class="text-blue-600">閲覧者</strong>」に設定します。</p>
-                            </li>
-                            <li><strong>連携方法の選択:</strong>
-                                <p class="pl-4 text-sm text-gray-600">「ファイル名設定」画面の「管理」ボタンを押すと設定画面が表示されます。ここで連携方法を選択します。</p>
-                                <ul class="list-disc list-inside pl-10 mt-2 space-y-2 text-sm text-gray-600">
-                                    <li><strong class="font-semibold text-gray-800">上書きする (置き換え):</strong> アプリ内の業種リストが、スプレッドシートの内容に完全に置き換わります。</li>
-                                    <li><strong class="font-semibold text-gray-800">追加する:</strong> アプリの初期リストに、スプレッドシートの内容が追加されます。（業種コードが重複するものは無視されます）</li>
-                                </ul>
-                            </li>
-                            <li><strong>アプリとの連携:</strong>
-                                <p class="pl-4 text-sm text-gray-600">連携方法を選択した後、スプレッドシートのURLを貼り付け、「連携」ボタンをクリックします。これで業種リストが更新されます。</p>
-                            </li>
-                        </ol>
+                        <h3 class="text-xl font-semibold mb-4">【正式版で対応予定】Googleスプレッドシート連携</h3>
+                        <p class="mb-4 text-gray-600">
+                            現在、業種リストはアプリ内に固定で用意されたもの（病院、ホテル、サロンなど）のみ利用可能です。
+                        </p>
+                        <p class="text-gray-600">
+                            <strong>正式版では、Googleスプレッドシートと連携し、業種リストを自由にカスタマイズできる機能を搭載予定です。</strong>
+                            この機能により、独自の業種コードや名称を定義し、より柔軟なファイル名生成が可能になります。ご期待ください。
+                        </p>
                     </div>
                 </div>
             </section>
@@ -266,21 +269,6 @@
                         <div class="mt-4 text-gray-600 space-y-2">
                             <p><strong>原因:</strong> ファイル名設定画面で、必須項目が入力されていない可能性があります。</p>
                             <p><strong>対策:</strong> 「業種」「入稿ID」「日付」の3つの項目がすべて正しく入力されているかご確認ください。入稿IDは半角数字、日付はYYYYMMDDの8桁で入力する必要があります。</p>
-                        </div>
-                    </details>
-                    <details class="bg-white p-6 rounded-xl shadow-md group">
-                        <summary class="font-semibold cursor-pointer flex justify-between items-center">
-                            スプレッドシートと連携できない
-                            <svg class="h-5 w-5 transform group-open:rotate-180 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                        </summary>
-                        <div class="mt-4 text-gray-600 space-y-2">
-                            <p><strong>原因:</strong> URLが間違っているか、共有設定が正しくない可能性があります。</p>
-                            <p><strong>対策:</strong></p>
-                            <ul class="list-disc list-inside pl-4 text-sm">
-                                <li>スプレッドシートのURLが正しいか再度ご確認ください。</li>
-                                <li>共有設定が「リンクを知っている全員」かつ「閲覧者」になっているかご確認ください。</li>
-                                <li>シートのA列・B列にデータが正しく入力されているかご確認ください。</li>
-                            </ul>
                         </div>
                     </details>
                      <details class="bg-white p-6 rounded-xl shadow-md group">
@@ -323,3 +311,4 @@
 
 </body>
 </html>
+
