@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, ChevronsRight, Download, RotateCcw, Settings, X, AlertCircle, Loader, HardDriveDownload, Copy, Check, HelpCircle } from 'lucide-react';
+import { UploadCloud, ChevronsRight, Download, RotateCcw, Settings, X, AlertCircle, Loader, HardDriveDownload, Copy, Check, HelpCircle, Bug } from 'lucide-react';
 // === CDN & ライブラリの定義 ===
 
 // 外部ライブラリのCDN URL
@@ -165,7 +165,16 @@ const AppHeader = ({ currentStep, steps, isLoading }) => {
           })}
         </div>
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-end items-center space-x-2">
+        <a
+          href="https://forms.gle/Fk8aBGiwAEVHef2e9" // GoogleフォームのURLに置き換えてください
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
+          aria-label="不具合報告・要望を送信"
+        >
+          <Bug size={24} />
+        </a>
         <a
           href="manual.html"
           target="_blank"
