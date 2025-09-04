@@ -1,12 +1,31 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UploadCloud, ChevronsRight, Download, RotateCcw, Settings, X, AlertCircle, Loader, HardDriveDownload, Copy, Check, HelpCircle, Bug } from 'lucide-react';
+
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+
 // === CDN & ライブラリの定義 ===
 
 // 外部ライブラリのCDN URL
 const HEIC_CDN_URL = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
 const JSZIP_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
 const FILESAVER_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js';
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+};
+
+
+// Firebaseアプリを初期化
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // === 定数とヘルパー関数 ===
 
@@ -122,7 +141,7 @@ const AppHeader = ({ currentStep, steps, isLoading }) => {
   return (
     <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200/80 px-4 sm:px-6 py-3 grid grid-cols-3 items-center flex-shrink-0 h-20 z-10">
       <div className="text-base sm:text-lg font-bold text-gray-800 truncate">
-        業種別リネーム＆加工ツール（β版）
+        業種別リネーム＆加工ツール
       </div>
 
       <div className="flex justify-center">
@@ -246,7 +265,7 @@ const LoadingScreen = ({ title, progress, total }) => (
  * STEP 1: 画像アップロード画面
  */
 const UploadScreen = ({ onFilesAccepted, setErrors }) => {
-  const onDrop = useCallback((acceptedFiles, fileRejections) => {
+  const onDrop = useCallback((acceptedFiles, fileRejections, event) => {
     let currentErrors = [];
     if (acceptedFiles.length + fileRejections.length > 50) {
       currentErrors.push('一度にアップロードできるファイルは50枚までです。');
@@ -269,7 +288,11 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
     }
 
     if (acceptedFiles.length > 0) {
-      onFilesAccepted(acceptedFiles);
+      // ▼▼▼ 変更 ▼▼▼
+      // イベントタイプからアップロード方法を判定
+      const method = event.type === 'drop' ? 'drag_and_drop' : 'button_click';
+      onFilesAccepted(acceptedFiles, method);
+      // ▲▲▲ 変更 ▲▲▲
     }
   }, [onFilesAccepted, setErrors]);
 
@@ -286,10 +309,8 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
   });
 
   return (
-    //【修正】コンポーネント全体をスクロール可能に
     <div {...getRootProps()} className="w-full h-full overflow-y-auto bg-gray-100 relative">
       <input {...getInputProps()} />
-      {/*【修正】コンテンツに最大幅とパディングを設定 */}
       <div className="w-full max-w-3xl mx-auto px-4 sm:px-8 py-10 sm:py-12 text-center flex flex-col items-center justify-center min-h-full">
         <div>
           <h1 className="text-3xl sm:text-5xl font-bold text-gray-800 tracking-tight">
@@ -743,6 +764,10 @@ const DownloadScreen = ({ zipBlob, zipFilename, onRestart, onDownload }) => {
  * メインアプリケーションコンポーネント
  */
 export default function App() {
+    // ★★★ ログ送信機能の有効/無効を切り替える変数 ★★★
+    // true: 送信する, false: 送信しない
+    const isLogSendingEnabled = true;
+
     const [screen, setScreen] = useState('initializing');
     const [isDownloadCompleted, setIsDownloadCompleted] = useState(false); 
     const [images, setImages] = useState([]);
@@ -755,10 +780,31 @@ export default function App() {
     const [industryCodes, setIndustryCodes] = useState(INITIAL_INDUSTRY_CODES);
     const [spreadsheetMode, setSpreadsheetMode] = useState(() => localStorage.getItem('spreadsheetMode') || 'replace');
     const [spreadsheetUrl, setSpreadsheetUrl] = useState(() => localStorage.getItem('spreadsheetUrl') || '');
-    
+    const [fileTypeCounts, setFileTypeCounts] = useState({});
+    const [timeBreakdown, setTimeBreakdown] = useState({ thumbnail: 0, resize: 0, zip: 0 });
+
+    // セッション開始時刻（滞在時間計測用）
+    const [sessionStartTime, setSessionStartTime] = useState(null);
+    // アップロード方法
+    const [uploadMethod, setUploadMethod] = useState('');
+    // 合計ファイルサイズ
+    const [totalFileSize, setTotalFileSize] = useState(0);
+
+    // セッションID（ページを開いてから閉じるまでの一意なID）
+    const [sessionId] = useState(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+    // 処理時間を計測するための開始時刻
+    const [processingStartTime, setProcessingStartTime] = useState(null);
+
+    useEffect(() => {
+        // ページ読み込み時にセッション開始時刻を記録
+        setSessionStartTime(Date.now());
+    }, []);
+
     const { isLoaded: isHeicLoaded, error: heicError } = useScript(HEIC_CDN_URL);
     const { isLoaded: isJszipLoaded, error: jszipError } = useScript(JSZIP_CDN);
     const { isLoaded: isFilesaverLoaded, error: filesaverError } = useScript(FILESAVER_CDN);
+
+    
 
     const handleFileErrors = useCallback((newErrors) => {
         setErrors(newErrors);
@@ -948,12 +994,33 @@ export default function App() {
         
     };
 
-    const handleFilesAccepted = async (files) => {
+    const handleFilesAccepted = async (files, method) => {
+        // ▼▼▼ 置き換え/追加 ▼▼▼
+        setUploadMethod(method);
+        const totalSizeInBytes = files.reduce((sum, file) => sum + file.size, 0);
+        const totalSizeInMB = totalSizeInBytes / (1024 * 1024);
+        setTotalFileSize(totalSizeInMB);
+
+        const counts = files.reduce((acc, file) => {
+            const extension = file.name.split('.').pop().toLowerCase();
+            if (extension === 'jpg' || extension === 'jpeg') {
+                acc.jpg = (acc.jpg || 0) + 1;
+            } else if (extension === 'png') {
+                acc.png = (acc.png || 0) + 1;
+            } else if (extension === 'heic' || extension === 'heif') {
+                acc.heic = (acc.heic || 0) + 1;
+            }
+            return acc;
+        }, {});
+        setFileTypeCounts(counts);
+        // ▲▲▲ 置き換え/追加 ▲▲▲
+
         setScreen('loading');
         setErrors([]);
         setLoadingProgress({ progress: 0, total: files.length });
 
         const newImages = [];
+        const thumbnailStartTime = performance.now();
         for (const file of files) {
             try {
                 let blob = file;
@@ -980,6 +1047,8 @@ export default function App() {
             }
             setLoadingProgress(p => ({ ...p, progress: p.progress + 1 }));
         }
+        const thumbnailEndTime = performance.now();
+        setTimeBreakdown(prev => ({ ...prev, thumbnail: (thumbnailEndTime - thumbnailStartTime) / 1000 }));
         setImages(newImages);
         setScreen('bulk-settings');
     };
@@ -1032,10 +1101,13 @@ export default function App() {
     };
 
     const handleProcess = async () => {
+        setProcessingStartTime(Date.now()); // 処理開始時刻を記録
+
         setScreen('processing');
         setProcessingProgress({ progress: 0, total: images.length });
         const zip = new window.JSZip();
 
+        const resizeStartTime = performance.now(); // リサイズ処理の開始時間
         for (let i = 0; i < images.length; i++) {
             const image = images[i];
             try {
@@ -1054,7 +1126,18 @@ export default function App() {
             setProcessingProgress(p => ({ ...p, progress: p.progress + 1 }));
         }
 
+        const resizeEndTime = performance.now(); // リサイズ処理の終了時間
+
+        const zipStartTime = performance.now(); // ZIP生成の開始時間
         const zipFile = await zip.generateAsync({ type: 'blob' });
+        const zipEndTime = performance.now(); // ZIP生成の終了時間
+        
+        // 計測結果をstateに保存
+        setTimeBreakdown(prev => ({
+            ...prev,
+            resize: (resizeEndTime - resizeStartTime) / 1000,
+            zip: (zipEndTime - zipStartTime) / 1000
+        }));
         setZipBlob(zipFile);
         
         const firstImage = images[0];
@@ -1067,8 +1150,39 @@ export default function App() {
         setScreen('download');
     };
 
-    const handleDownload = () => {
+    const handleDownload = async () => {
         setIsDownloadCompleted(true);
+        
+        // ★★★ 変更：ログ送信が有効な場合のみ、以下の処理を実行 ★★★
+        if (isLogSendingEnabled && processingStartTime) {
+            try {
+                const processingTime = (Date.now() - processingStartTime) / 1000;
+                
+                const sessionDuration = sessionStartTime ? (Date.now() - sessionStartTime) / 1000 : 0;
+
+                const logData = {
+                    sessionId: sessionId,
+                    eventTimestamp: serverTimestamp(),
+                    fileCount: images.length,
+                    processingTime: processingTime,
+                    usedIndustryCode: bulkSettings.industryCode,
+                    submissionId: bulkSettings.submissionId,
+                    errors: [],
+                    userAgent: navigator.userAgent,
+                    fileTypeCounts: fileTypeCounts,
+                    timeBreakdown: timeBreakdown,
+                    uploadMethod: uploadMethod,
+                    totalFileSize: totalFileSize,
+                    sessionDuration: sessionDuration,
+                };
+
+                await addDoc(collection(db, "usage_logs"), logData);
+                console.log("Log successfully sent to Firestore.");
+
+            } catch (e) {
+                console.error("Error adding document to Firestore: ", e);
+            }
+        }
     };
 
 
@@ -1083,7 +1197,17 @@ export default function App() {
         setZipFilename('');
         setErrors([]);
         setBulkSettings({ industryCode: '', submissionId: '', date: getFormattedDate(), quality: 9 });
-        setIsDownloadCompleted(false); // ★追加: 状態をリセット
+        setIsDownloadCompleted(false);
+        setProcessingStartTime(null);
+
+        // ▼▼▼ 置き換え/追加 ▼▼▼
+        setSessionStartTime(Date.now());
+        setUploadMethod('');
+        setTotalFileSize(0);
+        setFileTypeCounts({});
+        setTimeBreakdown({ thumbnail: 0, resize: 0, zip: 0 });
+        // ▲▲▲ 置き換え/追加 ▲▲▲
+        
         setScreen('upload');
     };
 
