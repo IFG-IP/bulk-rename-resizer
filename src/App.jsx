@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, ChevronsRight, Download, RotateCcw, Settings, X, AlertCircle, Loader, HardDriveDownload, Copy, Check, HelpCircle, Bug } from 'lucide-react';
+import { UploadCloud, ChevronsRight, Download, RotateCcw, Settings, X, AlertCircle, Loader, HardDriveDownload, Copy, Check, HelpCircle, Bug, ShieldCheck } from 'lucide-react';
 
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -137,7 +137,7 @@ const getFormattedDate = () => {
 /**
  * アプリケーションヘッダーコンポーネント
  */
-const AppHeader = ({ currentStep, steps, isLoading }) => {
+const AppHeader = ({ currentStep, steps, isLoading, onPrivacyClick }) => {
   return (
     <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200/80 px-4 sm:px-6 py-3 grid grid-cols-3 items-center flex-shrink-0 h-20 z-10">
       <div className="text-base sm:text-lg font-bold text-gray-800 truncate">
@@ -194,6 +194,15 @@ const AppHeader = ({ currentStep, steps, isLoading }) => {
         >
           <Bug size={24} />
         </a>
+
+        <button
+          onClick={onPrivacyClick}
+          className="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
+          aria-label="プライバシーポリシーを開く"
+        >
+          <ShieldCheck size={24} />
+        </button>
+
         <a
           href="manual.html"
           target="_blank"
@@ -504,6 +513,88 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
 };
 
 /**
+ * プライバシーポリシーモーダル
+ */
+const PrivacyPolicyModal = ({ isOpen, onClose, isFirstVisit }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-white border border-gray-200 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-lg">
+                <header className="flex items-center justify-between p-5 border-b border-gray-200">
+                    <h2 className="text-xl font-bold text-gray-800 flex items-center">
+                        <ShieldCheck className="mr-3 text-gray-500" />
+                        プライバシーポリシー
+                    </h2>
+                    {/* isFirstVisitがfalseの場合のみボタンを表示 */}
+                    {!isFirstVisit && (
+                        <button onClick={onClose} className="text-gray-500 hover:text-gray-800 rounded-full p-1 hover:bg-gray-200/60 transition-colors">
+                            <X size={24} />
+                        </button>
+                    )}
+                </header>
+                <main className="p-6 flex-grow overflow-y-auto space-y-6 text-gray-700 text-sm">
+                    <p>
+                        本アプリケーションでは、サービスの品質向上を目的として、お客様の利用状況に関する情報を収集・送信しております。
+                        収集する情報には個人を特定するものは一切含まれませんので、ご安心ください。
+                    </p>
+
+                    <div>
+                        <h3 className="text-base font-semibold mb-2 text-gray-800">1. 収集する情報</h3>
+                        <p className="mb-2">品質向上のため、以下の情報を自動的に収集します。</p>
+                        <ul className="list-disc list-inside space-y-1 bg-gray-50/70 p-4 rounded-lg border border-gray-200/80">
+                            <li>セッションID（ページを開いてから閉じるまでの一時的な識別子）</li>
+                            <li>処理したファイル数、合計ファイルサイズ、ファイル形式の内訳</li>
+                            <li>画像のアップロード方法（ドラッグ＆ドロップかボタン選択か）</li>
+                            <li>画像処理にかかった時間（サムネイル生成、リサイズ、ZIP圧縮）</li>
+                            <li>ツールの滞在時間</li>
+                            <li>選択された業種コード</li>
+                            <li>お使いのブラウザ情報（User Agent）</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 className="text-base font-semibold mb-2 text-gray-800">2. 収集しない情報</h3>
+                        <p className="mb-2">以下の情報については、一切収集・保存いたしません。</p>
+                        <ul className="list-disc list-inside space-y-1 bg-gray-50/70 p-4 rounded-lg border border-gray-200/80">
+                            <li>アップロードされた画像ファイルそのもの</li>
+                            <li>元のファイル名</li>
+                            <li>氏名、メールアドレス、その他個人を特定できるすべての情報</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 className="text-base font-semibold mb-2 text-gray-800">3. 情報の利用目的</h3>
+                        <p>
+                            収集した情報は、アプリケーションのパフォーマンス改善、不具合の原因調査と修正、新機能開発のための利用状況分析など、サービスの品質向上以外の目的では一切使用いたしません。
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 className="text-base font-semibold mb-2 text-gray-800">4. ポリシーの変更</h3>
+                        <p>
+                            本ポリシーは、法令の変更やサービス内容の変更に伴い、事前の予告なく改定されることがあります。
+                        </p>
+                    </div>
+                </main>
+                <footer className="flex justify-center p-4 border-t border-gray-200">
+                    <button 
+                        onClick={onClose} 
+                        className={`w-full sm:w-auto px-8 py-3 rounded-lg text-white font-bold shadow-md transition
+                            ${isFirstVisit 
+                                ? 'bg-blue-600 hover:bg-blue-700' 
+                                : 'bg-gray-600 hover:bg-gray-700'
+                            }`}
+                    >
+                        {isFirstVisit ? '同意して利用を開始する' : '閉じる'}
+                    </button>
+                </footer>
+            </div>
+        </div>
+    );
+};
+
+/**
  * STEP 2: ファイル名設定画面
  */
 const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, industryCodes, onConnect, spreadsheetUrl, spreadsheetMode }) => {
@@ -769,6 +860,8 @@ export default function App() {
     const isLogSendingEnabled = true;
 
     const [screen, setScreen] = useState('initializing');
+    const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+    const [isFirstVisit, setIsFirstVisit] = useState(false);
     const [isDownloadCompleted, setIsDownloadCompleted] = useState(false); 
     const [images, setImages] = useState([]);
     const [loadingProgress, setLoadingProgress] = useState({ progress: 0, total: 0 });
@@ -795,10 +888,23 @@ export default function App() {
     // 処理時間を計測するための開始時刻
     const [processingStartTime, setProcessingStartTime] = useState(null);
 
+    // アプリ起動時に、プライバシーポリシーの表示履歴をチェックする
     useEffect(() => {
-        // ページ読み込み時にセッション開始時刻を記録
-        setSessionStartTime(Date.now());
+        const hasSeenPolicy = localStorage.getItem('hasSeenPrivacyPolicy');
+        if (!hasSeenPolicy) {
+            setIsPrivacyModalOpen(true);
+            setIsFirstVisit(true);
+        }
     }, []);
+
+    // プライバシーポリシーモーダルを閉じる際の処理
+    const handleClosePrivacyModal = () => {
+        if (isFirstVisit) {
+            localStorage.setItem('hasSeenPrivacyPolicy', 'true');
+            setIsFirstVisit(false);
+        }
+        setIsPrivacyModalOpen(false);
+    };
 
     const { isLoaded: isHeicLoaded, error: heicError } = useScript(HEIC_CDN_URL);
     const { isLoaded: isJszipLoaded, error: jszipError } = useScript(JSZIP_CDN);
@@ -995,7 +1101,8 @@ export default function App() {
     };
 
     const handleFilesAccepted = async (files, method) => {
-        // ▼▼▼ 置き換え/追加 ▼▼▼
+        setSessionStartTime(Date.now()); // 滞在時間計測の開始
+
         setUploadMethod(method);
         const totalSizeInBytes = files.reduce((sum, file) => sum + file.size, 0);
         const totalSizeInMB = totalSizeInBytes / (1024 * 1024);
@@ -1166,7 +1273,6 @@ export default function App() {
                     fileCount: images.length,
                     processingTime: processingTime,
                     usedIndustryCode: bulkSettings.industryCode,
-                    submissionId: bulkSettings.submissionId,
                     errors: [],
                     userAgent: navigator.userAgent,
                     fileTypeCounts: fileTypeCounts,
@@ -1200,13 +1306,11 @@ export default function App() {
         setIsDownloadCompleted(false);
         setProcessingStartTime(null);
 
-        // ▼▼▼ 置き換え/追加 ▼▼▼
-        setSessionStartTime(Date.now());
+        setSessionStartTime(null);
         setUploadMethod('');
         setTotalFileSize(0);
         setFileTypeCounts({});
         setTimeBreakdown({ thumbnail: 0, resize: 0, zip: 0 });
-        // ▲▲▲ 置き換え/追加 ▲▲▲
         
         setScreen('upload');
     };
@@ -1256,7 +1360,7 @@ export default function App() {
 
     return (
         <div className="font-sans w-full h-dvh flex flex-col antialiased bg-gray-100">
-            {screen !== 'initializing' && <AppHeader currentStep={currentStep} steps={workflowSteps} isLoading={isLoading} />}
+            {screen !== 'initializing' && <AppHeader currentStep={currentStep} steps={workflowSteps} isLoading={isLoading} onPrivacyClick={() => setIsPrivacyModalOpen(true)} />}
             
             <div className="flex-grow relative min-h-0 flex flex-col">
                 <div className="absolute top-4 left-4 right-4 z-50 space-y-2 w-auto max-w-full">
@@ -1264,6 +1368,7 @@ export default function App() {
                         <Alert key={index} message={error} onDismiss={() => setErrors(prev => prev.filter((_, i) => i !== index))} />
                     ))}
                 </div>
+                <PrivacyPolicyModal isOpen={isPrivacyModalOpen} onClose={handleClosePrivacyModal} isFirstVisit={isFirstVisit} />
                 {renderScreen()}
             </div>
         </div>
