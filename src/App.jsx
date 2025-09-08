@@ -639,7 +639,7 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
                             placeholder="例: 12345"
                             className="w-full px-4 py-3 bg-white/50 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                         />
-                        <p className="text-xs text-gray-500 mt-2">※半角数字で入力してください</p>
+                        <p className="text-xs text-gray-500 mt-2">※半角数字のみ入力できます。</p>
                     </div>
                     <div>
                         <label htmlFor="date" className="block text-base font-semibold text-gray-700 mb-3">日付</label>
