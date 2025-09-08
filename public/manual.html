@@ -3,312 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>業種別リネーム＆加工ツール - 操作マニュアル</title>
+    <title>業種別リネーム＆加工ツール ユーザーマニュアル</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body {
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
-            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        .content-section {
-            scroll-margin-top: 80px;
-        }
-        .sticky-nav {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-        .section-title {
-            display: flex;
-            align-items: center;
-            font-weight: bold;
-            border-bottom-width: 2px;
-            border-color: #3B82F6; /* border-blue-500 */
-            padding-bottom: 1rem;
+        h2 {
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
             margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            font-weight: 700;
         }
-        .section-title svg {
-            width: 2rem;
-            height: 2rem;
-            margin-right: 0.75rem;
-            color: #3B82F6; /* text-blue-500 */
+        h3 {
+            border-left: 4px solid #3b82f6;
+            padding-left: 0.75rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .step-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-100 text-gray-800">
 
     <!-- ヘッダー -->
-    <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky-nav border-b border-gray-200">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                <div class="flex items-center">
-                    <svg class="h-8 w-8 text-blue-600 mr-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.59a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-                    <h1 class="text-xl font-bold text-gray-900">アプリ操作マニュアル</h1>
-                </div>
-                <nav class="hidden md:flex items-center space-x-6">
-                    <a href="#section-overview" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">概要</a>
-                    <a href="#section-screens" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">画面の説明</a>
-                    <a href="#section-usage" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">使い方の例</a>
-                    <a href="#section-troubleshooting" class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">トラブルシューティング</a>
-                </nav>
-            </div>
-        </div>
+    <header class="bg-white/80 backdrop-blur-lg border-b border-gray-200/80 px-4 sm:px-6 py-3 grid grid-cols-3 items-center sticky top-0 z-10 h-20">
+      <div class="text-base sm:text-lg font-bold text-gray-800 truncate">
+        業種別リネーム＆加工ツール
+      </div>
+      <div class="flex justify-center font-semibold text-gray-600">
+        ユーザーマニュアル
+      </div>
+      <div class="flex justify-end items-center space-x-2">
+        <a
+          href="https://forms.gle/Fk8aBGiwAEVHef2e9"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
+          aria-label="不具合報告・要望を送信"
+          title="不具合報告・要望"
+        >
+          <i data-lucide="bug"></i>
+        </a>
+        <a
+          href="#"
+          onclick="window.close();"
+          class="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
+          aria-label="マニュアルを閉じる"
+          title="マニュアルを閉じる"
+        >
+          <i data-lucide="x"></i>
+        </a>
+      </div>
     </header>
 
     <!-- メインコンテンツ -->
-    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="max-w-4xl mx-auto">
+    <main class="max-w-4xl mx-auto p-4 sm:p-8">
 
-            <!-- 概要セクション -->
-            <section id="section-overview" class="content-section mb-16">
-                <h2 class="section-title text-3xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                    <span>1. 概要</span>
-                </h2>
-                <div class="bg-white p-8 rounded-xl shadow-md space-y-4">
-                    <p class="text-lg">「業種別リネーム＆加工ツール」は、複数の画像ファイルを指定のルールに基づいて一括でファイル名を変更し、指定サイズにリサイズするアプリケーションです。</p>
-                    <p>このツールを使えば、手作業で行っていた煩雑なファイル名変更や画像加工の手間を大幅に削減し、業務効率を向上させることができます。</p>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-                        <div class="text-center p-6 bg-blue-50 rounded-lg border border-blue-100">
-                            <svg class="h-10 w-10 text-blue-500 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path><path d="m15 5 4 4"></path></svg>
-                            <h3 class="font-bold text-blue-800">一括リネーム</h3>
-                            <p class="text-sm text-blue-700 mt-1">業種コードや入稿IDを基に、命名規則に沿ったファイル名へ自動で変更します。</p>
-                        </div>
-                        <div class="text-center p-6 bg-green-50 rounded-lg border border-green-100">
-                            <svg class="h-10 w-10 text-green-500 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9H3.5A2.5 2.5 0 0 1 1 18.5V5.5A2.5 2.5 0 0 1 3.5 3H12a9 9 0 0 1 9 9Z"></path><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
-                            <h3 class="font-bold text-green-800">一括リサイズ</h3>
-                            <p class="text-sm text-green-700 mt-1">全ての画像を<code class="bg-gray-200 px-1 rounded">600x400</code>ピクセルに自動でリサイズ・余白追加します。</p>
-                        </div>
-                        <div class="text-center p-6 bg-yellow-50 rounded-lg border border-yellow-100">
-                            <svg class="h-10 w-10 text-yellow-500 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
-                            <h3 class="font-bold text-yellow-800">ZIPで一括DL</h3>
-                            <p class="text-sm text-yellow-700 mt-1">加工後の全ファイルを一つのZIPファイルにまとめてダウンロードできます。</p>
-                        </div>
-                    </div>
+        <h1 class="text-3xl sm:text-4xl font-bold text-center mb-8">ユーザーマニュアル</h1>
+
+        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-md shadow mb-8" role="alert">
+            <div class="flex">
+                <div class="py-1"><i data-lucide="alert-circle" class="h-6 w-6 text-blue-500 mr-4"></i></div>
+                <div>
+                    <p class="font-bold">本ツールは現在β（ベータ）版です</p>
+                    <p class="text-sm">
+                        本ツールは開発中のバージョンであり、予期せぬ不具合が発生する可能性があります。機能は予告なく変更・追加されることがありますので、あらかじめご了承ください。
+                    </p>
                 </div>
-            </section>
-
-            <!-- 画面の説明セクション -->
-            <section id="section-screens" class="content-section mb-16">
-                <h2 class="section-title text-3xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                    <span>2. 画面の説明</span>
-                </h2>
-                <div class="space-y-12">
-                    <!-- ステップ1 -->
-                    <div class="bg-white p-8 rounded-xl shadow-md">
-                        <h3 class="text-2xl font-semibold mb-4 flex items-center">
-                            <span class="flex items-center justify-center w-8 h-8 bg-blue-500 text-white rounded-full font-bold mr-3 text-lg">1</span>
-                            画像アップロード画面
-                        </h3>
-                        <p class="text-gray-600 mb-6">最初に表示される画面です。以下のいずれかの方法で、加工したい画像ファイルをアップロードします。</p>
-                        <div class="space-y-4">
-                            <div class="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                <svg class="h-6 w-6 text-blue-500 mr-4 mt-1 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg>
-                                <div>
-                                    <h4 class="font-semibold text-gray-800">ボタンから選択</h4>
-                                    <p class="text-sm text-gray-600">「ファイルを選択」ボタンをクリックして、PC内のファイルを選択します。</p>
-                                    <p class="pl-4 text-xs text-gray-500 mt-1">※この方法ではフォルダをアップロードできません。</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                <svg class="h-6 w-6 text-blue-500 mr-4 mt-1 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                                <div>
-                                    <h4 class="font-semibold text-gray-800">ドラッグ＆ドロップ</h4>
-                                    <p class="text-sm text-gray-600">画面内に、ファイルまたはフォルダごとドラッグ＆ドロップします。</p>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="mt-6 text-sm text-gray-500"><strong>対応形式:</strong> JPG, PNG, HEIC | <strong>上限:</strong> 50枚, 各10MBまで</p>
-                    </div>
-                    <!-- ステップ2 -->
-                    <div class="bg-white p-8 rounded-xl shadow-md">
-                        <h3 class="text-2xl font-semibold mb-4 flex items-center">
-                            <span class="flex items-center justify-center w-8 h-8 bg-blue-500 text-white rounded-full font-bold mr-3 text-lg">2</span>
-                            ファイル名設定画面
-                        </h3>
-                        <p class="mb-6 text-gray-600">アップロードした全てのファイルに共通する情報を設定し、ファイル名のベースを作成します。</p>
-                        <ul class="space-y-4 list-disc list-inside">
-                            <li><strong>業種:</strong> ドロップダウンからファイルに紐づける業種を選択します。</li>
-                            <li><strong>入稿ID:</strong> 半角数字で入稿IDを入力します。</li>
-                            <li><strong>日付:</strong> YYYYMMDD形式（8桁）で日付を入力します。初期値として今日の日付が設定されています。</li>
-                        </ul>
-                        <div class="mt-6 p-4 bg-gray-100 rounded-lg flex items-start">
-                             <svg class="h-6 w-6 text-blue-600 mr-3 mt-1 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-                            <div>
-                                <p class="font-semibold">業種マスタの管理</p>
-                                <p class="text-sm text-gray-600 mt-1">Googleスプレッドシートを連携させて業種リストをカスタマイズする機能は、<strong class="text-blue-600">正式版で対応予定です。</strong></p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- ステップ3 -->
-                    <div class="bg-white p-8 rounded-xl shadow-md">
-                        <h3 class="text-2xl font-semibold mb-4 flex items-center">
-                            <span class="flex items-center justify-center w-8 h-8 bg-blue-500 text-white rounded-full font-bold mr-3 text-lg">3</span>
-                            確認画面
-                        </h3>
-                        <p class="mb-6 text-gray-600">最終的なファイル名と加工内容を確認する画面です。画面は左右に分かれています。</p>
-                        <div class="space-y-6">
-                            <div>
-                                <h4 class="font-semibold text-lg mb-2 flex items-center">
-                                    <svg class="h-5 w-5 mr-2 text-gray-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                                    ファイル一覧 (左側)
-                                </h4>
-                                <p class="text-gray-600 mb-4">アップロードした画像の一覧が表示されます。元のファイル名が、設定した情報に基づいて新しいファイル名に変換される様子を確認できます。</p>
-                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 flex items-center justify-center space-x-4">
-                                    <div class="text-center">
-                                        <svg class="h-8 w-8 mx-auto text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-                                        <p class="text-xs text-gray-500 mt-1 truncate">IMG_1234.JPG</p>
-                                    </div>
-                                    <svg class="h-6 w-6 text-gray-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                                    <div class="text-center">
-                                        <svg class="h-8 w-8 mx-auto text-blue-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="15" x2="15" y2="15"></line></svg>
-                                        <p class="text-sm font-bold text-blue-600 mt-1">hos_12345_20250826_01.jpg</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-lg mb-2 flex items-center">
-                                    <svg class="h-5 w-5 mr-2 text-gray-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
-                                    選択中画像の詳細 (右側)
-                                </h4>
-                                <p class="text-gray-600">ファイル一覧から特定の画像をクリックすると、右側にその画像に適用されている業種、入稿ID、日付が表示され、個別の内容を最終確認できます。</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- ステップ4 -->
-                    <div class="bg-white p-8 rounded-xl shadow-md">
-                        <h3 class="text-2xl font-semibold mb-4 flex items-center">
-                            <span class="flex items-center justify-center w-8 h-8 bg-blue-500 text-white rounded-full font-bold mr-3 text-lg">4</span>
-                            ダウンロード画面
-                        </h3>
-                        <p class="text-gray-600 mb-6">全ての画像処理が完了すると、この画面が表示されます。以下の操作を行えます。</p>
-                        <ul class="space-y-4 list-disc list-inside">
-                            <li>
-                                <strong>ZIPダウンロード:</strong>
-                                <p class="pl-4 text-sm text-gray-600">「（ファイル名）.zipをダウンロード」ボタンをクリックすると、加工済みの全ファイルが１つのZIPファイルとしてダウンロードされます。</p>
-                                <p class="pl-4 text-xs text-gray-500 mt-1">※ZIPファイル名は設定画面で入力した業種コードと入稿IDに基づいて自動で生成されます。</p>
-                            </li>
-                            <li>
-                                <strong>新しい作業の開始:</strong>
-                                <p class="pl-4 text-sm text-gray-600">「最初に戻る」ボタンをクリックすると、アップロード画面に戻り、新しい作業を開始できます。</p>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 使い方の例セクション -->
-            <section id="section-usage" class="content-section mb-16">
-                <h2 class="section-title text-3xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-4 4s1.78 4 4 4c.74 0 1.44-.21 2.1-.56"></path><path d="M12 20.94c-1.5 0-2.75 1.06-4 1.06-3 0-6-8-6-12.22A4.91 4.91 0 0 1 7 5c2.22 0 4 1.44 4 4s-1.78 4-4 4c-.74 0-1.44-.21-2.1-.56"></path></svg>
-                    <span>3. 使い方の例</span>
-                </h2>
-                <div class="bg-white p-8 rounded-xl shadow-md space-y-8">
-                    <div>
-                        <h3 class="text-xl font-semibold mb-4">基本操作フロー</h3>
-                        <ol class="list-decimal list-inside space-y-4">
-                            <li><strong>画像のアップロード:</strong>
-                                <p class="pl-4 text-sm text-gray-600">「ファイルを選択」ボタン、または加工したい画像（最大50枚）が入ったフォルダごとドラッグ＆ドロップでアップロードします。</p>
-                            </li>
-                            <li><strong>共通情報の設定:</strong>
-                                <p class="pl-4 text-sm text-gray-600">「ファイル名設定」画面で、「業種」を選択し、「入稿ID」と「日付」を入力して「次へ」ボタンを押します。</p>
-                            </li>
-                            <li><strong>内容の確認:</strong>
-                                <p class="pl-4 text-sm text-gray-600">「確認」画面で、自動生成された新しいファイル名に間違いがないか確認し、「加工に進む」ボタンを押します。</p>
-                            </li>
-                            <li><strong>ダウンロード:</strong>
-                                <p class="pl-4 text-sm text-gray-600">処理が完了したら、「（ファイル名）.zipをダウンロード」ボタンをクリックして、加工済みの画像が格納されたZIPファイルをダウンロードします。</p>
-                            </li>
-                        </ol>
-                    </div>
-                    <hr>
-                    <div>
-                        <h3 class="text-xl font-semibold mb-4">【正式版で対応予定】Googleスプレッドシート連携</h3>
-                        <p class="mb-4 text-gray-600">
-                            現在、業種リストはアプリ内に固定で用意されたもの（病院、ホテル、サロンなど）のみ利用可能です。
-                        </p>
-                        <p class="text-gray-600">
-                            <strong>正式版では、Googleスプレッドシートと連携し、業種リストを自由にカスタマイズできる機能を搭載予定です。</strong>
-                            この機能により、独自の業種コードや名称を定義し、より柔軟なファイル名生成が可能になります。ご期待ください。
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- トラブルシューティングセクション -->
-            <section id="section-troubleshooting" class="content-section">
-                <h2 class="section-title text-3xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
-                    <span>4. トラブルシューティング</span>
-                </h2>
-                <div class="space-y-6">
-                    <details class="bg-white p-6 rounded-xl shadow-md group">
-                        <summary class="font-semibold cursor-pointer flex justify-between items-center">
-                            ファイルがアップロードできない
-                            <svg class="h-5 w-5 transform group-open:rotate-180 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                        </summary>
-                        <div class="mt-4 text-gray-600 space-y-2">
-                            <p><strong>原因:</strong> ファイル形式、サイズ、または枚数が制限を超えている可能性があります。</p>
-                            <p><strong>対策:</strong> 以下の制限内に収まっているかご確認ください。</p>
-                            <ul class="list-disc list-inside pl-4 text-sm">
-                                <li>対応形式: JPG, PNG, HEIC</li>
-                                <li>ファイルサイズ: 1ファイルあたり10MBまで</li>
-                                <li>枚数: 一度に50枚まで</li>
-                            </ul>
-                        </div>
-                    </details>
-                    <details class="bg-white p-6 rounded-xl shadow-md group">
-                        <summary class="font-semibold cursor-pointer flex justify-between items-center">
-                            「次へ」ボタンがクリックできない
-                            <svg class="h-5 w-5 transform group-open:rotate-180 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                        </summary>
-                        <div class="mt-4 text-gray-600 space-y-2">
-                            <p><strong>原因:</strong> ファイル名設定画面で、必須項目が入力されていない可能性があります。</p>
-                            <p><strong>対策:</strong> 「業種」「入稿ID」「日付」の3つの項目がすべて正しく入力されているかご確認ください。入稿IDは半角数字、日付はYYYYMMDDの8桁で入力する必要があります。</p>
-                        </div>
-                    </details>
-                     <details class="bg-white p-6 rounded-xl shadow-md group">
-                        <summary class="font-semibold cursor-pointer flex justify-between items-center">
-                            HEICファイルが変換できない
-                            <svg class="h-5 w-5 transform group-open:rotate-180 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                        </summary>
-                        <div class="mt-4 text-gray-600 space-y-2">
-                            <p><strong>原因:</strong> インターネット接続が不安定で、変換用ライブラリの読み込みに失敗した可能性があります。</p>
-                            <p><strong>対策:</strong> ページを再読み込みし、安定したインターネット環境で再度お試しください。</p>
-                        </div>
-                    </details>
-                    <details class="bg-white p-6 rounded-xl shadow-md group">
-                        <summary class="font-semibold cursor-pointer flex justify-between items-center">
-                            ダウンロードが始まらない
-                            <svg class="h-5 w-5 transform group-open:rotate-180 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-                        </summary>
-                        <div class="mt-4 text-gray-600 space-y-2">
-                            <p><strong>原因:</strong> ブラウザのポップアップブロック機能が作動しているか、一度に処理するファイル数が多すぎてZIPファイルの生成に時間がかかっている可能性があります。</p>
-                            <p><strong>対策:</strong></p>
-                             <ul class="list-disc list-inside pl-4 text-sm">
-                                <li>ブラウザの設定を確認し、このサイトのポップアップを許可してください。</li>
-                                <li>ダウンロードボタンをクリックしてから、少し時間をおいてみてください。</li>
-                                <li>それでも解決しない場合は、一度に処理する画像の枚数を減らしてお試しください。</li>
-                            </ul>
-                        </div>
-                    </details>
-                </div>
-            </section>
-
+            </div>
         </div>
+
+        <div id="table-of-contents" class="bg-white p-6 rounded-lg shadow-md mb-12">
+            <h2 class="text-2xl font-bold mb-4 mt-0 border-b-0">目次</h2>
+            <ul class="space-y-2">
+                <li><a href="#introduction" class="text-blue-600 hover:underline">1. はじめに</a></li>
+                <li><a href="#screen-description" class="text-blue-600 hover:underline">2. 画面の説明</a></li>
+                <li><a href="#usage-example" class="text-blue-600 hover:underline">3. 使い方の例</a></li>
+                <li><a href="#troubleshooting" class="text-blue-600 hover:underline">4. トラブルシューティング</a></li>
+                <li><a href="#bug-report" class="text-blue-600 hover:underline">5. 不具合・ご要望の報告</a></li>
+            </ul>
+        </div>
+
+        <section id="introduction">
+            <h2>1. はじめに</h2>
+            <p>
+                「業種別リネーム＆加工ツール」は、複数枚の画像ファイルに対して、指定のルールに基づいた「リサイズ」と「ファイル名の変更」を一括で行うためのWebアプリケーションです。
+            </p>
+            <p>
+                手作業で行っていた繰り返し作業を自動化することで、作業時間を大幅に短縮し、誰が作業しても同じ品質を保つことを目的としています。
+            </p>
+            <p class="mt-4">
+                <strong>主な機能:</strong>
+            </p>
+            <ul class="list-disc list-inside bg-white p-4 rounded-md border">
+                <li>複数の画像ファイル（JPG, PNG, HEIC）を一度にアップロード</li>
+                <li>すべての画像を固定サイズ（幅600px × 高さ400px）に自動リサイズ（余白は白で統一）</li>
+                <li>「業種コード」「入稿ID」「日付」「連番」を組み合わせたファイル名に自動変更</li>
+                <li>加工後の全画像を単一のZIPファイルとして一括ダウンロード</li>
+            </ul>
+        </section>
+
+        <section id="screen-description">
+            <h2>2. 画面の説明</h2>
+            <p>本ツールは、4つのステップに沿って直感的に操作を進めることができます。</p>
+
+            <div class="step-card">
+                <h3>STEP 1: アップロード</h3>
+                <p class="mb-4">加工したい画像ファイルをツールに読み込ませる画面です。</p>
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <div class="flex-shrink-0 text-center">
+                        <i data-lucide="upload-cloud" class="w-20 h-20 text-gray-400 mx-auto"></i>
+                    </div>
+                    <div>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><strong>ドラッグ＆ドロップ:</strong> ファイルやフォルダを画面中央のエリアに直接ドラッグ＆ドロップします。</li>
+                            <li><strong>ファイルを選択:</strong> 「ファイルを選択」ボタンを押し、ダイアログからファイルを選びます。</li>
+                            <li><strong>対応形式:</strong> JPG, PNG, HEIC</li>
+                            <li><strong>上限:</strong> 一度に50枚まで、1ファイルあたり10MBまで。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <h3>STEP 2: ファイル名設定</h3>
+                <p>リネーム後のファイル名に使われる共通の情報を入力します。ここで設定した内容は、すべてのファイルに適用されます。</p>
+                <ul class="list-disc list-inside space-y-2 mt-4">
+                    <li><strong>業種:</strong> プルダウンから該当する業種を選択します。</li>
+                    <li><strong>入稿ID:</strong> 半角数字で入稿IDを入力します。</li>
+                    <li><strong>日付:</strong> 作業日の日付が自動で表示されます。必要に応じてYYYYMMDD形式で修正も可能です。</li>
+                </ul>
+            </div>
+            
+            <div class="step-card">
+                <h3>STEP 3: 確認</h3>
+                <p>最終的なファイル名を確認する画面です。この画面では、個別のファイルに対する設定変更はできません。もし設定を間違えた場合は、「戻る」ボタンでSTEP 2に戻ってください。</p>
+                <ul class="list-disc list-inside space-y-2 mt-4">
+                    <li><strong>左側（ファイル一覧）:</strong> アップロードした画像のサムネイル、元のファイル名、そしてリネーム後の新しいファイル名が表示されます。</li>
+                    <li><strong>右側（選択中画像の確認）:</strong> 一覧で選択した画像に適用されている「業種」「入稿ID」「日付」を再確認できます。</li>
+                </ul>
+            </div>
+
+            <div class="step-card">
+                <h3>STEP 4: ダウンロード</h3>
+                <p>すべての処理が完了し、生成されたZIPファイルをダウンロードする最終画面です。</p>
+                <ul class="list-disc list-inside space-y-2 mt-4">
+                    <li><strong>ダウンロードボタン:</strong> `[業種コード]_[入稿ID].zip` という名前のボタンをクリックすると、ZIPファイルのダウンロードが始まります。</li>
+                    <li><strong>最初に戻る:</strong> このボタンを押すと、すべての作業内容がリセットされ、最初のアップロード画面に戻ります。</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="usage-example">
+            <h2>3. 使い方の例</h2>
+            <p>例として、「病院（hos）の写真を3枚、入稿ID『12345』で加工する」場合の手順を説明します。</p>
+            <ol class="list-decimal list-inside space-y-6 mt-4">
+                <li class="pl-2">
+                    <strong>STEP 1: 画像をアップロード</strong><br>
+                    3枚の病院の写真ファイル（例: `photo1.jpg`, `lobby.png`, `exterior.heic`）を、ドラッグ＆ドロップでアップロードします。
+                </li>
+                <li class="pl-2">
+                    <strong>STEP 2: ファイル名を設定</strong><br>
+                    <ul class="list-disc list-inside ml-6 mt-2 bg-gray-50 p-3 rounded-md border">
+                        <li>「業種」のプルダウンから「病院 (hos)」を選択します。</li>
+                        <li>「入稿ID」のテキストボックスに「12345」と入力します。</li>
+                        <li>「日付」が今日の日付になっていることを確認します。</li>
+                    </ul>
+                    入力後、「次へ」ボタンをクリックします。
+                </li>
+                <li class="pl-2">
+                    <strong>STEP 3: 内容を確認</strong><br>
+                    左側のファイル一覧に、以下のような新しいファイル名が表示されていることを確認します。<br>
+                    <ul class="list-none ml-6 mt-2 font-mono text-sm bg-gray-800 text-white p-3 rounded-md">
+                        <li>hos_12345_20250908_01.jpg</li>
+                        <li>hos_12345_20250908_02.jpg</li>
+                        <li>hos_12345_20250908_03.jpg</li>
+                    </ul>
+                    問題がなければ、「加工に進む」ボタンをクリックします。
+                </li>
+                <li class="pl-2">
+                    <strong>STEP 4: ダウンロード</strong><br>
+                    処理完了後、画面に「hos_12345.zip をダウンロード」というボタンが表示されます。これをクリックして、加工済みの画像が入ったZIPファイルを保存します。
+                </li>
+            </ol>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>4. トラブルシューティング</h2>
+            <p>問題が発生した場合は、まずこちらをご確認ください。</p>
+
+            <div class="mt-4 space-y-4">
+                <details class="bg-white p-4 rounded-lg shadow cursor-pointer">
+                    <summary class="font-semibold flex items-center">
+                        <i data-lucide="help-circle" class="mr-2 text-blue-500"></i>
+                        ファイルがアップロードできない
+                    </summary>
+                    <div class="mt-3 pt-3 border-t text-gray-600">
+                        <p>以下の点をご確認ください。</p>
+                        <ul class="list-disc list-inside mt-2 ml-4">
+                            <li>ファイル形式はJPG, PNG, HEICのいずれかですか？</li>
+                            <li>一度にアップロードする枚数が50枚を超えていませんか？</li>
+                            <li>各ファイルのサイズが10MBを超えていませんか？</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="bg-white p-4 rounded-lg shadow cursor-pointer">
+                    <summary class="font-semibold flex items-center">
+                        <i data-lucide="help-circle" class="mr-2 text-blue-500"></i>
+                        処理（読み込みや加工）にすごく時間がかかる
+                    </summary>
+                    <div class="mt-3 pt-3 border-t text-gray-600">
+                        <p>
+                            本ツールの画像処理は、すべてお使いのPCの性能（CPUやメモリ）を使って行われます。そのため、一度に処理する枚数が多い場合や、元の画像サイズが大きい場合、またはPCのスペックによっては処理に時間がかかることがあります。処理が終わるまでしばらくお待ちください。
+                        </p>
+                    </div>
+                </details>
+                
+                <details class="bg-white p-4 rounded-lg shadow cursor-pointer">
+                    <summary class="font-semibold flex items-center">
+                        <i data-lucide="help-circle" class="mr-2 text-blue-500"></i>
+                        ダウンロードボタンを押してもダウンロードが始まらない
+                    </summary>
+                    <div class="mt-3 pt-3 border-t text-gray-600">
+                        <p>
+                            お使いのブラウザのセキュリティ設定により、ポップアップやファイルのダウンロードがブロックされている可能性があります。ブラウザの設定をご確認ください。また、一度ページを再読み込みして、最初からやり直すことで解決する場合もあります。
+                        </p>
+                    </div>
+                </details>
+
+                <details class="bg-white p-4 rounded-lg shadow cursor-pointer">
+                    <summary class="font-semibold flex items-center">
+                        <i data-lucide="help-circle" class="mr-2 text-blue-500"></i>
+                        業種リストを自分で編集したい
+                    </summary>
+                    <div class="mt-3 pt-3 border-t text-gray-600">
+                        <p>
+                            現在、ユーザー様ご自身で業種リストを編集する機能（スプレッドシート連携）はご利用いただけませんが、将来的に対応を予定しております。今しばらくお待ちくださいますよう、お願いいたします。
+                        </p>
+                    </div>
+                </details>
+            </div>
+        </section>
+        
+        <section id="bug-report">
+            <h2>5. 不具合・ご要望の報告</h2>
+            <p>
+                本ツールの利用中に不具合を発見した場合や、機能改善に関するご意見・ご要望がありましたら、大変お手数ですが以下のGoogleフォームよりご報告いただけますと幸いです。アプリケーション画面の右上ヘッダーにある虫のアイコン<i data-lucide="bug" class="inline-block w-5 h-5 relative" style="top: 2px;"></i>からも同じフォームを開くことができます。
+            </p>
+            <p class="mt-2">
+                皆様からのフィードバックが、今後のツール改善の大きな助けとなります。
+            </p>
+            <div class="mt-6 text-center">
+                <a href="https://forms.gle/Fk8aBGiwAEVHef2e9" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-8 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-200">
+                    <i data-lucide="bug" class="mr-2"></i>
+                    不具合・要望 報告フォーム
+                </a>
+            </div>
+        </section>
+
     </main>
-
-    <!-- フッター -->
-    <footer class="bg-gray-800 text-white mt-16">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm">
-            <p>&copy; 2024 業種別リネーム＆加工ツール. All Rights Reserved.</p>
-        </div>
-    </footer>
-
+    
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>
 

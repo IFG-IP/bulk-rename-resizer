@@ -141,7 +141,7 @@ const AppHeader = ({ currentStep, steps, isLoading, onPrivacyClick }) => {
   return (
     <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200/80 px-4 sm:px-6 py-3 grid grid-cols-3 items-center flex-shrink-0 h-20 z-10">
       <div className="text-base sm:text-lg font-bold text-gray-800 truncate">
-        業種別リネーム＆加工ツール
+        業種別リネーム＆加工ツール（β版）
       </div>
 
       <div className="flex justify-center">
