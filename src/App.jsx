@@ -843,7 +843,7 @@ const DownloadScreen = ({ zipBlob, zipFilename, onRestart, onDownload }) => {
 export default function App() {
     // ★★★ ログ送信機能の有効/無効を切り替える変数 ★★★
     // true: 送信する, false: 送信しない
-    const isLogSendingEnabled = true;
+    const isLogSendingEnabled = false;
 
     const [screen, setScreen] = useState('initializing');
     const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
