@@ -535,27 +535,13 @@ const PrivacyPolicyModal = ({ isOpen, onClose, isFirstVisit }) => {
                 </header>
                 <main className="p-6 flex-grow overflow-y-auto space-y-6 text-gray-700 text-sm">
                     <p>
-                        本アプリケーションでは、サービスの品質向上を目的として、お客様の利用状況に関する情報を収集・送信しております。
+                        本アプリケーションでは、サービスの品質向上を目的として、お客様の利用状況に関する匿名の統計情報を収集しております。
                         収集する情報には個人を特定するものは一切含まれませんので、ご安心ください。
                     </p>
 
                     <div>
-                        <h3 className="text-base font-semibold mb-2 text-gray-800">1. 収集する情報</h3>
-                        <p className="mb-2">品質向上のため、以下の情報を自動的に収集します。</p>
-                        <ul className="list-disc list-inside space-y-1 bg-gray-50/70 p-4 rounded-lg border border-gray-200/80">
-                            <li>セッションID（ページを開いてから閉じるまでの一時的な識別子）</li>
-                            <li>処理したファイル数、合計ファイルサイズ、ファイル形式の内訳</li>
-                            <li>画像のアップロード方法（ドラッグ＆ドロップかボタン選択か）</li>
-                            <li>画像処理にかかった時間（サムネイル生成、リサイズ、ZIP圧縮）</li>
-                            <li>ツールの滞在時間</li>
-                            <li>選択された業種コード</li>
-                            <li>お使いのブラウザ情報（User Agent）</li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h3 className="text-base font-semibold mb-2 text-gray-800">2. 収集しない情報</h3>
-                        <p className="mb-2">以下の情報については、一切収集・保存いたしません。</p>
+                        <h3 className="text-base font-semibold mb-2 text-gray-800">1. 収集しない情報について</h3>
+                        <p className="mb-2">お客様のプライバシーを尊重し、以下の情報については一切収集・保存いたしません。</p>
                         <ul className="list-disc list-inside space-y-1 bg-gray-50/70 p-4 rounded-lg border border-gray-200/80">
                             <li>アップロードされた画像ファイルそのもの</li>
                             <li>元のファイル名</li>
@@ -564,14 +550,14 @@ const PrivacyPolicyModal = ({ isOpen, onClose, isFirstVisit }) => {
                     </div>
                     
                     <div>
-                        <h3 className="text-base font-semibold mb-2 text-gray-800">3. 情報の利用目的</h3>
+                        <h3 className="text-base font-semibold mb-2 text-gray-800">2. 情報の利用目的</h3>
                         <p>
-                            収集した情報は、アプリケーションのパフォーマンス改善、不具合の原因調査と修正、新機能開発のための利用状況分析など、サービスの品質向上以外の目的では一切使用いたしません。
+                            収集した匿名の統計情報は、アプリケーションのパフォーマンス改善、不具合の原因調査と修正、新機能開発のための利用状況分析など、サービスの品質向上以外の目的では一切使用いたしません。
                         </p>
                     </div>
                     
                     <div>
-                        <h3 className="text-base font-semibold mb-2 text-gray-800">4. ポリシーの変更</h3>
+                        <h3 className="text-base font-semibold mb-2 text-gray-800">3. ポリシーの変更</h3>
                         <p>
                             本ポリシーは、法令の変更やサービス内容の変更に伴い、事前の予告なく改定されることがあります。
                         </p>
