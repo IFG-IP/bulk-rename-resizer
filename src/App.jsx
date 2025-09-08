@@ -843,7 +843,7 @@ const DownloadScreen = ({ zipBlob, zipFilename, onRestart, onDownload }) => {
 export default function App() {
     // ★★★ ログ送信機能の有効/無効を切り替える変数 ★★★
     // true: 送信する, false: 送信しない
-    const isLogSendingEnabled = false;
+    const isLogSendingEnabled = true;
 
     const [screen, setScreen] = useState('initializing');
     const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
@@ -862,8 +862,6 @@ export default function App() {
     const [fileTypeCounts, setFileTypeCounts] = useState({});
     const [timeBreakdown, setTimeBreakdown] = useState({ thumbnail: 0, resize: 0, zip: 0 });
 
-    // セッション開始時刻（滞在時間計測用）
-    const [sessionStartTime, setSessionStartTime] = useState(null);
     // アップロード方法
     const [uploadMethod, setUploadMethod] = useState('');
     // 合計ファイルサイズ
@@ -873,6 +871,41 @@ export default function App() {
     const [sessionId] = useState(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
     // 処理時間を計測するための開始時刻
     const [processingStartTime, setProcessingStartTime] = useState(null);
+
+    // アクティブ時間（ユーザーが操作している時間）を計測するための状態
+    const [activeTimeInSeconds, setActiveTimeInSeconds] = useState(0);
+
+    // ユーザーがアクティブかどうかを追跡するためのタイマーID
+    const mouseMovedRef = React.useRef(false);
+
+    // 処理中かどうかのフラグ（重複処理防止用）
+    const isProcessingRef = React.useRef(false);
+
+    // 処理中かどうかを監視するエフェクト
+    useEffect(() => {
+        isProcessingRef.current = (screen === 'loading' || screen === 'processing');
+    }, [screen]);
+
+    // ユーザーのアクティブ時間を計測するエフェクト
+    useEffect(() => {
+        const handleMouseMove = () => {
+            mouseMovedRef.current = true;
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+
+        const intervalId = setInterval(() => {
+            if (mouseMovedRef.current && !isProcessingRef.current) {
+                setActiveTimeInSeconds(prevTime => prevTime + 1);
+                mouseMovedRef.current = false;
+            }
+        }, 1000);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            clearInterval(intervalId);
+        };
+    }, []);
 
     // アプリ起動時に、プライバシーポリシーの表示履歴をチェックする
     useEffect(() => {
@@ -1087,7 +1120,6 @@ export default function App() {
     };
 
     const handleFilesAccepted = async (files, method) => {
-        setSessionStartTime(Date.now()); // 滞在時間計測の開始
 
         setUploadMethod(method);
         const totalSizeInBytes = files.reduce((sum, file) => sum + file.size, 0);
@@ -1251,7 +1283,6 @@ export default function App() {
             try {
                 const processingTime = (Date.now() - processingStartTime) / 1000;
                 
-                const sessionDuration = sessionStartTime ? (Date.now() - sessionStartTime) / 1000 : 0;
 
                 const logData = {
                     sessionId: sessionId,
@@ -1265,7 +1296,7 @@ export default function App() {
                     timeBreakdown: timeBreakdown,
                     uploadMethod: uploadMethod,
                     totalFileSize: totalFileSize,
-                    sessionDuration: sessionDuration,
+                    sessionDuration: activeTimeInSeconds,
                 };
 
                 await addDoc(collection(db, "usage_logs"), logData);
@@ -1292,7 +1323,7 @@ export default function App() {
         setIsDownloadCompleted(false);
         setProcessingStartTime(null);
 
-        setSessionStartTime(null);
+        setActiveTimeInSeconds(0); // 操作時間をリセット
         setUploadMethod('');
         setTotalFileSize(0);
         setFileTypeCounts({});
