@@ -1194,15 +1194,50 @@ export default function App() {
             const img = new Image();
             img.crossOrigin = 'anonymous';
             img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = targetWidth;
-                canvas.height = targetHeight;
-                const ctx = canvas.getContext('2d');
+                // ステップリサイズ用のオフスクリーンCanvasを用意
+                let currentCanvas = document.createElement('canvas');
+                let currentCtx = currentCanvas.getContext('2d');
+                currentCanvas.width = img.width;
+                currentCanvas.height = img.height;
+                currentCtx.drawImage(img, 0, 0);
 
+                // 目標サイズの2倍の大きさになるまで、段階的に画像を半分に縮小していく
+                // これにより、急激な縮小による画質の劣化を防ぐ
+                while (currentCanvas.width > targetWidth * 2) {
+                    const nextWidth = Math.floor(currentCanvas.width / 2);
+                    const nextHeight = Math.floor(currentCanvas.height / 2);
+                    
+                    if (nextWidth < targetWidth || nextHeight < targetHeight) {
+                        break;
+                    }
+
+                    const nextCanvas = document.createElement('canvas');
+                    nextCanvas.width = nextWidth;
+                    nextCanvas.height = nextHeight;
+                    const nextCtx = nextCanvas.getContext('2d');
+                    
+                    // 高画質なリサイズをブラウザにヒントとして与える
+                    nextCtx.imageSmoothingQuality = 'high';
+                    nextCtx.drawImage(currentCanvas, 0, 0, nextWidth, nextHeight);
+                    
+                    currentCanvas = nextCanvas;
+                }
+
+                // 最終的な出力用Canvas
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = targetWidth;
+                finalCanvas.height = targetHeight;
+                const ctx = finalCanvas.getContext('2d');
+
+                // 背景を白で塗りつぶす
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fillRect(0, 0, targetWidth, targetHeight);
+                
+                // 最終的なリサイズ処理でも高画質設定を適用
+                ctx.imageSmoothingQuality = 'high';
 
-                const imgAspect = img.width / img.height;
+                // アスペクト比を維持して中央に描画するロジック
+                const imgAspect = currentCanvas.width / currentCanvas.height;
                 const targetAspect = targetWidth / targetHeight;
                 let drawWidth, drawHeight, x, y;
 
@@ -1217,8 +1252,10 @@ export default function App() {
                     y = 0;
                     x = (targetWidth - drawWidth) / 2;
                 }
-                ctx.drawImage(img, x, y, drawWidth, drawHeight);
-                resolve(canvas);
+                
+                // 段階的に縮小した画像をソースとして最終的な描画を行う
+                ctx.drawImage(currentCanvas, x, y, drawWidth, drawHeight);
+                resolve(finalCanvas);
             };
             img.onerror = reject;
             img.src = image.originalUrl;
