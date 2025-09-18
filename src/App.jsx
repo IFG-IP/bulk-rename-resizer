@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, ChevronsRight, Download, RotateCcw, Settings, X, AlertCircle, Loader, HardDriveDownload, Copy, Check, HelpCircle, Bug, ShieldCheck } from 'lucide-react';
+import { UploadCloud, ChevronsRight, Download, RotateCcw, Settings, X, AlertCircle, Loader, HardDriveDownload, Copy, Check, HelpCircle, Bug, ShieldCheck, Megaphone } from 'lucide-react';
 
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -13,13 +13,14 @@ const JSZIP_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min
 const FILESAVER_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  // 注: ここには実際のFirebase設定値を入力する必要があります
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID",
+  measurementId: "YOUR_MEASUREMENT_ID"
 };
 
 
@@ -137,7 +138,7 @@ const getFormattedDate = () => {
 /**
  * アプリケーションヘッダーコンポーネント
  */
-const AppHeader = ({ currentStep, steps, isLoading, onPrivacyClick }) => {
+const AppHeader = ({ currentStep, steps, isLoading }) => {
   return (
     <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200/80 px-4 sm:px-6 py-3 grid grid-cols-3 items-center flex-shrink-0 h-20 z-10">
       <div className="text-base sm:text-lg font-bold text-gray-800 truncate">
@@ -185,6 +186,8 @@ const AppHeader = ({ currentStep, steps, isLoading, onPrivacyClick }) => {
         </div>
       </div>
       <div className="flex justify-end items-center space-x-2">
+
+        {/* 
         <a
           href="https://forms.gle/Fk8aBGiwAEVHef2e9" // GoogleフォームのURLに置き換えてください
           target="_blank"
@@ -195,14 +198,6 @@ const AppHeader = ({ currentStep, steps, isLoading, onPrivacyClick }) => {
           <Bug size={24} />
         </a>
 
-        <button
-          onClick={onPrivacyClick}
-          className="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
-          aria-label="プライバシーポリシーを開く"
-        >
-          <ShieldCheck size={24} />
-        </button>
-
         <a
           href="manual.html"
           target="_blank"
@@ -212,6 +207,21 @@ const AppHeader = ({ currentStep, steps, isLoading, onPrivacyClick }) => {
         >
           <HelpCircle size={24} />
         </a>
+
+        */}
+        
+
+        <a
+          href="privacy.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
+          aria-label="プライバシーポリシーを開く"
+        >
+          <ShieldCheck size={24} />
+        </a>
+
+        
       </div>
     </header>
   );
@@ -297,11 +307,8 @@ const UploadScreen = ({ onFilesAccepted, setErrors }) => {
     }
 
     if (acceptedFiles.length > 0) {
-      // ▼▼▼ 変更 ▼▼▼
-      // イベントタイプからアップロード方法を判定
       const method = event.type === 'drop' ? 'drag_and_drop' : 'button_click';
       onFilesAccepted(acceptedFiles, method);
-      // ▲▲▲ 変更 ▲▲▲
     }
   }, [onFilesAccepted, setErrors]);
 
@@ -385,7 +392,6 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
     if (!isOpen) return null;
 
     const handleConnect = () => {
-        // URLとモードを親コンポーネントに渡して連携処理を依頼
         onConnect(localUrl, localMode);
     };
 
@@ -397,7 +403,6 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
                         <Settings className="mr-3 text-gray-500" />
                         業種マスタ連携設定
                     </h2>
-                    {/* 変更：ボタンはモーダルを閉じるだけ */}
                     <button onClick={onClose} className="text-gray-500 hover:text-gray-800 rounded-full p-1 hover:bg-gray-200/60 transition-colors">
                         <X size={24} />
                     </button>
@@ -475,14 +480,12 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
                                 placeholder="URLが空の状態で連携すると設定が解除されます"
                                 className="flex-grow px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                             />
-                            {/* 変更：ボタンの文言を「連携」に、onClickで連携処理を呼ぶ */}
                             <button onClick={handleConnect} className="px-5 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 transition whitespace-nowrap">連携</button>
                         </div>
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold mb-3">【ステータス】</h3>
                         <div className="p-4 bg-white/50 rounded-xl min-h-[100px] border border-gray-200 flex items-center justify-center text-center">
-                           {/* 変更：prop名を connectionStatus に変更し、メッセージを動的に表示 */}
                            {connectionStatus.status === 'testing' && (
                                 <p className="text-gray-500 flex items-center"><Loader size={18} className="animate-spin mr-2"/>連携中...</p>
                            )}
@@ -504,7 +507,6 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
                     </div>
                 </main>
                 <footer className="flex justify-center p-4 border-t border-gray-200">
-                    {/* 変更：ボタンはモーダルを閉じるだけ */}
                     <button onClick={onClose} className="w-full sm:w-auto px-8 py-3 rounded-lg text-white font-bold bg-gray-600 hover:bg-gray-700 shadow-md transition">閉じる</button>
                 </footer>
             </div>
@@ -512,73 +514,83 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
     );
 };
 
+// === ▼▼▼ NEW COMPONENT: START ▼▼▼ ===
 /**
- * プライバシーポリシーモーダル
+ * 汎用通知モーダルコンポーネント
  */
-const PrivacyPolicyModal = ({ isOpen, onClose, isFirstVisit }) => {
-    if (!isOpen) return null;
+const NotificationModal = ({ notification, onClose }) => {
+    if (!notification) return null;
+    const { type, content } = notification;
+
+    const UpdateContent = ({ content }) => (
+        <div>
+            <p className="text-sm text-gray-500 mb-4">Version: {content.version} ({content.date})</p>
+            {content.features?.length > 0 && (
+                <div className="mb-4">
+                    <h3 className="font-semibold mb-1 text-gray-800">新機能・改善</h3>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+                        {content.features.map((item, index) => <li key={`feat-${index}`}>{item}</li>)}
+                    </ul>
+                </div>
+            )}
+            {content.fixes?.length > 0 && (
+                <div>
+                    <h3 className="font-semibold mb-1 text-gray-800">修正点</h3>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+                        {content.fixes.map((item, index) => <li key={`fix-${index}`}>{item}</li>)}
+                    </ul>
+                </div>
+            )}
+        </div>
+    );
+
+    const AgreementContent = ({ content }) => (
+        <div>
+            <p className="text-sm text-gray-500 mb-4">{content.date}</p>
+            <p className="text-gray-700 whitespace-pre-wrap">{content.body}</p>
+            {content.link && <a href={content.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline mt-4 inline-block">詳細はこちら</a>}
+        </div>
+    );
 
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-            <div className="bg-white border border-gray-200 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl shadow-lg">
-                <header className="flex items-center justify-between p-5 border-b border-gray-200">
-                    <h2 className="text-xl font-bold text-gray-800 flex items-center">
-                        <ShieldCheck className="mr-3 text-gray-500" />
-                        プライバシーポリシー
-                    </h2>
-                    {/* isFirstVisitがfalseの場合のみボタンを表示 */}
-                    {!isFirstVisit && (
-                        <button onClick={onClose} className="text-gray-500 hover:text-gray-800 rounded-full p-1 hover:bg-gray-200/60 transition-colors">
-                            <X size={24} />
-                        </button>
-                    )}
-                </header>
-                <main className="p-6 flex-grow overflow-y-auto space-y-6 text-gray-700 text-sm">
-                    <p>
-                        本アプリケーションでは、サービスの品質向上を目的として、お客様の利用状況に関する匿名の統計情報を収集しております。
-                        収集する情報には個人を特定するものは一切含まれませんので、ご安心ください。
-                    </p>
-
-                    <div>
-                        <h3 className="text-base font-semibold mb-2 text-gray-800">1. 収集しない情報について</h3>
-                        <p className="mb-2">お客様のプライバシーを尊重し、以下の情報については一切収集・保存いたしません。</p>
-                        <ul className="list-disc list-inside space-y-1 bg-gray-50/70 p-4 rounded-lg border border-gray-200/80">
-                            <li>アップロードされた画像ファイルそのもの</li>
-                            <li>元のファイル名</li>
-                            <li>氏名、メールアドレス、その他個人を特定できるすべての情報</li>
-                        </ul>
-                    </div>
-                    
-                    <div>
-                        <h3 className="text-base font-semibold mb-2 text-gray-800">2. 情報の利用目的</h3>
-                        <p>
-                            収集した匿名の統計情報は、アプリケーションのパフォーマンス改善、不具合の原因調査と修正、新機能開発のための利用状況分析など、サービスの品質向上以外の目的では一切使用いたしません。
-                        </p>
-                    </div>
-                    
-                    <div>
-                        <h3 className="text-base font-semibold mb-2 text-gray-800">3. ポリシーの変更</h3>
-                        <p>
-                            本ポリシーは、法令の変更やサービス内容の変更に伴い、事前の予告なく改定されることがあります。
-                        </p>
-                    </div>
-                </main>
-                <footer className="flex justify-center p-4 border-t border-gray-200">
-                    <button 
-                        onClick={onClose} 
-                        className={`w-full sm:w-auto px-8 py-3 rounded-lg text-white font-bold shadow-md transition
-                            ${isFirstVisit 
-                                ? 'bg-blue-600 hover:bg-blue-700' 
-                                : 'bg-gray-600 hover:bg-gray-700'
-                            }`}
-                    >
-                        {isFirstVisit ? '同意して利用を開始する' : '閉じる'}
-                    </button>
-                </footer>
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-fade-in-scale">
+            <header className="flex items-center justify-between p-5 border-b border-gray-200 bg-gray-50/70 rounded-t-2xl">
+              <h2 className="text-xl font-bold text-gray-800 flex items-center">
+                <Megaphone className="mr-3 text-blue-500" />
+                {content.title}
+              </h2>
+              {type !== 'agreement' && (
+                <button onClick={() => onClose(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                  <X size={24} />
+                </button>
+              )}
+            </header>
+            <div className="p-6 flex-grow overflow-y-auto">
+              {type === 'update' && <UpdateContent content={content} />}
+              {type === 'agreement' && <AgreementContent content={content} />}
             </div>
+            <footer className="flex justify-end p-4 border-t border-gray-200 bg-gray-50/70 rounded-b-2xl">
+              {type === 'agreement'
+                ? <button onClick={() => onClose(true)} className="px-8 py-2.5 rounded-lg text-white font-semibold bg-green-600 hover:bg-green-700 transition-all duration-200 transform hover:scale-105">同意する</button>
+                : <button onClick={() => onClose(true)} className="px-8 py-2.5 rounded-lg text-white font-semibold bg-blue-600 hover:bg-blue-700 transition-all duration-200 transform hover:scale-105">確認</button>
+              }
+            </footer>
+          </div>
+          <style>{`
+            @keyframes fade-in-scale {
+              from { opacity: 0; transform: scale(0.95); }
+              to { opacity: 1; transform: scale(1); }
+            }
+            .animate-fade-in-scale {
+              animation: fade-in-scale 0.3s forwards cubic-bezier(0.16, 1, 0.3, 1);
+            }
+          `}</style>
         </div>
     );
 };
+// === ▲▲▲ NEW COMPONENT: END ▲▲▲ ===
+
 
 /**
  * STEP 2: ファイル名設定画面
@@ -846,8 +858,6 @@ export default function App() {
     const isLogSendingEnabled = true;
 
     const [screen, setScreen] = useState('initializing');
-    const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
-    const [isFirstVisit, setIsFirstVisit] = useState(false);
     const [isDownloadCompleted, setIsDownloadCompleted] = useState(false); 
     const [images, setImages] = useState([]);
     const [loadingProgress, setLoadingProgress] = useState({ progress: 0, total: 0 });
@@ -861,6 +871,13 @@ export default function App() {
     const [spreadsheetUrl, setSpreadsheetUrl] = useState(() => localStorage.getItem('spreadsheetUrl') || '');
     const [fileTypeCounts, setFileTypeCounts] = useState({});
     const [timeBreakdown, setTimeBreakdown] = useState({ thumbnail: 0, resize: 0, zip: 0 });
+    
+    // === ▼▼▼ NEW STATE: START ▼▼▼ ===
+    // 現在表示中の通知を管理するstate
+    const [currentNotification, setCurrentNotification] = useState(null);
+    // 未表示の通知をキューとして管理するstate
+    const [notificationQueue, setNotificationQueue] = useState([]);
+    // === ▲▲▲ NEW STATE: END ▲▲▲ ===
 
     // アップロード方法
     const [uploadMethod, setUploadMethod] = useState('');
@@ -907,29 +924,61 @@ export default function App() {
         };
     }, []);
 
-    // アプリ起動時に、プライバシーポリシーの表示履歴をチェックする
+    // === ▼▼▼ NEW EFFECT: START ▼▼▼ ===
+    // アプリ起動時に通知をチェックする
     useEffect(() => {
-        const hasSeenPolicy = localStorage.getItem('hasSeenPrivacyPolicy');
-        if (!hasSeenPolicy) {
-            setIsPrivacyModalOpen(true);
-            setIsFirstVisit(true);
-        }
+        const checkNotifications = async () => {
+            try {
+                // public/notifications.jsonから通知データを取得
+                const response = await fetch('/notifications.json');
+                if (!response.ok) {
+                     console.log('notifications.json not found, skipping notifications.');
+                     return;
+                }
+                const notifications = await response.json();
+                
+                // localStorageから確認済みの通知IDリストを取得
+                const seenIds = JSON.parse(localStorage.getItem('seenNotifications')) || [];
+                
+                // 未確認の通知のみをフィルタリング
+                const unseenNotifications = notifications.filter(n => !seenIds.includes(n.id));
+
+                // 通知タイプに基づいて優先度を定義 (agreementが最優先)
+                const priorityOrder = { 'agreement': 1, 'update': 2 };
+                const defaultPriority = 99;
+
+                // 優先度に基づいて未読の通知を並び替え
+                unseenNotifications.sort((a, b) => {
+                    const priorityA = priorityOrder[a.type] || defaultPriority;
+                    const priorityB = priorityOrder[b.type] || defaultPriority;
+                    return priorityA - priorityB;
+                });
+
+                // 未確認の通知があればキューにセット
+                if (unseenNotifications.length > 0) {
+                    setNotificationQueue(unseenNotifications);
+                }
+            } catch (error) {
+                console.error("Failed to fetch notifications:", error);
+            }
+        };
+        checkNotifications();
     }, []);
 
-    // プライバシーポリシーモーダルを閉じる際の処理
-    const handleClosePrivacyModal = () => {
-        if (isFirstVisit) {
-            localStorage.setItem('hasSeenPrivacyPolicy', 'true');
-            setIsFirstVisit(false);
+    // 通知キューを監視し、表示する通知を決定する
+    useEffect(() => {
+        if (notificationQueue.length > 0) {
+            setCurrentNotification(notificationQueue[0]);
+        } else {
+            setCurrentNotification(null);
         }
-        setIsPrivacyModalOpen(false);
-    };
+    }, [notificationQueue]);
+    // === ▲▲▲ NEW EFFECT: END ▲▲▲ ===
+
 
     const { isLoaded: isHeicLoaded, error: heicError } = useScript(HEIC_CDN_URL);
     const { isLoaded: isJszipLoaded, error: jszipError } = useScript(JSZIP_CDN);
     const { isLoaded: isFilesaverLoaded, error: filesaverError } = useScript(FILESAVER_CDN);
-
-    
 
     const handleFileErrors = useCallback((newErrors) => {
         setErrors(newErrors);
@@ -944,10 +993,8 @@ export default function App() {
         };
 
         const spreadsheetId = extractIdFromUrl(spreadsheetUrl);
-        // const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
-        if (!spreadsheetId || !apiKey) {
-            // 不正なURLの場合は、関連する設定をすべてクリアする
+        if (!spreadsheetId) {
             localStorage.removeItem('spreadsheetUrl');
             localStorage.removeItem('spreadsheetMode');
             localStorage.removeItem('cachedIndustryCodes');
@@ -956,7 +1003,7 @@ export default function App() {
         }
 
         try {
-            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/A:B?key=${apiKey}`);
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/A:B?key=YOUR_GOOGLE_API_KEY`);
             if (!response.ok) {
                 throw new Error('スプレッドシートからのデータ取得に失敗しました。IDや共有設定を確認してください。');
             }
@@ -981,20 +1028,17 @@ export default function App() {
                     setIndustryCodes(fetchedCodes);
                     finalCodes = fetchedCodes;
                 }
-                // ★追加: 取得成功時にキャッシュを保存する
                 localStorage.setItem('cachedIndustryCodes', JSON.stringify(finalCodes));
 
             } else {
                 handleFileErrors(['シートから有効なデータを取得できませんでした。']);
                 setIndustryCodes(INITIAL_INDUSTRY_CODES);
-                // ★追加: データが空の場合、キャッシュをクリアする
                 localStorage.removeItem('cachedIndustryCodes');
             }
         } catch (error) {
             console.error("Failed to fetch industry codes:", error);
             handleFileErrors([error.message]);
             setIndustryCodes(INITIAL_INDUSTRY_CODES);
-            // ★追加: エラー発生時にキャッシュをクリアする
             localStorage.removeItem('cachedIndustryCodes');
         }
     }, [handleFileErrors]);
@@ -1011,32 +1055,7 @@ export default function App() {
         }
 
         if (isHeicLoaded && isJszipLoaded && isFilesaverLoaded && screen === 'initializing') {
-
-            {/* スプレッドシートのURLとモードを取得
-            const savedSpreadsheetUrl = localStorage.getItem('spreadsheetUrl');
-            const savedMode = localStorage.getItem('spreadsheetMode') || 'replace';
-            // const cachedCodes = localStorage.getItem('cachedIndustryCodes'); // ★追加: キャッシュを取得
-            
-            // URLがない場合（連携解除状態）は、業種を初期化しキャッシュも削除
-            if (!savedSpreadsheetUrl) {
-                setIndustryCodes(INITIAL_INDUSTRY_CODES);
-                localStorage.removeItem('cachedIndustryCodes');
-            } else {
-                // URLがある場合は、キャッシュの利用を試みる
-                const cachedCodes = localStorage.getItem('cachedIndustryCodes');
-                if (cachedCodes) {
-                    setIndustryCodes(JSON.parse(cachedCodes));
-                } else {
-                    // キャッシュがなければAPI経由で取得
-                    fetchIndustryCodes(savedSpreadsheetUrl, savedMode);
-                }
-            }    
-            */}
-
-            // スプレッドシート連携無効用設定
-            // スプレッドシート連携を無効化するため、常に初期データを設定
             setIndustryCodes(INITIAL_INDUSTRY_CODES);
-            // 既存の連携設定が残っている可能性を考慮し、クリアする
             localStorage.removeItem('spreadsheetUrl');
             localStorage.removeItem('spreadsheetMode');
             localStorage.removeItem('cachedIndustryCodes');
@@ -1045,82 +1064,19 @@ export default function App() {
         }
     }, [isHeicLoaded, isJszipLoaded, isFilesaverLoaded, heicError, jszipError, filesaverError, screen, handleFileErrors, fetchIndustryCodes]);
 
-    // ★追加：連携・連携解除のロジックをすべてここに集約
     const handleSpreadsheetConnection = async (url, mode) => {
-        // URLが空欄なら連携解除
         if (!url) {
             localStorage.removeItem('spreadsheetUrl');
             localStorage.removeItem('spreadsheetMode');
             setSpreadsheetUrl('');
-            setSpreadsheetMode('replace'); // デフォルトに戻す
+            setSpreadsheetMode('replace');
             setIndustryCodes(INITIAL_INDUSTRY_CODES);
             return { status: 'success', message: '連携を解除しました。' };
         }
-
-        const extractIdFromUrl = (u) => {
-            const match = u.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-            return match ? match[1] : null;
-        };
-
-        const spreadsheetId = extractIdFromUrl(url);
-        // const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
-
-        if (!spreadsheetId || !apiKey) {
-            return { status: 'error', message: 'URLが正しくないか、APIキーが設定されていません。' };
-        }
-
-        // スプレッドシート連携無効化のメッセージを返す
         return { status: 'error', message: '現在、スプレッドシート連携機能は利用できません。' };
-
-        {/* 以下は連携有効化の元のコード
-
-        try {
-            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/A:B?key=${apiKey}`);
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || '連携に失敗しました。IDや共有設定を確認してください。');
-            }
-
-            const data = await response.json();
-            const fetchedCodes = data.values ? data.values.filter(row => row[0] && row[1]).map(row => ({ code: row[0], name: row[1] })) : [];
-
-            if (fetchedCodes.length === 0) {
-                return { status: 'error', message: 'シートから有効なデータを取得できませんでした。' };
-            }
-            
-            // 成功時の処理
-            localStorage.setItem('spreadsheetUrl', url);
-            localStorage.setItem('spreadsheetMode', mode);
-            setSpreadsheetUrl(url);
-            setSpreadsheetMode(mode);
-
-            let finalCodes; // ★変更: 最終的なリストを格納する変数
-            if (mode === 'add') {
-                const combined = [...fetchedCodes, ...INITIAL_INDUSTRY_CODES];
-                const uniqueCodes = combined.filter((item, index, self) =>
-                    index === self.findIndex((t) => t.code === item.code)
-                );
-                setIndustryCodes(uniqueCodes);
-                finalCodes = uniqueCodes; // ★追加
-            } else {
-                setIndustryCodes(fetchedCodes);
-                finalCodes = fetchedCodes; // ★追加
-            }
-            
-            // ★追加: 取得・整形した最終データをlocalStorageに保存
-            localStorage.setItem('cachedIndustryCodes', JSON.stringify(finalCodes));
-
-            return { status: 'success', message: `正常に連携できました (${fetchedCodes.length}件)` };
-        } catch (error) {
-            return { status: 'error', message: `連携エラー: ${error.message}` };
-        }
-            
-        */}
-        
     };
 
     const handleFilesAccepted = async (files, method) => {
-
         setUploadMethod(method);
         const totalSizeInBytes = files.reduce((sum, file) => sum + file.size, 0);
         const totalSizeInMB = totalSizeInBytes / (1024 * 1024);
@@ -1138,7 +1094,6 @@ export default function App() {
             return acc;
         }, {});
         setFileTypeCounts(counts);
-        // ▲▲▲ 置き換え/追加 ▲▲▲
 
         setScreen('loading');
         setErrors([]);
@@ -1194,49 +1149,36 @@ export default function App() {
             const img = new Image();
             img.crossOrigin = 'anonymous';
             img.onload = () => {
-                // ステップリサイズ用のオフスクリーンCanvasを用意
                 let currentCanvas = document.createElement('canvas');
                 let currentCtx = currentCanvas.getContext('2d');
                 currentCanvas.width = img.width;
                 currentCanvas.height = img.height;
                 currentCtx.drawImage(img, 0, 0);
 
-                // 目標サイズの2倍の大きさになるまで、段階的に画像を半分に縮小していく
-                // これにより、急激な縮小による画質の劣化を防ぐ
                 while (currentCanvas.width > targetWidth * 2) {
                     const nextWidth = Math.floor(currentCanvas.width / 2);
                     const nextHeight = Math.floor(currentCanvas.height / 2);
                     
-                    if (nextWidth < targetWidth || nextHeight < targetHeight) {
-                        break;
-                    }
+                    if (nextWidth < targetWidth || nextHeight < targetHeight) break;
 
                     const nextCanvas = document.createElement('canvas');
                     nextCanvas.width = nextWidth;
                     nextCanvas.height = nextHeight;
                     const nextCtx = nextCanvas.getContext('2d');
                     
-                    // 高画質なリサイズをブラウザにヒントとして与える
                     nextCtx.imageSmoothingQuality = 'high';
                     nextCtx.drawImage(currentCanvas, 0, 0, nextWidth, nextHeight);
                     
                     currentCanvas = nextCanvas;
                 }
 
-                // 最終的な出力用Canvas
                 const finalCanvas = document.createElement('canvas');
                 finalCanvas.width = targetWidth;
                 finalCanvas.height = targetHeight;
                 const ctx = finalCanvas.getContext('2d');
-
-                // 背景を白で塗りつぶす
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fillRect(0, 0, targetWidth, targetHeight);
-                
-                // 最終的なリサイズ処理でも高画質設定を適用
                 ctx.imageSmoothingQuality = 'high';
-
-                // アスペクト比を維持して中央に描画するロジック
                 const imgAspect = currentCanvas.width / currentCanvas.height;
                 const targetAspect = targetWidth / targetHeight;
                 let drawWidth, drawHeight, x, y;
@@ -1253,7 +1195,6 @@ export default function App() {
                     x = (targetWidth - drawWidth) / 2;
                 }
                 
-                // 段階的に縮小した画像をソースとして最終的な描画を行う
                 ctx.drawImage(currentCanvas, x, y, drawWidth, drawHeight);
                 resolve(finalCanvas);
             };
@@ -1263,13 +1204,13 @@ export default function App() {
     };
 
     const handleProcess = async () => {
-        setProcessingStartTime(Date.now()); // 処理開始時刻を記録
+        setProcessingStartTime(Date.now());
 
         setScreen('processing');
         setProcessingProgress({ progress: 0, total: images.length });
         const zip = new window.JSZip();
 
-        const resizeStartTime = performance.now(); // リサイズ処理の開始時間
+        const resizeStartTime = performance.now();
         for (let i = 0; i < images.length; i++) {
             const image = images[i];
             try {
@@ -1288,13 +1229,11 @@ export default function App() {
             setProcessingProgress(p => ({ ...p, progress: p.progress + 1 }));
         }
 
-        const resizeEndTime = performance.now(); // リサイズ処理の終了時間
-
-        const zipStartTime = performance.now(); // ZIP生成の開始時間
+        const resizeEndTime = performance.now();
+        const zipStartTime = performance.now();
         const zipFile = await zip.generateAsync({ type: 'blob' });
-        const zipEndTime = performance.now(); // ZIP生成の終了時間
+        const zipEndTime = performance.now();
         
-        // 計測結果をstateに保存
         setTimeBreakdown(prev => ({
             ...prev,
             resize: (resizeEndTime - resizeStartTime) / 1000,
@@ -1315,12 +1254,10 @@ export default function App() {
     const handleDownload = async () => {
         setIsDownloadCompleted(true);
         
-        // ★★★ 変更：ログ送信が有効な場合のみ、以下の処理を実行 ★★★
         if (isLogSendingEnabled && processingStartTime) {
             try {
                 const processingTime = (Date.now() - processingStartTime) / 1000;
                 
-
                 const logData = {
                     sessionId: sessionId,
                     eventTimestamp: serverTimestamp(),
@@ -1344,8 +1281,29 @@ export default function App() {
             }
         }
     };
-
-
+    
+    // === ▼▼▼ NEW HANDLER: START ▼▼▼ ===
+    /**
+     * 通知モーダルを閉じる際のハンドラ
+     * @param {boolean} confirmed - ユーザーが確認/同意したか
+     */
+    const handleCloseNotification = (confirmed) => {
+        const notificationToHandle = notificationQueue[0];
+        if (!notificationToHandle) return;
+    
+        // ユーザーが確認/同意した場合のみ、そのIDをlocalStorageに保存
+        if (confirmed) {
+            const seenIds = JSON.parse(localStorage.getItem('seenNotifications')) || [];
+            if (!seenIds.includes(notificationToHandle.id)) {
+                seenIds.push(notificationToHandle.id);
+                localStorage.setItem('seenNotifications', JSON.stringify(seenIds));
+            }
+        }
+    
+        // 表示済みの通知をキューから削除し、次の通知（もしあれば）を表示させる
+        setNotificationQueue(currentQueue => currentQueue.slice(1));
+    };
+    // === ▲▲▲ NEW HANDLER: END ▲▲▲ ===
 
     const handleRestart = () => {
         images.forEach(image => {
@@ -1360,7 +1318,7 @@ export default function App() {
         setIsDownloadCompleted(false);
         setProcessingStartTime(null);
 
-        setActiveTimeInSeconds(0); // 操作時間をリセット
+        setActiveTimeInSeconds(0);
         setUploadMethod('');
         setTotalFileSize(0);
         setFileTypeCounts({});
@@ -1398,10 +1356,19 @@ export default function App() {
     const isLoading = screen === 'loading' || screen === 'processing';
 
     const renderScreen = () => {
+        // 通知が表示されている間は、メインの画面を操作不可にする
+        if(currentNotification) {
+            // 背景に現在の画面を薄く表示しつつ、操作はさせない
+            return (
+                <div className="w-full h-full opacity-50 pointer-events-none">
+                    {/* This will render the current screen underneath the modal */}
+                </div>
+            )
+        }
+
         switch (screen) {
             case 'initializing': return <LoadingScreen title="ライブラリを準備中..." />;
             case 'loading': return <LoadingScreen title="画像を読み込んでいます..." progress={loadingProgress.progress} total={loadingProgress.total} />;
-            // 変更：BulkSettingsScreenに渡すpropsを変更
             case 'bulk-settings': return <BulkSettingsScreen onNext={handleBulkSettingsNext} onBack={handleRestart} bulkSettings={bulkSettings} setBulkSettings={setBulkSettings} industryCodes={industryCodes} onConnect={handleSpreadsheetConnection} spreadsheetUrl={spreadsheetUrl} spreadsheetMode={spreadsheetMode} />;
             case 'confirm-edit': return <ConfirmEditScreen images={images} setImages={setImages} onProcess={handleProcess} onBack={() => setScreen('bulk-settings')} industryCodes={industryCodes} />;
             case 'processing': return <LoadingScreen title="画像を処理中です..." progress={processingProgress.progress} total={processingProgress.total} />;
@@ -1414,7 +1381,7 @@ export default function App() {
 
     return (
         <div className="font-sans w-full h-dvh flex flex-col antialiased bg-gray-100">
-            {screen !== 'initializing' && <AppHeader currentStep={currentStep} steps={workflowSteps} isLoading={isLoading} onPrivacyClick={() => setIsPrivacyModalOpen(true)} />}
+            {screen !== 'initializing' && <AppHeader currentStep={currentStep} steps={workflowSteps} isLoading={isLoading} />}
             
             <div className="flex-grow relative min-h-0 flex flex-col">
                 <div className="absolute top-4 left-4 right-4 z-50 space-y-2 w-auto max-w-full">
@@ -1422,9 +1389,21 @@ export default function App() {
                         <Alert key={index} message={error} onDismiss={() => setErrors(prev => prev.filter((_, i) => i !== index))} />
                     ))}
                 </div>
-                <PrivacyPolicyModal isOpen={isPrivacyModalOpen} onClose={handleClosePrivacyModal} isFirstVisit={isFirstVisit} />
-                {renderScreen()}
+                
+                {/* === ▼▼▼ RENDER UPDATE: START ▼▼▼ === */}
+                {/* Render the main screen */}
+                <div className={`flex-grow ${currentNotification ? 'filter blur-sm' : ''}`}>
+                    {renderScreen()}
+                </div>
+
+                {/* Render the notification modal on top if there is one */}
+                <NotificationModal 
+                    notification={currentNotification} 
+                    onClose={handleCloseNotification} 
+                />
+                {/* === ▲▲▲ RENDER UPDATE: END ▲▲▲ === */}
             </div>
         </div>
     );
 }
+
