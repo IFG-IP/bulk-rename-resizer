@@ -229,6 +229,30 @@ const AppHeader = ({ currentStep, steps, isLoading }) => {
 
 
 /**
+ * 更新通知バナー
+ */
+const UpdateBanner = ({ latestUpdate, onOpen }) => {
+  if (!latestUpdate) return null;
+  const { version, date } = latestUpdate.content;
+
+  return (
+    <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg flex items-center justify-between shadow-sm mb-4">
+      <div className="flex items-center space-x-2">
+        <Megaphone className="text-blue-500" size={20} />
+        <span className="font-semibold">バージョン {version} がリリースされました ({date})</span>
+      </div>
+      <button
+        onClick={onOpen}
+        className="ml-4 px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition"
+      >
+        詳しくはこちら
+      </button>
+    </div>
+  );
+};
+
+
+/**
  * アラート表示コンポーネント
  */
 const Alert = ({ message, type = 'error', onDismiss }) => {
@@ -514,82 +538,118 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
     );
 };
 
-// === ▼▼▼ NEW COMPONENT: START ▼▼▼ ===
 /**
- * 汎用通知モーダルコンポーネント
+ * 通知モーダルコンポーネント（agreement単独 or update複数対応）
  */
-const NotificationModal = ({ notification, onClose }) => {
-    if (!notification) return null;
-    const { type, content } = notification;
+const NotificationModal = ({ notifications, onClose }) => {
+  if (!notifications || notifications.length === 0) return null;
 
-    const UpdateContent = ({ content }) => (
-        <div>
-            <p className="text-sm text-gray-500 mb-4">Version: {content.version} ({content.date})</p>
-            {content.features?.length > 0 && (
-                <div className="mb-4">
-                    <h3 className="font-semibold mb-1 text-gray-800">新機能・改善</h3>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
-                        {content.features.map((item, index) => <li key={`feat-${index}`}>{item}</li>)}
-                    </ul>
-                </div>
-            )}
-            {content.fixes?.length > 0 && (
-                <div>
-                    <h3 className="font-semibold mb-1 text-gray-800">修正点</h3>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
-                        {content.fixes.map((item, index) => <li key={`fix-${index}`}>{item}</li>)}
-                    </ul>
-                </div>
-            )}
-        </div>
-    );
+  const first = notifications[0];
+  const isAgreement = first.type === "agreement";
 
-    const AgreementContent = ({ content }) => (
-        <div>
-            <p className="text-sm text-gray-500 mb-4">{content.date}</p>
-            <p className="text-gray-700 whitespace-pre-wrap">{content.body}</p>
-            {content.link && <a href={content.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline mt-4 inline-block">詳細はこちら</a>}
-        </div>
-    );
+  const AgreementContent = ({ content }) => (
+    <div>
+      <p className="text-sm text-gray-500 mb-4">{content.date}</p>
+      <p className="text-gray-700 whitespace-pre-wrap">{content.body}</p>
+      {content.link && (
+        <a
+          href={content.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline mt-4 inline-block"
+        >
+          詳細はこちら
+        </a>
+      )}
+    </div>
+  );
 
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col transform transition-all duration-300 ease-in-out scale-95 opacity-0 animate-fade-in-scale">
-            <header className="flex items-center justify-between p-5 border-b border-gray-200 bg-gray-50/70 rounded-t-2xl">
-              <h2 className="text-xl font-bold text-gray-800 flex items-center">
-                <Megaphone className="mr-3 text-blue-500" />
-                {content.title}
-              </h2>
-              {type !== 'agreement' && (
-                <button onClick={() => onClose(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
-                  <X size={24} />
-                </button>
-              )}
-            </header>
-            <div className="p-6 flex-grow overflow-y-auto">
-              {type === 'update' && <UpdateContent content={content} />}
-              {type === 'agreement' && <AgreementContent content={content} />}
+  const UpdatesContent = ({ updates }) => (
+    <div className="space-y-6">
+      {updates.map((n) => (
+        <div key={n.id} className="border-b border-gray-200 pb-4 last:border-none">
+          <p className="text-sm text-gray-500 mb-2">
+            バージョン {n.content.version} ({n.content.date})
+          </p>
+          {n.content.features?.length > 0 && (
+            <div className="mb-2">
+              <h3 className="font-semibold text-gray-800">新機能・改善</h3>
+              <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                {n.content.features.map((item, i) => (
+                  <li key={`feat-${n.id}-${i}`}>{item}</li>
+                ))}
+              </ul>
             </div>
-            <footer className="flex justify-end p-4 border-t border-gray-200 bg-gray-50/70 rounded-b-2xl">
-              {type === 'agreement'
-                ? <button onClick={() => onClose(true)} className="px-8 py-2.5 rounded-lg text-white font-semibold bg-green-600 hover:bg-green-700 transition-all duration-200 transform hover:scale-105">同意する</button>
-                : <button onClick={() => onClose(true)} className="px-8 py-2.5 rounded-lg text-white font-semibold bg-blue-600 hover:bg-blue-700 transition-all duration-200 transform hover:scale-105">確認</button>
-              }
-            </footer>
-          </div>
-          <style>{`
-            @keyframes fade-in-scale {
-              from { opacity: 0; transform: scale(0.95); }
-              to { opacity: 1; transform: scale(1); }
-            }
-            .animate-fade-in-scale {
-              animation: fade-in-scale 0.3s forwards cubic-bezier(0.16, 1, 0.3, 1);
-            }
-          `}</style>
+          )}
+          {n.content.fixes?.length > 0 && (
+            <div>
+              <h3 className="font-semibold text-gray-800">修正点</h3>
+              <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                {n.content.fixes.map((item, i) => (
+                  <li key={`fix-${n.id}-${i}`}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-    );
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col animate-fade-in-scale">
+        <header className="flex items-center justify-between p-5 border-b border-gray-200 bg-gray-50/70 rounded-t-2xl">
+          <h2 className="text-xl font-bold text-gray-800 flex items-center">
+            <Megaphone className="mr-3 text-blue-500" />
+            {isAgreement ? first.content.title : "更新履歴（未確認分）"}
+          </h2>
+          {!isAgreement && (
+            <button
+              onClick={() => onClose(false)}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X size={24} />
+            </button>
+          )}
+        </header>
+        <div className="p-6 flex-grow overflow-y-auto">
+          {isAgreement ? (
+            <AgreementContent content={first.content} />
+          ) : (
+            <UpdatesContent updates={notifications} />
+          )}
+        </div>
+        <footer className="flex justify-end p-4 border-t border-gray-200 bg-gray-50/70 rounded-b-2xl">
+          {isAgreement ? (
+            <button
+              onClick={() => onClose(true)}
+              className="px-8 py-2.5 rounded-lg text-white font-semibold bg-green-600 hover:bg-green-700 transition-all duration-200 transform hover:scale-105"
+            >
+              同意する
+            </button>
+          ) : (
+            <button
+              onClick={() => onClose(true)}
+              className="px-8 py-2.5 rounded-lg text-white font-semibold bg-blue-600 hover:bg-blue-700 transition-all duration-200 transform hover:scale-105"
+            >
+              確認しました
+            </button>
+          )}
+        </footer>
+      </div>
+      <style>{`
+        @keyframes fade-in-scale {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fade-in-scale {
+          animation: fade-in-scale 0.3s forwards cubic-bezier(0.16, 1, 0.3, 1);
+        }
+      `}</style>
+    </div>
+  );
 };
-// === ▲▲▲ NEW COMPONENT: END ▲▲▲ ===
 
 
 /**
@@ -607,7 +667,8 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
         setConnectionStatus(result);
     };
 
-    const isNextDisabled = !bulkSettings.industryCode || !/^\d+$/.test(bulkSettings.submissionId) || !/^\d{8}$/.test(bulkSettings.date);
+    // 「次へ」ボタンの無効化判定ロジックを更新
+    const isNextDisabled = !bulkSettings.industryCode || !/^\d+$/.test(bulkSettings.submissionId) || !/^\d{8}$/.test(bulkSettings.date) || !/^\d+$/.test(bulkSettings.startSequence);
 
     return (
         <div className="w-full h-full overflow-y-auto bg-gray-100">
@@ -667,6 +728,25 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
                         />
                          <p className="text-xs text-gray-500 mt-2">※YYYYMMDD形式（8桁）で入力してください</p>
                     </div>
+
+                    {/* === ▼▼▼ ここから追加 ▼▼▼ === */}
+                    <div>
+                        <label htmlFor="startSequence" className="block text-base font-semibold text-gray-700 mb-3">連番開始番号</label>
+                        <input
+                            id="startSequence"
+                            type="text"
+                            value={bulkSettings.startSequence}
+                            onChange={(e) => {
+                                const numericValue = e.target.value.replace(/[^0-9]/g, '');
+                                setBulkSettings(p => ({ ...p, startSequence: numericValue }));
+                            }}
+                            placeholder="例: 1"
+                            className="w-full px-4 py-3 bg-white/50 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                        />
+                        <p className="text-xs text-gray-500 mt-2">※デフォルトは1です。半角数字で入力してください。</p>
+                    </div>
+                    {/* === ▲▲▲ ここまで追加 ▲▲▲ === */}
+                    
                 </div>
                 <div className="flex justify-between mt-10">
                     <button 
@@ -703,7 +783,7 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
 /**
  * STEP 3: 確認画面
  */
-const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes }) => {
+const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes, bulkSettings }) => {
     const [selectedImageId, setSelectedImageId] = useState(null);
 
     useEffect(() => {
@@ -712,22 +792,26 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
         }
     }, [images, selectedImageId]);
 
-    const handleIndividualChange = (id, field, value) => {
-        setImages(prev => prev.map(img => img.id === id ? { ...img, [field]: value } : img));
-    };
-
     const selectedImage = images.find(img => img.id === selectedImageId);
     
+    // ▼▼▼ この関数を修正 ▼▼▼
     const generateNewFilename = (image) => {
-        const sequence = String(images.findIndex(img => img.id === image.id) + 1).padStart(2, '0');
+        // bulkSettingsから開始番号を取得し、数値に変換（無効な場合は1をデフォルト値とする）
+        const startSequenceNumber = parseInt(bulkSettings.startSequence, 10) || 1;
+        // 画像のインデックスに開始番号を足して連番を生成
+        const sequence = String(images.findIndex(img => img.id === image.id) + startSequenceNumber).padStart(2, '0');
         const extension = 'jpg';
         return `${image.industryCode}_${image.submissionId}_${image.date}_${sequence}.${extension}`;
     };
+    // ▲▲▲ 修正ここまで ▲▲▲
 
     return (
-        <div className="w-full flex-grow flex flex-col bg-gray-100 overflow-hidden">
+        // flexコンテナとしての高さを確保し、スクロール制御を正しく行うためのクラス
+        <div className="w-full flex-grow flex flex-col bg-gray-100 overflow-hidden min-h-0">
             <main className="flex-grow flex flex-col md:flex-row min-h-0 overflow-hidden">
-                <div className="w-full md:w-3/5 border-b md:border-b-0 md:border-r border-gray-200/80 overflow-y-auto p-4 space-y-3 h-1/2 md:h-full">
+                
+                {/* 左パネル(画像一覧) */}
+                <div className="flex-1 border-b md:border-b-0 md:border-r border-gray-200/80 overflow-y-auto p-4 space-y-3 min-h-0">
                     <p className="text-sm text-gray-500 px-2 pb-2">ファイル一覧 ({images.length}件)</p>
                     {images.map(image => (
                         <div
@@ -749,17 +833,16 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                     ))}
                 </div>
 
-                <div className="w-full md:w-2/5 flex flex-col bg-white/30 flex-grow">
-                    
-                    <div className="flex-grow p-6 space-y-6 overflow-y-auto">
+                {/* 右パネル(操作パネル) */}
+                <div className="w-full md:w-2/5 flex flex-col bg-white/30 flex-shrink-0">
+                    <div className="flex-1 p-6 space-y-6 overflow-y-auto">
                         <h3 className="text-xl font-semibold text-gray-800 pb-2">選択中画像の確認</h3>
                         {selectedImage ? (
                             <div className="space-y-6">
-                                <div className="bg-gray-900/5 p-3 rounded-xl">
+                                <div className="bg-gray-100 p-3 rounded-xl">
                                     <p className="text-xs font-semibold text-gray-600">元ファイル名</p>
                                     <p className="text-sm text-gray-800 truncate mt-1">{selectedImage.file.name}</p>
                                 </div>
-
                                 <div>
                                     <label className="block text-base font-semibold text-gray-700 mb-3">業種</label>
                                     <input
@@ -787,19 +870,23 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                                         className="w-full px-4 py-3 bg-gray-200/60 border border-gray-300/50 rounded-xl outline-none cursor-not-allowed"
                                     />
                                 </div>
+                                
+                                {/* ▼▼▼ ボタンをここに移動 ▼▼▼ */}
+                                <div className="pt-6 border-t border-gray-200/60 flex justify-between items-center">
+                                    <button onClick={onBack} className="flex items-center px-6 py-3 rounded-xl text-gray-700 font-semibold bg-gray-200 hover:bg-gray-300 transition">
+                                        <RotateCcw size={18} className="mr-2" /> 戻る
+                                    </button>
+                                    <button onClick={onProcess} className="flex items-center px-6 py-3 rounded-xl text-white font-bold bg-blue-600 hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-200 shadow-lg">
+                                        加工に進む <ChevronsRight size={20} className="ml-2" />
+                                    </button>
+                                </div>
+                                {/* ▲▲▲ ボタンをここに移動 ▲▲▲ */}
+
                             </div>
                         ) : (
                             <p className="text-gray-500 text-center mt-10">リストから画像を選択してください</p>
                         )}
                     </div>
-                    <footer className="p-4 flex justify-between items-center flex-shrink-0 border-t border-gray-200/80">
-                        <button onClick={onBack} className="flex items-center px-6 py-3 rounded-xl text-gray-700 font-semibold bg-gray-200 hover:bg-gray-300 transition">
-                            <RotateCcw size={18} className="mr-2" /> 戻る
-                        </button>
-                        <button onClick={onProcess} className="flex items-center px-6 py-3 rounded-xl text-white font-bold bg-blue-600 hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-200 shadow-lg">
-                            加工に進む <ChevronsRight size={20} className="ml-2" />
-                        </button>
-                    </footer>
                 </div>
             </main>
         </div>
@@ -865,19 +952,65 @@ export default function App() {
     const [zipBlob, setZipBlob] = useState(null);
     const [zipFilename, setZipFilename] = useState('');
     const [errors, setErrors] = useState([]);
-    const [bulkSettings, setBulkSettings] = useState({ industryCode: '', submissionId: '', date: getFormattedDate(), quality: 9 });
+    const [bulkSettings, setBulkSettings] = useState({ industryCode: '', submissionId: '', date: getFormattedDate(), quality: 9, startSequence: '1' });
     const [industryCodes, setIndustryCodes] = useState(INITIAL_INDUSTRY_CODES);
     const [spreadsheetMode, setSpreadsheetMode] = useState(() => localStorage.getItem('spreadsheetMode') || 'replace');
     const [spreadsheetUrl, setSpreadsheetUrl] = useState(() => localStorage.getItem('spreadsheetUrl') || '');
     const [fileTypeCounts, setFileTypeCounts] = useState({});
     const [timeBreakdown, setTimeBreakdown] = useState({ thumbnail: 0, resize: 0, zip: 0 });
     
-    // === ▼▼▼ NEW STATE: START ▼▼▼ ===
+    const [agreementNotification, setAgreementNotification] = useState(null);
+    const [updateNotifications, setUpdateNotifications] = useState([]);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+
     // 現在表示中の通知を管理するstate
     const [currentNotification, setCurrentNotification] = useState(null);
     // 未表示の通知をキューとして管理するstate
     const [notificationQueue, setNotificationQueue] = useState([]);
-    // === ▲▲▲ NEW STATE: END ▲▲▲ ===
+
+    // 開発モードかどうかを判定するstate
+    const [isDevMode, setIsDevMode] = useState(false); 
+
+    // 開発者モードの有効/無効を管理するエフェクト
+    useEffect(() => {
+        // 起動時にlocalStorageをチェックして開発者モードの状態を復元
+        const devModeFlag = localStorage.getItem('developer_mode_enabled');
+        if (devModeFlag === 'true') {
+            setIsDevMode(true);
+            document.title = `[DEV] ${document.title}`;
+            console.log('%c[DEV MODE] ログ送信は無効化されています。', 'color: orange; font-weight: bold;');
+        }
+
+        // コンソールから実行するためのグローバル関数を定義
+        window.enableDevMode = (password) => {
+            if (password === 0) { // 'YOUR_SECRET_PASSWORD'は任意のパスワードに変更してください
+                localStorage.setItem('developer_mode_enabled', 'true');
+                setIsDevMode(true);
+                document.title = `[DEV] ${document.title}`;
+                console.log('%c[DEV MODE] 有効化しました。これ以降のログは送信されません。', 'color: orange; font-weight: bold;');
+                return "開発者モードが有効になりました。";
+            } else {
+                console.error('開発者モードのパスワードが違います。');
+                return "パスワードが違います。";
+            }
+        };
+
+        window.disableDevMode = () => {
+            localStorage.removeItem('developer_mode_enabled');
+            setIsDevMode(false);
+            // タイトルから [DEV] プレフィックスを削除
+            document.title = document.title.replace('[DEV] ', '');
+            console.log('%c[DEV MODE] 無効化しました。これ以降のログは送信されます。', 'color: green; font-weight: bold;');
+            return "開発者モードが無効になりました。";
+        };
+
+        // コンポーネントがアンマウントされる際にクリーンアップ
+        return () => {
+            delete window.enableDevMode;
+            delete window.disableDevMode;
+        };
+    }, []); // 空の依存配列で、初回マウント時に一度だけ実行
+
 
     // アップロード方法
     const [uploadMethod, setUploadMethod] = useState('');
@@ -929,41 +1062,67 @@ export default function App() {
     useEffect(() => {
         const checkNotifications = async () => {
             try {
-                // public/notifications.jsonから通知データを取得
-                const response = await fetch('/notifications.json');
-                if (!response.ok) {
-                     console.log('notifications.json not found, skipping notifications.');
-                     return;
-                }
-                const notifications = await response.json();
-                
-                // localStorageから確認済みの通知IDリストを取得
-                const seenIds = JSON.parse(localStorage.getItem('seenNotifications')) || [];
-                
-                // 未確認の通知のみをフィルタリング
-                const unseenNotifications = notifications.filter(n => !seenIds.includes(n.id));
+            const response = await fetch("/notifications.json");
+            if (!response.ok) return;
+            const notifications = await response.json();
 
-                // 通知タイプに基づいて優先度を定義 (agreementが最優先)
-                const priorityOrder = { 'agreement': 1, 'update': 2 };
-                const defaultPriority = 99;
+            const seenIds = JSON.parse(localStorage.getItem("seenNotifications")) || [];
+            const unseen = notifications.filter((n) => !seenIds.includes(n.id));
 
-                // 優先度に基づいて未読の通知を並び替え
-                unseenNotifications.sort((a, b) => {
-                    const priorityA = priorityOrder[a.type] || defaultPriority;
-                    const priorityB = priorityOrder[b.type] || defaultPriority;
-                    return priorityA - priorityB;
-                });
+            const agreements = unseen.filter((n) => n.type === "agreement");
+            const updates = unseen.filter((n) => n.type === "update");
 
-                // 未確認の通知があればキューにセット
-                if (unseenNotifications.length > 0) {
-                    setNotificationQueue(unseenNotifications);
-                }
-            } catch (error) {
-                console.error("Failed to fetch notifications:", error);
+            if (agreements.length > 0) {
+                // agreement は最優先でモーダル表示
+                setAgreementNotification(agreements[0]);
+            } else if (updates.length > 0) {
+                // update はまとめてバナー経由
+                setUpdateNotifications(updates);
+            }
+            } catch (err) {
+            console.error("Failed to fetch notifications:", err);
             }
         };
         checkNotifications();
     }, []);
+
+    const handleCloseAgreement = (confirmed) => {
+        if (confirmed && agreementNotification) {
+            const seen = JSON.parse(localStorage.getItem("seenNotifications")) || [];
+            seen.push(agreementNotification.id);
+            localStorage.setItem("seenNotifications", JSON.stringify(seen));
+        }
+        // Agreement モーダルを閉じた後に、次の未確認アップデートを表示させる
+        setAgreementNotification(null);
+
+        // 直後に notifications.json を再チェックして、update バナーを出す
+        fetch("/notifications.json")
+            .then((res) => res.json())
+            .then((notifications) => {
+            const seenIds = JSON.parse(localStorage.getItem("seenNotifications")) || [];
+            const unseenUpdates = notifications.filter(
+                (n) => n.type === "update" && !seenIds.includes(n.id)
+            );
+            if (unseenUpdates.length > 0) {
+                setUpdateNotifications(unseenUpdates);
+            }
+            })
+            .catch((err) => console.error("Failed to refetch notifications:", err));
+    };
+
+    const handleCloseUpdates = (confirmed) => {
+        if (confirmed) {
+            const seen = JSON.parse(localStorage.getItem("seenNotifications")) || [];
+            updateNotifications.forEach((n) => {
+            if (!seen.includes(n.id)) seen.push(n.id);
+            });
+            localStorage.setItem("seenNotifications", JSON.stringify(seen));
+        }
+        setIsUpdateModalOpen(false);
+        setUpdateNotifications([]);
+    };
+
+
 
     // 通知キューを監視し、表示する通知を決定する
     useEffect(() => {
@@ -1211,14 +1370,21 @@ export default function App() {
         const zip = new window.JSZip();
 
         const resizeStartTime = performance.now();
+        
+        // === ▼▼▼ ここから修正 ▼▼▼ ===
+        // bulkSettingsから開始番号を取得し、数値に変換（無効な場合は1をデフォルト値とする）
+        const startSequenceNumber = parseInt(bulkSettings.startSequence, 10) || 1;
+
         for (let i = 0; i < images.length; i++) {
             const image = images[i];
             try {
                 const canvas = await resizeWithPadding(image, RESIZE_WIDTH, RESIZE_HEIGHT);
                 const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', image.quality / 10));
                 
-                const sequence = String(i + 1).padStart(2, '0');
+                // インデックス(i)に開始番号を足して、正しい連番を生成する
+                const sequence = String(i + startSequenceNumber).padStart(2, '0');
                 const newFilename = `${image.industryCode}_${image.submissionId}_${image.date}_${sequence}.jpg`;
+                // === ▲▲▲ 修正ここまで ▲▲▲ ===
                 
                 zip.file(newFilename, blob);
 
@@ -1254,7 +1420,7 @@ export default function App() {
     const handleDownload = async () => {
         setIsDownloadCompleted(true);
         
-        if (isLogSendingEnabled && processingStartTime) {
+        if (isLogSendingEnabled && !isDevMode && processingStartTime) {
             try {
                 const processingTime = (Date.now() - processingStartTime) / 1000;
                 
@@ -1314,7 +1480,7 @@ export default function App() {
         setZipBlob(null);
         setZipFilename('');
         setErrors([]);
-        setBulkSettings({ industryCode: '', submissionId: '', date: getFormattedDate(), quality: 9 });
+        setBulkSettings({ industryCode: '', submissionId: '', date: getFormattedDate(), quality: 9, startSequence: '1' });
         setIsDownloadCompleted(false);
         setProcessingStartTime(null);
 
@@ -1370,7 +1536,7 @@ export default function App() {
             case 'initializing': return <LoadingScreen title="ライブラリを準備中..." />;
             case 'loading': return <LoadingScreen title="画像を読み込んでいます..." progress={loadingProgress.progress} total={loadingProgress.total} />;
             case 'bulk-settings': return <BulkSettingsScreen onNext={handleBulkSettingsNext} onBack={handleRestart} bulkSettings={bulkSettings} setBulkSettings={setBulkSettings} industryCodes={industryCodes} onConnect={handleSpreadsheetConnection} spreadsheetUrl={spreadsheetUrl} spreadsheetMode={spreadsheetMode} />;
-            case 'confirm-edit': return <ConfirmEditScreen images={images} setImages={setImages} onProcess={handleProcess} onBack={() => setScreen('bulk-settings')} industryCodes={industryCodes} />;
+            case 'confirm-edit': return <ConfirmEditScreen images={images} setImages={setImages} onProcess={handleProcess} onBack={() => setScreen('bulk-settings')} industryCodes={industryCodes} bulkSettings={bulkSettings} />;
             case 'processing': return <LoadingScreen title="画像を処理中です..." progress={processingProgress.progress} total={processingProgress.total} />;
             case 'download': return <DownloadScreen zipBlob={zipBlob} zipFilename={zipFilename} onRestart={handleRestart} onDownload={handleDownload} />;
             case 'upload':
@@ -1396,11 +1562,29 @@ export default function App() {
                     {renderScreen()}
                 </div>
 
-                {/* Render the notification modal on top if there is one */}
-                <NotificationModal 
-                    notification={currentNotification} 
-                    onClose={handleCloseNotification} 
+                {/* Step1画面の上にバナーを出す */}
+                {screen === "upload" && updateNotifications.length > 0 && !isUpdateModalOpen && (
+                <div className="px-4 mt-2">
+                    <UpdateBanner
+                    latestUpdate={updateNotifications[0]}
+                    onOpen={() => setIsUpdateModalOpen(true)}
+                    />
+                </div>
+                )}
+
+                {/* Agreementモーダル */}
+                <NotificationModal
+                notifications={agreementNotification ? [agreementNotification] : []}
+                onClose={handleCloseAgreement}
                 />
+
+                {/* Updateモーダル */}
+                {isUpdateModalOpen && (
+                <NotificationModal
+                    notifications={updateNotifications}
+                    onClose={handleCloseUpdates}
+                />
+                )}
                 {/* === ▲▲▲ RENDER UPDATE: END ▲▲▲ === */}
             </div>
         </div>
