@@ -1390,6 +1390,7 @@ export default function App() {
                     fileCount: images.length,
                     processingTime: processingTime,
                     usedIndustryCode: bulkSettings.industryCode,
+                    submissionId: bulkSettings.submissionId, 
                     errors: [],
                     userAgent: navigator.userAgent,
                     fileTypeCounts: fileTypeCounts,
@@ -1397,6 +1398,7 @@ export default function App() {
                     uploadMethod: uploadMethod,
                     totalFileSize: totalFileSize,
                     sessionDuration: activeTimeInSeconds,
+                    isStartSequenceCustomized: bulkSettings.startSequence !== '1', 
                 };
 
                 await addDoc(collection(db, "usage_logs"), logData);

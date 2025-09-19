@@ -33,10 +33,10 @@
     }
   },
   {
-    "id": "v0.9.3-update",
+    "id": "v0.9.1-update",
     "type": "update",
     "content": {
-      "version": "0.9.3-beta",
+      "version": "0.9.1-beta",
       "date": "2025-09-18",
       "features": [
         { "category": "feature", "text": "アプリに更新があった際に、起動時にお知らせが表示されるようになりました。" }
