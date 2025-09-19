@@ -1390,7 +1390,6 @@ export default function App() {
                     fileCount: images.length,
                     processingTime: processingTime,
                     usedIndustryCode: bulkSettings.industryCode,
-                    submissionId: bulkSettings.submissionId, 
                     errors: [],
                     userAgent: navigator.userAgent,
                     fileTypeCounts: fileTypeCounts,
