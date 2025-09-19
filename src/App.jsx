@@ -914,6 +914,7 @@ const DownloadScreen = ({ zipBlob, zipFilename, onRestart, onDownload }) => {
  * メインアプリケーションコンポーネント
  */
 export default function App() {
+    // ログ送信を有効にするかどうかのフラグ（開発モード時は無効化）
     const isLogSendingEnabled = true;
 
     const [screen, setScreen] = useState('initializing');
