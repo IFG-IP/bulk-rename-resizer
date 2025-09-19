@@ -233,13 +233,12 @@ const AppHeader = ({ currentStep, steps, isLoading }) => {
  */
 const UpdateBanner = ({ latestUpdate, onOpen }) => {
   if (!latestUpdate) return null;
-  const { version, date } = latestUpdate.content;
 
   return (
     <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg flex items-center justify-between shadow-sm mb-4">
       <div className="flex items-center space-x-2">
         <Megaphone className="text-blue-500" size={20} />
-        <span className="font-semibold">バージョン {version} がリリースされました ({date})</span>
+        <span className="font-semibold">最新バージョンがリリースされました</span>
       </div>
       <button
         onClick={onOpen}
@@ -566,33 +565,46 @@ const NotificationModal = ({ notifications, onClose }) => {
 
   const UpdatesContent = ({ updates }) => (
     <div className="space-y-6">
-      {updates.map((n) => (
-        <div key={n.id} className="border-b border-gray-200 pb-4 last:border-none">
-          <p className="text-sm text-gray-500 mb-2">
-            バージョン {n.content.version} ({n.content.date})
-          </p>
-          {n.content.features?.length > 0 && (
-            <div className="mb-2">
-              <h3 className="font-semibold text-gray-800">新機能・改善</h3>
-              <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                {n.content.features.map((item, i) => (
-                  <li key={`feat-${n.id}-${i}`}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {n.content.fixes?.length > 0 && (
-            <div>
-              <h3 className="font-semibold text-gray-800">修正点</h3>
-              <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                {n.content.fixes.map((item, i) => (
-                  <li key={`fix-${n.id}-${i}`}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      ))}
+      {[...updates]
+        .sort((a, b) => {
+          const verA = a.content.version.split('.').map(item => parseInt(item, 10));
+          const verB = b.content.version.split('.').map(item => parseInt(item, 10));
+          const len = Math.max(verA.length, verB.length);
+          for (let i = 0; i < len; i++) {
+            const numA = isNaN(verA[i]) ? 0 : verA[i];
+            const numB = isNaN(verB[i]) ? 0 : verB[i];
+            if (numB > numA) return 1;
+            if (numA > numB) return -1;
+          }
+          return 0;
+        })
+        .map((n) => (
+          <div key={n.id} className="border-b border-gray-200 pb-4 last:border-none">
+            <p className="text-sm text-gray-500 mb-2">
+              バージョン {n.content.version} ({n.content.date})
+            </p>
+            {n.content.features?.length > 0 && (
+              <div className="mb-2">
+                <h3 className="font-semibold text-gray-800">新機能・改善</h3>
+                <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                  {n.content.features.map((item, i) => (
+                    <li key={`feat-${n.id}-${i}`}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {n.content.fixes?.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-gray-800">修正点</h3>
+                <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                  {n.content.fixes.map((item, i) => (
+                    <li key={`fix-${n.id}-${i}`}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ))}
     </div>
   );
 
@@ -604,14 +616,6 @@ const NotificationModal = ({ notifications, onClose }) => {
             <Megaphone className="mr-3 text-blue-500" />
             {isAgreement ? first.content.title : "更新履歴（未確認分）"}
           </h2>
-          {!isAgreement && (
-            <button
-              onClick={() => onClose(false)}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <X size={24} />
-            </button>
-          )}
         </header>
         <div className="p-6 flex-grow overflow-y-auto">
           {isAgreement ? (
@@ -1566,8 +1570,21 @@ export default function App() {
                 {screen === "upload" && updateNotifications.length > 0 && !isUpdateModalOpen && (
                 <div className="px-4 mt-2">
                     <UpdateBanner
-                    latestUpdate={updateNotifications[0]}
-                    onOpen={() => setIsUpdateModalOpen(true)}
+                      latestUpdate={
+                        [...updateNotifications].sort((a, b) => {
+                          const verA = a.content.version.split('.').map(parseInt); // .map(Number) から変更
+                          const verB = b.content.version.split('.').map(parseInt); // .map(Number) から変更
+                          const len = Math.max(verA.length, verB.length);
+                          for (let i = 0; i < len; i++) {
+                            const numA = verA[i] || 0;
+                            const numB = verB[i] || 0;
+                            if (numB > numA) return 1;
+                            if (numA > numB) return -1;
+                          }
+                          return 0;
+                        })[0]
+                      }
+                      onOpen={() => setIsUpdateModalOpen(true)}
                     />
                 </div>
                 )}
