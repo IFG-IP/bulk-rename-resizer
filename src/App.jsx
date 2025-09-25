@@ -575,6 +575,9 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
                                 右上の「共有」ボタンから、アクセス権を「<strong className="text-blue-600 font-semibold">リンクを知っている全員</strong>」に変更し、「<strong className="text-blue-600 font-semibold">閲覧者</strong>」として設定してください。
                             </li>
                             <li>共有設定したスプレッドシートのURLを下の欄に貼り付けてください。</li>
+                            <li>
+                                <strong className="font-semibold">連携を解除する場合:</strong> URL入力欄を空にしてから「連携」ボタンを押すと、設定が解除されツール内蔵の初期リストに戻ります。
+                            </li>
                         </ol>
                     </div>
                     <div>
@@ -611,14 +614,25 @@ const IndustryManagementModal = ({ isOpen, onClose, spreadsheetUrl, spreadsheetM
                     <div>
                         <label htmlFor="spreadsheetUrlModal" className="text-base font-semibold mb-3 block">スプレッドシートURL:</label>
                         <div className="flex flex-col sm:flex-row gap-3">
-                            <input
-                                id="spreadsheetUrlModal"
-                                type="text"
-                                value={localUrl}
-                                onChange={(e) => setLocalUrl(e.target.value)}
-                                placeholder="URLが空の状態で連携すると設定が解除されます"
-                                className="flex-grow px-4 py-3 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                            />
+                            <div className="relative flex-grow">
+                                <input
+                                    id="spreadsheetUrlModal"
+                                    type="text"
+                                    value={localUrl}
+                                    onChange={(e) => setLocalUrl(e.target.value)}
+                                    placeholder="URLが空の状態で連携すると設定が解除されます"
+                                    className="w-full px-4 py-3 pr-10 bg-white/80 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                                />
+                                {localUrl && (
+                                    <button
+                                        onClick={() => setLocalUrl('')}
+                                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                        aria-label="入力をクリア"
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                )}
+                            </div>
                             <button onClick={handleConnect} className="px-5 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 transition whitespace-nowrap">連携</button>
                         </div>
                     </div>
@@ -683,11 +697,19 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
                             <select
                                 value={bulkSettings.industryCode}
                                 onChange={(e) => setBulkSettings(p => ({ ...p, industryCode: e.target.value }))}
-                                className="w-full px-4 py-3 bg-white/50 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                                className="flex-grow px-4 py-3 bg-white/50 border border-gray-300/50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                             >
                                 <option value="" disabled>業種を選択してください</option>
                                 {industryCodes.map(ic => <option key={ic.code} value={ic.code}>{ic.name} ({ic.code})</option>)}
                             </select>
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="flex-shrink-0 flex items-center gap-2 px-4 py-3 bg-white/80 text-gray-800 font-semibold rounded-xl border border-gray-300/60 hover:bg-gray-200/60 transition shadow-sm"
+                                aria-label="業種マスタ連携設定を開く"
+                            >
+                                <Settings size={18} />
+                                <span>業種管理</span>
+                            </button>
                         </div>
                     </div>
                     <div>
@@ -1194,12 +1216,66 @@ export default function App() {
         if (!url) {
             localStorage.removeItem('spreadsheetUrl');
             localStorage.removeItem('spreadsheetMode');
+            localStorage.removeItem('cachedIndustryCodes');
             setSpreadsheetUrl('');
             setSpreadsheetMode('replace');
             setIndustryCodes(INITIAL_INDUSTRY_CODES);
-            return { status: 'success', message: '連携を解除しました。' };
+            return { status: 'success', data: INITIAL_INDUSTRY_CODES, message: '連携を解除し、初期データにリセットしました。' };
         }
-        return { status: 'error', message: '現在、スプレッドシート連携機能は利用できません。' };
+
+        const extractIdFromUrl = (u) => {
+            const match = u.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            return match ? match[1] : null;
+        };
+        const spreadsheetId = extractIdFromUrl(url);
+
+        if (!spreadsheetId) {
+            return { status: 'error', message: '無効なスプレッドシートURLです。URLの形式を確認してください。' };
+        }
+
+        try {
+            const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/A:B?key=${import.meta.env.VITE_GOOGLE_API_KEY}`);
+            if (!response.ok) {
+                throw new Error('データ取得に失敗しました。URLや共有設定（「リンクを知っている全員が閲覧可」）を確認してください。');
+            }
+
+            const data = await response.json();
+            const fetchedCodes = data.values
+                ? data.values
+                    .filter(row => row[0] && row[1])
+                    .map(row => ({ code: String(row[0]).trim(), name: String(row[1]).trim() }))
+                : [];
+
+            if (fetchedCodes.length === 0) {
+                return { status: 'error', message: 'シートから有効なデータを取得できませんでした。A列とB列にデータが入力されているか確認してください。' };
+            }
+
+            let finalCodes;
+            if (mode === 'add') {
+                const combined = [...fetchedCodes, ...INITIAL_INDUSTRY_CODES];
+                finalCodes = combined.filter((item, index, self) =>
+                    index === self.findIndex((t) => t.code === item.code)
+                );
+            } else {
+                finalCodes = fetchedCodes;
+            }
+
+            setIndustryCodes(finalCodes);
+            setSpreadsheetUrl(url);
+            setSpreadsheetMode(mode);
+
+            localStorage.setItem('spreadsheetUrl', url);
+            localStorage.setItem('spreadsheetMode', mode);
+            localStorage.setItem('cachedIndustryCodes', JSON.stringify(finalCodes));
+
+            return { status: 'success', data: finalCodes, message: `連携に成功しました (${finalCodes.length}件)` };
+
+        } catch (error) {
+            console.error("Spreadsheet connection error:", error);
+            setIndustryCodes(INITIAL_INDUSTRY_CODES);
+            localStorage.removeItem('cachedIndustryCodes');
+            return { status: 'error', message: error.message || '不明なエラーが発生しました。' };
+        }
     };
 
     const handleFilesAccepted = async (files, method) => {
