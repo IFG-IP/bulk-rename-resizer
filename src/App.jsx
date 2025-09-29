@@ -141,7 +141,7 @@ const AppHeader = ({ currentStep, steps, isLoading }) => {
   return (
     <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200/80 px-4 sm:px-6 py-3 grid grid-cols-3 items-center flex-shrink-0 h-20 z-10">
       <div className="text-base sm:text-lg font-bold text-gray-800 truncate">
-        業種別リネーム＆加工ツール（β版）
+        業種別リネーム＆加工ツール
       </div>
 
       <div className="flex justify-center">
@@ -788,11 +788,17 @@ const BulkSettingsScreen = ({ onNext, onBack, bulkSettings, setBulkSettings, ind
     );
 };
 
+
 /**
  * STEP 3: 確認画面
  */
-const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes, bulkSettings }) => {
+const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes, bulkSettings, resizeWithPadding }) => {
     const [selectedImageId, setSelectedImageId] = useState(null);
+    // === ▼▼▼【新規追加】プレビューモーダル用のState ▼▼▼ ===
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [previewingImageIndex, setPreviewingImageIndex] = useState(0);
+    // === ▲▲▲【新規追加】プレビューモーダル用のState ▲▲▲ ===
+
 
     useEffect(() => {
         if (images.length > 0 && !selectedImageId) {
@@ -803,11 +809,32 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
     const selectedImage = images.find(img => img.id === selectedImageId);
     
     const generateNewFilename = (image) => {
+        if (!image) return ''; // imageが未定義の場合のガード
         const startSequenceNumber = parseInt(bulkSettings.startSequence, 10) || 1;
         const sequence = String(images.findIndex(img => img.id === image.id) + startSequenceNumber).padStart(2, '0');
         const extension = 'jpg';
         return `${image.industryCode}_${image.submissionId}_${image.date}_${sequence}.${extension}`;
     };
+
+    // === ▼▼▼【新規追加】プレビュー操作用のハンドラ ▼▼▼ ===
+    const handleOpenPreview = () => {
+        if (!selectedImage) return;
+        const currentIndex = images.findIndex(img => img.id === selectedImage.id);
+        setPreviewingImageIndex(currentIndex);
+        setIsModalOpen(true);
+    };
+
+    const handleClosePreview = () => setIsModalOpen(false);
+
+    const handlePrevPreview = () => {
+        setPreviewingImageIndex(prev => (prev > 0 ? prev - 1 : prev));
+    };
+
+    const handleNextPreview = () => {
+        setPreviewingImageIndex(prev => (prev < images.length - 1 ? prev + 1 : prev));
+    };
+    // === ▲▲▲【新規追加】プレビュー操作用のハンドラ ▲▲▲ ===
+
 
     return (
         <div className="w-full flex-grow flex flex-col bg-gray-100 overflow-hidden min-h-0">
@@ -870,6 +897,18 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                                         className="w-full px-4 py-3 bg-gray-200/60 border border-gray-300/50 rounded-xl outline-none cursor-not-allowed"
                                     />
                                 </div>
+                                {/* === ▼▼▼【ボタン追加】▼▼▼ === */}
+                                <div className="pt-4">
+                                    <button 
+                                        onClick={handleOpenPreview}
+                                        disabled={!selectedImage}
+                                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/80 text-gray-800 font-semibold rounded-xl border border-gray-300/60 hover:bg-gray-200/60 transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <HardDriveDownload size={18} /> {/* アイコンは適宜変更してください */}
+                                        <span>プレビュー</span>
+                                    </button>
+                                </div>
+                                {/* === ▲▲▲【ボタン追加】▲▲▲ === */}
                                 <div className="pt-6 border-t border-gray-200/60 flex justify-between items-center">
                                     <button onClick={onBack} className="flex items-center px-6 py-3 rounded-xl text-gray-700 font-semibold bg-gray-200 hover:bg-gray-300 transition">
                                         <RotateCcw size={18} className="mr-2" /> 戻る
@@ -885,9 +924,125 @@ const ConfirmEditScreen = ({ images, setImages, onProcess, onBack, industryCodes
                     </div>
                 </div>
             </main>
+            {/* === ▼▼▼【モーダル呼び出し追加】▼▼▼ === */}
+            <PreviewModal
+                isOpen={isModalOpen}
+                onClose={handleClosePreview}
+                image={images[previewingImageIndex]}
+                currentIndex={previewingImageIndex}
+                totalCount={images.length}
+                onPrev={handlePrevPreview}
+                onNext={handleNextPreview}
+                generateNewFilename={generateNewFilename}
+                resizeWithPadding={resizeWithPadding}
+            />
+            {/* === ▲▲▲【モーダル呼び出し追加】▲▲▲ === */}
         </div>
     );
 };
+
+/**
+ * === ▼▼▼【新規追加】プレビューモーダルコンポーネント ▼▼▼ ===
+ * STEP 3: 確認画面で加工後の画像を確認するためのモーダル
+ */
+const PreviewModal = ({ 
+    isOpen, 
+    onClose, 
+    image, 
+    currentIndex, 
+    totalCount, 
+    onPrev, 
+    onNext,
+    generateNewFilename,
+    resizeWithPadding
+}) => {
+    const canvasRef = React.useRef(null);
+
+    // ESCキーまたはモーダル外クリックで閉じる処理
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') onClose();
+            if (e.key === 'ArrowLeft') onPrev();
+            if (e.key === 'ArrowRight') onNext();
+        };
+
+        if (isOpen) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, onClose, onPrev, onNext]);
+
+    // プレビュー対象の画像が変更されたら、Canvasに再描画する処理
+    useEffect(() => {
+        if (isOpen && image && canvasRef.current && resizeWithPadding) {
+            let isActive = true;
+            (async () => {
+                try {
+                    const processedCanvas = await resizeWithPadding(image, RESIZE_WIDTH, RESIZE_HEIGHT);
+                    if (isActive) {
+                        const modalCanvas = canvasRef.current;
+                        const ctx = modalCanvas.getContext('2d');
+                        modalCanvas.width = processedCanvas.width;
+                        modalCanvas.height = processedCanvas.height;
+                        ctx.drawImage(processedCanvas, 0, 0);
+                    }
+                } catch (err) {
+                    console.error("プレビュー画像の生成に失敗しました:", err);
+                }
+            })();
+            return () => { isActive = false; };
+        }
+    }, [isOpen, image, resizeWithPadding]);
+
+    if (!isOpen || !image) return null;
+
+    const newFilename = generateNewFilename(image);
+
+    return (
+        <div 
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={onClose}
+        >
+            <div 
+                className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col p-2"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <header className="flex items-center justify-between p-3">
+                    <h2 className="text-lg font-bold text-gray-800">画像プレビュー</h2>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 p-1 rounded-full hover:bg-gray-200/70 transition-colors">
+                        <X size={24} />
+                    </button>
+                </header>
+                <main className="flex-grow flex flex-col items-center justify-center p-4 relative">
+                    <canvas ref={canvasRef} className="max-w-full max-h-[60vh] object-contain shadow-md rounded-md bg-gray-200"></canvas>
+                    
+                    {/* Navigation Buttons */}
+                    <button onClick={onPrev} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 text-white p-3 rounded-full hover:bg-black/60 transition-opacity disabled:opacity-30" disabled={currentIndex === 0}>
+                        <ChevronsRight className="rotate-180" size={24} />
+                    </button>
+                    <button onClick={onNext} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 text-white p-3 rounded-full hover:bg-black/60 transition-opacity disabled:opacity-30" disabled={currentIndex === totalCount - 1}>
+                        <ChevronsRight size={24} />
+                    </button>
+                </main>
+                <footer className="p-4 border-t border-gray-200 space-y-2 text-center">
+                    <p className="font-bold text-gray-800 text-sm truncate" title={newFilename}>
+                        <span className="font-semibold text-gray-500 mr-2">新しいファイル名:</span>{newFilename}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate" title={image.file.name}>
+                        <span className="font-semibold mr-2">元のファイル名:</span>{image.file.name}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-gray-600">
+                        {currentIndex + 1} / {totalCount}
+                    </p>
+                </footer>
+            </div>
+        </div>
+    );
+};
+
 
 /**
  * STEP 4: ダウンロード画面
@@ -1034,18 +1189,19 @@ export default function App() {
     // === ▼▼▼ 通知システムロジック START ▼▼▼ ===
     // 1. アプリ起動時に一度だけ通知データを取得する
     useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const response = await fetch("/notifications.json");
-                if (!response.ok) return;
-                const notifications = await response.json();
-                setAllNotifications(notifications);
-            } catch (err) {
-                console.error("Failed to fetch notifications:", err);
-            }
-        };
-        fetchNotifications();
-    }, []);
+    const fetchNotifications = async () => {
+        try {
+            // 【修正点】URLにタイムスタンプを追加し、キャッシュを無効化する
+            const response = await fetch(`/notifications.json?t=${Date.now()}`);
+            if (!response.ok) return;
+            const notifications = await response.json();
+            setAllNotifications(notifications);
+        } catch (err) {
+            console.error("Failed to fetch notifications:", err);
+        }
+    };
+    fetchNotifications();
+}, []);
 
     // 2. データ取得後、またはモーダルが閉じてキューが空になった時に、次に表示すべき通知を判断する
     useEffect(() => {
@@ -1540,7 +1696,7 @@ export default function App() {
             case 'initializing': return <LoadingScreen title="ライブラリを準備中..." />;
             case 'loading': return <LoadingScreen title="画像を読み込んでいます..." progress={loadingProgress.progress} total={loadingProgress.total} />;
             case 'bulk-settings': return <BulkSettingsScreen onNext={handleBulkSettingsNext} onBack={handleRestart} bulkSettings={bulkSettings} setBulkSettings={setBulkSettings} industryCodes={industryCodes} onConnect={handleSpreadsheetConnection} spreadsheetUrl={spreadsheetUrl} spreadsheetMode={spreadsheetMode} />;
-            case 'confirm-edit': return <ConfirmEditScreen images={images} setImages={setImages} onProcess={handleProcess} onBack={() => setScreen('bulk-settings')} industryCodes={industryCodes} bulkSettings={bulkSettings} />;
+            case 'confirm-edit': return <ConfirmEditScreen images={images} setImages={setImages} onProcess={handleProcess} onBack={() => setScreen('bulk-settings')} industryCodes={industryCodes} bulkSettings={bulkSettings} resizeWithPadding={resizeWithPadding} />;
             case 'processing': return <LoadingScreen title="画像を処理中です..." progress={processingProgress.progress} total={processingProgress.total} />;
             case 'download': return <DownloadScreen zipBlob={zipBlob} zipFilename={zipFilename} onRestart={handleRestart} onDownload={handleDownload} />;
             case 'upload':
