@@ -3,285 +3,455 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>業種別リネーム＆加工ツール ユーザーマニュアル</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>業種別リネーム＆加工ツール かんたん使い方ガイド</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-color: #fbfbfd;
+            --text-color-primary: #1d1d1f;
+            --text-color-secondary: #6e6e73;
+            --primary-color: #0071e3;
+            --border-color: #d2d2d7;
+            --card-bg: #ffffff;
+            --notice-bg: #f5f5f7;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Roboto", sans-serif;
+            line-height: 1.7;
+            color: var(--text-color-primary);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        h2 {
-            border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 0.5rem;
-            margin-top: 2.5rem;
-            margin-bottom: 1.5rem;
-            font-size: 1.75rem;
-            font-weight: 700;
+
+        .container {
+            max-width: 840px;
+            margin: 4rem auto;
+            padding: 0 2rem;
         }
-        h3 {
-            border-left: 4px solid #3b82f6;
-            padding-left: 0.75rem;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
+
+        header {
+            text-align: center;
+            padding-bottom: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-color-primary);
+        }
+
+        header p {
+            margin: 1rem 0 0;
             font-size: 1.25rem;
+            color: var(--text-color-secondary);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        nav.toc {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            margin-bottom: 4rem;
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+
+        nav.toc h2 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            font-size: 1.5rem;
             font-weight: 600;
         }
-        .step-card {
-            background-color: white;
-            border-radius: 0.75rem;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            padding: 1.5rem;
+
+        nav.toc ul {
+            list-style-type: none;
+            padding-left: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+            margin-bottom: 0;
+        }
+
+        nav.toc li a {
+            display: block;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            font-size: 1.05rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+
+        nav.toc li a:hover {
+            background-color: #f0f7ff;
+        }
+
+        section {
+            margin-bottom: 4.5rem;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--text-color-primary);
+            margin-top: 0;
+            margin-bottom: 2rem;
+            text-align: center;
+            letter-spacing: -0.01em;
+        }
+
+        h3 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-top: 3rem;
             margin-bottom: 1.5rem;
+        }
+
+        p, li {
+            font-size: 1.05rem;
+            color: var(--text-color-secondary);
+        }
+
+        ul, ol {
+            padding-left: 1.5em;
+        }
+
+        strong, b {
+            color: var(--text-color-primary);
+            font-weight: 700;
+        }
+
+        code {
+            background-color: var(--notice-bg);
+            padding: 0.2em 0.5em;
+            border-radius: 6px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.95em;
+            border: 1px solid var(--border-color);
+            color: var(--text-color-primary);
+        }
+
+        .step-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 2rem 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+
+        .step-card h3 {
+            margin-top: 0;
+        }
+
+        .notice {
+            background-color: var(--notice-bg);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+            border: 1px solid var(--border-color);
+        }
+        
+        .notice strong {
+             color: var(--text-color-primary);
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 0;
+        }
+        
+        .faq-item:first-child {
+            padding-top: 0;
+        }
+        
+        .faq-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-color-primary);
+        }
+        
+        .faq-question .arrow {
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-question.open .arrow {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            padding-top: 1rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding-top 0.5s ease-in-out;
+        }
+        
+        .faq-answer.open {
+            max-height: 200px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            background-color: var(--notice-bg);
+            color: var(--text-color-secondary);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        footer a {
+            color: var(--text-color-primary);
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Animation */
+        .fade-in-target {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .is-visible {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body>
 
-    <!-- ヘッダー -->
-    <header class="bg-white/80 backdrop-blur-lg border-b border-gray-200/80 px-4 sm:px-6 py-3 grid grid-cols-3 items-center sticky top-0 z-10 h-20">
-      <div class="text-base sm:text-lg font-bold text-gray-800 truncate">
-        業種別リネーム＆加工ツール
-      </div>
-      <div class="flex justify-center font-semibold text-gray-600">
-        ユーザーマニュアル
-      </div>
-      <div class="flex justify-end items-center space-x-2">
-        <a
-          href="https://forms.gle/Fk8aBGiwAEVHef2e9"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
-          aria-label="不具合報告・要望を送信"
-          title="不具合報告・要望"
-        >
-          <i data-lucide="bug"></i>
-        </a>
-        <a
-          href="#"
-          onclick="window.close();"
-          class="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
-          aria-label="マニュアルを閉じる"
-          title="マニュアルを閉じる"
-        >
-          <i data-lucide="x"></i>
-        </a>
-      </div>
-    </header>
+    <div class="container">
+        <header>
+            <h1>かんたん使い方ガイド</h1>
+            <p>業種別リネーム & 加工ツールの基本的な使い方から便利な機能まで、わかりやすく解説します。</p>
+        </header>
 
-    <!-- メインコンテンツ -->
-    <main class="max-w-4xl mx-auto p-4 sm:p-8">
+        <main>
+            <nav class="toc">
+                <h2>目次</h2>
+                <ul>
+                    <li><a href="#introduction">はじめに</a></li>
+                    <li><a href="#workflow">基本的な使い方 (4ステップ)</a></li>
+                    <li><a href="#advanced">便利な機能</a></li>
+                    <li><a href="#faq">よくあるご質問 (FAQ)</a></li>
+                    <li><a href="#support">サポート情報</a></li>
+                </ul>
+            </nav>
 
-        <h1 class="text-3xl sm:text-4xl font-bold text-center mb-8">ユーザーマニュアル</h1>
+            <section id="introduction">
+                <h2>はじめに</h2>
+                <p>この度は「業種別リネーム＆加工ツール」をご利用いただき、誠にありがとうございます。本ツールは、複数枚の画像ファイルに対して、指定のルールに基づいた<strong>「リネーム」</strong>と<strong>「リサイズ」</strong>を一括で実行し、作業時間を大幅に短縮することを目的としたWebアプリケーションです。</p>
+            </section>
 
-        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-md shadow mb-8" role="alert">
-            <div class="flex">
-                <div class="py-1"><i data-lucide="alert-circle" class="h-6 w-6 text-blue-500 mr-4"></i></div>
-                <div>
-                    <p class="font-bold">本ツールは現在β（ベータ）版です</p>
-                    <p class="text-sm">
-                        本ツールは開発中のバージョンであり、予期せぬ不具合が発生する可能性があります。機能は予告なく変更・追加されることがありますので、あらかじめご了承ください。
-                    </p>
-                </div>
-            </div>
-        </div>
+            <section id="workflow">
+                <h2>基本的な使い方</h2>
+                <p>本ツールの操作は、大きく分けて4つのステップで完了します。</p>
 
-        <div id="table-of-contents" class="bg-white p-6 rounded-lg shadow-md mb-12">
-            <h2 class="text-2xl font-bold mb-4 mt-0 border-b-0">目次</h2>
-            <ul class="space-y-2">
-                <li><a href="#introduction" class="text-blue-600 hover:underline">1. はじめに</a></li>
-                <li><a href="#screen-description" class="text-blue-600 hover:underline">2. 画面の説明</a></li>
-                <li><a href="#usage-example" class="text-blue-600 hover:underline">3. 使い方の例</a></li>
-                <li><a href="#troubleshooting" class="text-blue-600 hover:underline">4. トラブルシューティング</a></li>
-                <li><a href="#bug-report" class="text-blue-600 hover:underline">5. 不具合・ご要望の報告</a></li>
-            </ul>
-        </div>
-
-        <section id="introduction">
-            <h2>1. はじめに</h2>
-            <p>
-                「業種別リネーム＆加工ツール」は、複数枚の画像ファイルに対して、指定のルールに基づいた「リサイズ」と「ファイル名の変更」を一括で行うためのWebアプリケーションです。
-            </p>
-            <p>
-                手作業で行っていた繰り返し作業を自動化することで、作業時間を大幅に短縮し、誰が作業しても同じ品質を保つことを目的としています。
-            </p>
-            <p class="mt-4">
-                <strong>主な機能:</strong>
-            </p>
-            <ul class="list-disc list-inside bg-white p-4 rounded-md border">
-                <li>複数の画像ファイル（JPG, PNG, HEIC）を一度にアップロード</li>
-                <li>すべての画像を固定サイズ（幅600px × 高さ400px）に自動リサイズ（余白は白で統一）</li>
-                <li>「業種コード」「入稿ID」「日付」「連番」を組み合わせたファイル名に自動変更</li>
-                <li>加工後の全画像を単一のZIPファイルとして一括ダウンロード</li>
-            </ul>
-        </section>
-
-        <section id="screen-description">
-            <h2>2. 画面の説明</h2>
-            <p>本ツールは、4つのステップに沿って直感的に操作を進めることができます。</p>
-
-            <div class="step-card">
-                <h3>STEP 1: アップロード</h3>
-                <p class="mb-4">加工したい画像ファイルをツールに読み込ませる画面です。</p>
-                <div class="flex flex-col sm:flex-row items-center gap-4">
-                    <div class="flex-shrink-0 text-center">
-                        <i data-lucide="upload-cloud" class="w-20 h-20 text-gray-400 mx-auto"></i>
-                    </div>
-                    <div>
-                        <ul class="list-disc list-inside space-y-2">
-                            <li><strong>ドラッグ＆ドロップ:</strong> ファイルやフォルダを画面中央のエリアに直接ドラッグ＆ドロップします。</li>
-                            <li><strong>ファイルを選択:</strong> 「ファイルを選択」ボタンを押し、ダイアログからファイルを選びます。</li>
-                            <li><strong>対応形式:</strong> JPG, PNG, HEIC</li>
-                            <li><strong>上限:</strong> 一度に50枚まで、1ファイルあたり10MBまで。</li>
+                <div class="step-card">
+                    <h3>STEP 1: 画像のアップロード</h3>
+                    <p>最初に、加工したい画像ファイルをツールに読み込みます。</p>
+                    <ol>
+                        <li>画面中央のエリアに、画像ファイルまたは画像が入ったフォルダを<strong>ドラッグ＆ドロップ</strong>します。</li>
+                        <li>または、<strong>「ファイルを選択」</strong>ボタンをクリックして、ファイルを選択することも可能です。</li>
+                    </ol>
+                    <div class="notice">
+                        <strong>【ポイント】</strong>
+                        <ul>
+                            <li>対応形式: <code>JPG</code>, <code>PNG</code>, <code>HEIC</code></li>
+                            <li>一度にアップロードできる上限は <strong>50枚</strong> までです。</li>
+                            <li>1ファイルあたりのサイズ上限は <strong>10MB</strong> を目安としてください。</li>
                         </ul>
                     </div>
                 </div>
-            </div>
 
-            <div class="step-card">
-                <h3>STEP 2: ファイル名設定</h3>
-                <p>リネーム後のファイル名に使われる共通の情報を入力します。ここで設定した内容は、すべてのファイルに適用されます。</p>
-                <ul class="list-disc list-inside space-y-2 mt-4">
-                    <li><strong>業種:</strong> プルダウンから該当する業種を選択します。</li>
-                    <li><strong>入稿ID:</strong> 半角数字で入稿IDを入力します。</li>
-                    <li><strong>日付:</strong> 作業日の日付が自動で表示されます。必要に応じてYYYYMMDD形式で修正も可能です。</li>
-                </ul>
-            </div>
-            
-            <div class="step-card">
-                <h3>STEP 3: 確認</h3>
-                <p>最終的なファイル名を確認する画面です。この画面では、個別のファイルに対する設定変更はできません。もし設定を間違えた場合は、「戻る」ボタンでSTEP 2に戻ってください。</p>
-                <ul class="list-disc list-inside space-y-2 mt-4">
-                    <li><strong>左側（ファイル一覧）:</strong> アップロードした画像のサムネイル、元のファイル名、そしてリネーム後の新しいファイル名が表示されます。</li>
-                    <li><strong>右側（選択中画像の確認）:</strong> 一覧で選択した画像に適用されている「業種」「入稿ID」「日付」を再確認できます。</li>
-                </ul>
-            </div>
-
-            <div class="step-card">
-                <h3>STEP 4: ダウンロード</h3>
-                <p>すべての処理が完了し、生成されたZIPファイルをダウンロードする最終画面です。</p>
-                <ul class="list-disc list-inside space-y-2 mt-4">
-                    <li><strong>ダウンロードボタン:</strong> `[業種コード]_[入稿ID].zip` という名前のボタンをクリックすると、ZIPファイルのダウンロードが始まります。</li>
-                    <li><strong>最初に戻る:</strong> このボタンを押すと、すべての作業内容がリセットされ、最初のアップロード画面に戻ります。</li>
-                </ul>
-            </div>
-        </section>
-
-        <section id="usage-example">
-            <h2>3. 使い方の例</h2>
-            <p>例として、「病院（hos）の写真を3枚、入稿ID『12345』で加工する」場合の手順を説明します。</p>
-            <ol class="list-decimal list-inside space-y-6 mt-4">
-                <li class="pl-2">
-                    <strong>STEP 1: 画像をアップロード</strong><br>
-                    3枚の病院の写真ファイル（例: `photo1.jpg`, `lobby.png`, `exterior.heic`）を、ドラッグ＆ドロップでアップロードします。
-                </li>
-                <li class="pl-2">
-                    <strong>STEP 2: ファイル名を設定</strong><br>
-                    <ul class="list-disc list-inside ml-6 mt-2 bg-gray-50 p-3 rounded-md border">
-                        <li>「業種」のプルダウンから「病院 (hos)」を選択します。</li>
-                        <li>「入稿ID」のテキストボックスに「12345」と入力します。</li>
-                        <li>「日付」が今日の日付になっていることを確認します。</li>
+                <div class="step-card">
+                    <h3>STEP 2: ファイル名の設定</h3>
+                    <p>次に、リネーム後のファイル名に使われる共通の情報を入力します。</p>
+                    <ul>
+                        <li><strong>業種:</strong> プルダウンリストから、画像に対応する業種を選択します。（例：病院, ホテル）</li>
+                        <li><strong>入稿ID:</strong> 半角数字で入稿IDを入力します。（例：12345）</li>
+                        <li><strong>日付:</strong> YYYYMMDD形式の作業日が自動で表示されます。</li>
                     </ul>
-                    入力後、「次へ」ボタンをクリックします。
-                </li>
-                <li class="pl-2">
-                    <strong>STEP 3: 内容を確認</strong><br>
-                    左側のファイル一覧に、以下のような新しいファイル名が表示されていることを確認します。<br>
-                    <ul class="list-none ml-6 mt-2 font-mono text-sm bg-gray-800 text-white p-3 rounded-md">
-                        <li>hos_12345_20250908_01.jpg</li>
-                        <li>hos_12345_20250908_02.jpg</li>
-                        <li>hos_12345_20250908_03.jpg</li>
+                    <p>すべての情報を入力したら、<strong>「次へ」</strong>ボタンをクリックしてください。</p>
+                </div>
+
+                <div class="step-card">
+                    <h3>STEP 3: 確認と編集</h3>
+                    <p>最終確認の画面です。ここで、リネーム後のファイル名や設定内容を確認します。</p>
+                    <ul>
+                        <li>左側の一覧に、アップロードした画像と、変更後の新しいファイル名が表示されます。</li>
+                        <li>もし特定の画像だけ設定を変えたい場合は、一覧からその画像をクリックし、右側のパネルで個別編集が可能です。</li>
+                        <li>内容に問題がなければ、<strong>「加工に進む」</strong>ボタンをクリックします。</li>
                     </ul>
-                    問題がなければ、「加工に進む」ボタンをクリックします。
-                </li>
-                <li class="pl-2">
-                    <strong>STEP 4: ダウンロード</strong><br>
-                    処理完了後、画面に「hos_12345.zip をダウンロード」というボタンが表示されます。これをクリックして、加工済みの画像が入ったZIPファイルを保存します。
-                </li>
-            </ol>
-        </section>
-
-        <section id="troubleshooting">
-            <h2>4. トラブルシューティング</h2>
-            <p>問題が発生した場合は、まずこちらをご確認ください。</p>
-
-            <div class="mt-4 space-y-4">
-                <details class="bg-white p-4 rounded-lg shadow cursor-pointer">
-                    <summary class="font-semibold flex items-center">
-                        <i data-lucide="help-circle" class="mr-2 text-blue-500"></i>
-                        ファイルがアップロードできない
-                    </summary>
-                    <div class="mt-3 pt-3 border-t text-gray-600">
-                        <p>以下の点をご確認ください。</p>
-                        <ul class="list-disc list-inside mt-2 ml-4">
-                            <li>ファイル形式はJPG, PNG, HEICのいずれかですか？</li>
-                            <li>一度にアップロードする枚数が50枚を超えていませんか？</li>
-                            <li>各ファイルのサイズが10MBを超えていませんか？</li>
-                        </ul>
+                    <div class="notice">
+                        <strong>プレビュー機能</strong><br>
+                        「プレビュー」ボタンを押すと、実際に加工された後の画像（リサイズされ、余白が追加された状態）をモーダルウィンドウで確認できます。加工前に仕上がりを確認したい場合にご利用ください。
                     </div>
-                </details>
+                </div>
 
-                <details class="bg-white p-4 rounded-lg shadow cursor-pointer">
-                    <summary class="font-semibold flex items-center">
-                        <i data-lucide="help-circle" class="mr-2 text-blue-500"></i>
-                        処理（読み込みや加工）にすごく時間がかかる
-                    </summary>
-                    <div class="mt-3 pt-3 border-t text-gray-600">
-                        <p>
-                            本ツールの画像処理は、すべてお使いのPCの性能（CPUやメモリ）を使って行われます。そのため、一度に処理する枚数が多い場合や、元の画像サイズが大きい場合、またはPCのスペックによっては処理に時間がかかることがあります。処理が終わるまでしばらくお待ちください。
-                        </p>
-                    </div>
-                </details>
-                
-                <details class="bg-white p-4 rounded-lg shadow cursor-pointer">
-                    <summary class="font-semibold flex items-center">
-                        <i data-lucide="help-circle" class="mr-2 text-blue-500"></i>
-                        ダウンロードボタンを押してもダウンロードが始まらない
-                    </summary>
-                    <div class="mt-3 pt-3 border-t text-gray-600">
-                        <p>
-                            お使いのブラウザのセキュリティ設定により、ポップアップやファイルのダウンロードがブロックされている可能性があります。ブラウザの設定をご確認ください。また、一度ページを再読み込みして、最初からやり直すことで解決する場合もあります。
-                        </p>
-                    </div>
-                </details>
+                <div class="step-card">
+                    <h3>STEP 4: 加工とダウンロード</h3>
+                    <p>画像の処理が完了すると、ダウンロード画面に切り替わります。</p>
+                    <ol>
+                        <li><strong>「(ファイル名).zip をダウンロード」</strong>ボタンをクリックして、加工済みの全画像が入ったZIPファイルを保存します。</li>
+                        <li>続けて別の作業を行う場合は、<strong>「最初に戻る」</strong>ボタンをクリックすると、最初のアップロード画面に戻ります。</li>
+                    </ol>
+                </div>
+            </section>
 
-                <details class="bg-white p-4 rounded-lg shadow cursor-pointer">
-                    <summary class="font-semibold flex items-center">
-                        <i data-lucide="help-circle" class="mr-2 text-blue-500"></i>
-                        業種リストを自分で編集したい
-                    </summary>
-                    <div class="mt-3 pt-3 border-t text-gray-600">
-                        <p>
-                            現在、ユーザー様ご自身で業種リストを編集する機能（スプレッドシート連携）はご利用いただけませんが、将来的に対応を予定しております。今しばらくお待ちくださいますよう、お願いいたします。
-                        </p>
-                    </div>
-                </details>
-            </div>
-        </section>
-        
-        <section id="bug-report">
-            <h2>5. 不具合・ご要望の報告</h2>
-            <p>
-                本ツールの利用中に不具合を発見した場合や、機能改善に関するご意見・ご要望がありましたら、大変お手数ですが以下のGoogleフォームよりご報告いただけますと幸いです。アプリケーション画面の右上ヘッダーにある虫のアイコン<i data-lucide="bug" class="inline-block w-5 h-5 relative" style="top: 2px;"></i>からも同じフォームを開くことができます。
-            </p>
-            <p class="mt-2">
-                皆様からのフィードバックが、今後のツール改善の大きな助けとなります。
-            </p>
-            <div class="mt-6 text-center">
-                <a href="https://forms.gle/Fk8aBGiwAEVHef2e9" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-8 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg hover:bg-blue-700 transform hover:-translate-y-0.5 transition-all duration-200">
-                    <i data-lucide="bug" class="mr-2"></i>
-                    不具合・要望 報告フォーム
-                </a>
-            </div>
-        </section>
+            <section id="advanced">
+                <h2>便利な機能</h2>
+                <h3>業種マスタ連携</h3>
+                <p>本ツールは、Googleスプレッドシートを「業種マスタ」として連携させることで、プルダウンに表示される業種リストを自由にカスタマイズできます。</p>
+                <ol>
+                    <li>
+                        <strong>スプレッドシートの準備</strong><br>
+                        Googleスプレッドシートで、<strong>A列に業種コード</strong>、<strong>B列に業種名</strong>を入力したシートを作成します。
+                        <br><em>例： A列に「hos」、B列に「病院」</em>
+                    </li>
+                    <li>
+                        <strong>共有設定の変更</strong><br>
+                        作成したシートの右上にある「共有」ボタンをクリックし、[一般的なアクセス] を「<strong>リンクを知っている全員</strong>」に変更し、権限を「<strong>閲覧者</strong>」に設定します。
+                    </li>
+                    <li>
+                        <strong>ツールとの連携</strong><br>
+                        ツールのSTEP 2画面にある<strong>「業種管理」</strong>ボタンをクリックして設定モーダルを開き、準備したスプレッドシートのURLを貼り付けて「連携」ボタンを押します。
+                    </li>
+                </ol>
+                 <div class="notice">
+                    <strong>連携を解除したい場合</strong><br>
+                    「業種管理」モーダルを開き、URL入力欄を空にしてから「連携」ボタンを押すと、設定が解除されツール内蔵の初期リストに戻ります。
+                </div>
+            </section>
 
-    </main>
+            <section id="faq">
+                <h2>よくあるご質問</h2>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Q. 画像データはサーバーに保存されますか？</span>
+                        <span class="arrow">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>A. いいえ、保存されません。本ツールの画像処理はすべてお使いのPC（ブラウザ）内で完結します。画像データが外部のサーバーにアップロードされたり、保存されたりすることは一切ありませんので、ご安心ください。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Q. 処理に時間がかかります。</span>
+                        <span class="arrow">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>A. 画像の処理速度は、アップロードした枚数やファイルサイズ、お使いのPCの性能（CPUやメモリ）に依存します。一度に大量のファイルを処理する場合や、PCのスペックによっては時間がかかることがあります。</p>
+                    </div>
+                </div>
+                 <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Q. 対応しているブラウザは何ですか？</span>
+                        <span class="arrow">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>A. 最新版のGoogle Chrome, Microsoft Edge, Safariでのご利用を推奨しています。</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="support">
+                <h2>サポート情報</h2>
+                <p>本ツールに関するご不明点や不具合報告については、担当部署までご連絡ください。</p>
+                <ul>
+                    <li><strong>ドキュメントバージョン:</strong> 1.0.0</li>
+                    <li><strong>最終更新日:</strong> 2025年09月29日</li>
+                </ul>
+            </section>
+        </main>
+    </div>
     
-    <script>
-        lucide.createIcons();
-    </script>
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 業種別リネーム＆加工ツール. All Rights Reserved. | <a href="privacy.html" target="_blank" rel="noopener noreferrer">プライバシーポリシー</a></p>
+        </div>
+    </footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // FAQ Accordion
+        const faqQuestions = document.querySelectorAll('.faq-question');
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                const isOpen = answer.classList.contains('open');
+                
+                // Close all other open answers
+                document.querySelectorAll('.faq-answer.open').forEach(openAnswer => {
+                    if (openAnswer !== answer) {
+                        openAnswer.classList.remove('open');
+                        openAnswer.previousElementSibling.classList.remove('open');
+                        openAnswer.style.paddingTop = '0';
+                    }
+                });
+
+                // Toggle the clicked one
+                answer.classList.toggle('open');
+                question.classList.toggle('open');
+                if (answer.classList.contains('open')) {
+                    answer.style.paddingTop = '1rem';
+                } else {
+                    answer.style.paddingTop = '0';
+                }
+            });
+        });
+
+        // Fade-in Animation on Scroll
+        const fadeInTargets = document.querySelectorAll('section, .step-card, .faq-item, footer, nav.toc, header');
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            rootMargin: '0px 0px -10% 0px', // Trigger a bit early
+            threshold: 0.1
+        });
+
+        fadeInTargets.forEach(target => {
+            target.classList.add('fade-in-target');
+            observer.observe(target);
+        });
+    });
+</script>
 </body>
 </html>
 

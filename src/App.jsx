@@ -186,6 +186,15 @@ const AppHeader = ({ currentStep, steps, isLoading }) => {
       </div>
       <div className="flex justify-end items-center space-x-2">
         <a
+          href="manual.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:bg-gray-200/80 hover:text-gray-700 transition-colors"
+          aria-label="ご利用ガイドを開く"
+        >
+          <HelpCircle size={24} />
+        </a>
+        <a
           href="privacy.html"
           target="_blank"
           rel="noopener noreferrer"
