@@ -1101,7 +1101,7 @@ const DownloadScreen = ({ zipBlob, zipFilename, onRestart, onDownload }) => {
  */
 export default function App() {
     // ログ送信を有効にするかどうかのフラグ（開発モード時は無効化）
-    const isLogSendingEnabled = true;
+    const isLogSendingEnabled = false;
 
     const [screen, setScreen] = useState('initializing');
     const [isDownloadCompleted, setIsDownloadCompleted] = useState(false); 
