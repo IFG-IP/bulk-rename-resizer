@@ -1118,12 +1118,10 @@ export default function App() {
     const [fileTypeCounts, setFileTypeCounts] = useState({});
     const [timeBreakdown, setTimeBreakdown] = useState({ thumbnail: 0, resize: 0, zip: 0 });
     
-    // === ▼▼▼ 通知システム用のstateを再定義（ここから）▼▼▼ ===
     const [allNotifications, setAllNotifications] = useState([]); // notifications.json の全データ
     const [notificationQueue, setNotificationQueue] = useState([]); // モーダルで表示する通知のキュー
     const [updateBannerNotifications, setUpdateBannerNotifications] = useState([]); // バナーで通知する更新情報
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false); // 更新履歴モーダルの表示状態
-    // === ▲▲▲ 通知システム用のstateを再定義（ここまで）▲▲▲ ===
 
     // 開発モードかどうかを判定するstate
     const [isDevMode, setIsDevMode] = useState(false); 
