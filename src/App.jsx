@@ -9,8 +9,11 @@ import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/fire
 
 // 外部ライブラリのCDN URL
 const HEIC_CDN_URL = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+const HEIC_CDN_URL_SRI = 'sha384-OTofQ0MEeiSgh62havBcemCIK0gqj809wX6UA0uPISNMRnR6NZyCdGzX3SbLrgwL';
 const JSZIP_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+const JSZIP_CDN_SRI = 'sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG';
 const FILESAVER_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js';
+const FILESAVER_CDN_SRI = 'sha384-PlRSzpewlarQuj5alIadXwjNUX+2eNMKwr0f07ShWYLy8B6TjEbm7ZlcN/ScSbwy';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -48,7 +51,7 @@ const INITIAL_INDUSTRY_CODES = [
  * @param {string} url スクリプトのURL
  * @returns {{isLoaded: boolean, error: Error | null}} 読み込み状態とエラー
  */
-const useScript = (url) => {
+const useScript = (url, integrity) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(null);
 
@@ -62,6 +65,10 @@ const useScript = (url) => {
     if (!script) {
       script = document.createElement('script');
       script.src = url;
+      if (integrity) {
+        script.integrity = integrity;
+        script.crossOrigin = 'anonymous';
+      }
       script.async = true;
       document.body.appendChild(script);
     }
@@ -79,7 +86,7 @@ const useScript = (url) => {
       script.removeEventListener('load', onLoad);
       script.removeEventListener('error', onError);
     };
-  }, [url]);
+  }, [url, integrity]);
 
   return { isLoaded, error };
 };
@@ -1287,9 +1294,9 @@ export default function App() {
     // === ▲▲▲ 通知システムロジック END ▲▲▲ ===
 
 
-    const { isLoaded: isHeicLoaded, error: heicError } = useScript(HEIC_CDN_URL);
-    const { isLoaded: isJszipLoaded, error: jszipError } = useScript(JSZIP_CDN);
-    const { isLoaded: isFilesaverLoaded, error: filesaverError } = useScript(FILESAVER_CDN);
+    const { isLoaded: isHeicLoaded, error: heicError } = useScript(HEIC_CDN_URL, HEIC_CDN_URL_SRI);
+    const { isLoaded: isJszipLoaded, error: jszipError } = useScript(JSZIP_CDN, JSZIP_CDN_SRI);
+    const { isLoaded: isFilesaverLoaded, error: filesaverError } = useScript(FILESAVER_CDN, FILESAVER_CDN_SRI);
 
     const handleFileErrors = useCallback((newErrors) => {
         setErrors(newErrors);
